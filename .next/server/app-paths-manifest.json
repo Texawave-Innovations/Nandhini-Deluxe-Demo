@@ -1,0 +1,12 @@
+{
+  "/organization/business-units/page": "app/organization/business-units/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/employees/page": "app/employees/page.js",
+  "/hr/recruitment/page": "app/hr/recruitment/page.js",
+  "/shifts/master/page": "app/shifts/master/page.js",
+  "/organization/locations/page": "app/organization/locations/page.js",
+  "/organization/departments/page": "app/organization/departments/page.js",
+  "/employee/page": "app/employee/page.js",
+  "/hr/fmp/page": "app/hr/fmp/page.js",
+  "/organization/roles/page": "app/organization/roles/page.js"
+}

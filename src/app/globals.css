@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-primary: #0F5B55;
+  --brand-primary-dark: #08463F;
+  --brand-accent: #C59A45;
+  --background: #F8F5EE;
+  --surface: #FFFFFF;
+  --surface-secondary: #F3F0E9;
+  --text-primary: #202522;
+  --text-secondary: #66706B;
+  --border: #E5E2DB;
+}
+
+body {
+  color: var(--text-primary);
+  background: var(--background);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbars matching deep teal theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F3F0E9;
+}
+::-webkit-scrollbar-thumb {
+  background: #0F5B55;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #08463F;
+}

@@ -1,0 +1,92 @@
+{
+  "pages": {
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/page.css",
+      "static/chunks/app/page.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/layout.js"
+    ],
+    "/employees/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/employees/page.css",
+      "static/chunks/app/employees/page.js"
+    ],
+    "/organization/business-units/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/organization/business-units/page.css",
+      "static/chunks/app/organization/business-units/page.js"
+    ],
+    "/organization/locations/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/organization/locations/page.css",
+      "static/chunks/app/organization/locations/page.js"
+    ],
+    "/organization/departments/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/organization/departments/page.css",
+      "static/chunks/app/organization/departments/page.js"
+    ],
+    "/organization/roles/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/organization/roles/page.css",
+      "static/chunks/app/organization/roles/page.js"
+    ],
+    "/shifts/master/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/shifts/master/page.css",
+      "static/chunks/app/shifts/master/page.js"
+    ],
+    "/dashboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/dashboard/page.css",
+      "static/chunks/app/dashboard/page.js"
+    ],
+    "/attendance/register/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/attendance/register/page.css",
+      "static/chunks/app/attendance/register/page.js"
+    ],
+    "/hr/tickets/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/hr/tickets/page.css",
+      "static/chunks/app/hr/tickets/page.js"
+    ],
+    "/employee/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/employee/page.js"
+    ],
+    "/hr/recruitment/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/hr/recruitment/page.css",
+      "static/chunks/app/hr/recruitment/page.js"
+    ],
+    "/hr/org-chart/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/hr/org-chart/page.css",
+      "static/chunks/app/hr/org-chart/page.js"
+    ],
+    "/hr/fmp/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/hr/fmp/page.css",
+      "static/chunks/app/hr/fmp/page.js"
+    ]
+  }
+}

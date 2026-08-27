@@ -1,0 +1,247 @@
+// Prisma Schema for Nandhini Deluxe HRMS & Shared ERP Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String         @id @default(uuid())
+  code        String         @unique
+  name        String
+  currency    String         @default("INR")
+  timezone    String         @default("Asia/Kolkata")
+  createdAt   DateTime       @default(now())
+  businessUnits BusinessUnit[]
+}
+
+model BusinessUnit {
+  id          String        @id @default(uuid())
+  orgId       String
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  code        String        @unique
+  name        String
+  type        String        // RESTAURANT, HOTEL, CENTRAL_KITCHEN, CORPORATE
+  status      String        @default("ACTIVE")
+  createdAt   DateTime      @default(now())
+  locations   Location[]
+  employeeAssignments EmployeeAssignment[]
+}
+
+model Location {
+  id             String       @id @default(uuid())
+  businessUnitId String
+  businessUnit   BusinessUnit @relation(fields: [businessUnitId], references: [id], onDelete: Cascade)
+  code           String       @unique
+  name           String
+  city           String
+  address        String?
+  geofenceLat    Float?
+  geofenceLng    Float?
+  status         String       @default("ACTIVE")
+  employeeAssignments EmployeeAssignment[]
+  rosters        Roster[]
+}
+
+model Department {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  status      String   @default("ACTIVE")
+  employeeAssignments EmployeeAssignment[]
+  rosters        Roster[]
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  category    String   // MANAGEMENT, KITCHEN, SERVICE, OPERATIONS, ADMIN
+  status      String   @default("ACTIVE")
+  employeeAssignments EmployeeAssignment[]
+}
+
+model EmploymentType {
+  id               String     @id @default(uuid())
+  code             String     @unique
+  name             String
+  noticePeriodDays Int        @default(30)
+  probationDays    Int        @default(90)
+  employees        Employee[]
+}
+
+model Employee {
+  id               String         @id @default(uuid())
+  employeeCode     String         @unique
+  firstName        String
+  lastName         String
+  email            String         @unique
+  phone            String         @unique
+  gender           String
+  dateOfBirth      DateTime
+  joiningDate      DateTime
+  employmentTypeId String
+  employmentType   EmploymentType @relation(fields: [employmentTypeId], references: [id])
+  status           String         @default("ACTIVE")
+
+  bankName         String?
+  bankAccountNo    String?
+  bankIfsc         String?
+  panNumber        String?
+  pfApplicable     Boolean        @default(true)
+  esiApplicable    Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+
+  assignments      EmployeeAssignment[]
+  punches          AttendancePunch[]
+  attendanceRecords AttendanceRecord[]
+  regularizationRequests RegularizationRequest[]
+  loans            Loan[]
+}
+
+model EmployeeAssignment {
+  id             String       @id @default(uuid())
+  employeeId     String
+  employee       Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  businessUnitId String
+  businessUnit   BusinessUnit @relation(fields: [businessUnitId], references: [id])
+  locationId     String
+  location       Location     @relation(fields: [locationId], references: [id])
+  departmentId   String
+  department     Department   @relation(fields: [departmentId], references: [id])
+  roleId         String
+  role           Role         @relation(fields: [roleId], references: [id])
+
+  effectiveFrom  DateTime
+  effectiveTo    DateTime?
+  isCurrent      Boolean      @default(true)
+  reasonForChange String?
+  createdAt      DateTime     @default(now())
+}
+
+model ShiftMaster {
+  id                 String   @id @default(uuid())
+  code               String   @unique
+  name               String
+  startTime          String
+  endTime            String
+  isCrossMidnight    Boolean  @default(false)
+  totalShiftHours    Float
+  colorCode          String?
+  lateGraceMins      Int      @default(15)
+  earlyExitGraceMins Int      @default(10)
+  minHoursHalfDay    Float    @default(4.0)
+  minHoursFullDay    Float    @default(8.0)
+  otEligibility      Boolean  @default(true)
+  status             String   @default("ACTIVE")
+  attendanceRecords  AttendanceRecord[]
+}
+
+model Roster {
+  id           String   @id @default(uuid())
+  locationId   String
+  location     Location @relation(fields: [locationId], references: [id])
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  monthYear    String   // YYYY-MM
+  status       String   @default("DRAFT")
+  publishedAt  DateTime?
+  publishedBy  String?
+  assignments  RosterShiftAssignment[]
+}
+
+model RosterShiftAssignment {
+  id                     String   @id @default(uuid())
+  rosterId               String
+  roster                 Roster   @relation(fields: [rosterId], references: [id], onDelete: Cascade)
+  employeeId             String
+  date                   String   // YYYY-MM-DD
+  shiftId                String
+  isModifiedAfterPublish Boolean  @default(false)
+
+  @@unique([employeeId, date])
+}
+
+model AttendancePunch {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  timestamp   DateTime
+  punchType   String   // IN, OUT
+  source      String   @default("BIOMETRIC_DEVICE")
+  deviceId    String?
+  photoUrl    String?
+  isProcessed Boolean  @default(false)
+}
+
+model AttendanceRecord {
+  id                String   @id @default(uuid())
+  employeeId        String
+  employee          Employee @relation(fields: [employeeId], references: [id])
+  date              String   // YYYY-MM-DD
+  scheduledShiftId  String?
+  scheduledShift    ShiftMaster? @relation(fields: [scheduledShiftId], references: [id])
+  firstIn           String?
+  lastOut           String?
+  totalWorkedHours  Float    @default(0.0)
+  breakDurationMins Int      @default(30)
+  lateMins          Int      @default(0)
+  earlyExitMins     Int      @default(0)
+  otHours           Float    @default(0.0)
+  status            String   // PRESENT, LATE, ABSENT, MISSING_PUNCH, ON_LEAVE
+  hasMissingPunch   Boolean  @default(false)
+  isRegularized     Boolean  @default(false)
+  regularization    RegularizationRequest?
+
+  @@unique([employeeId, date])
+}
+
+model RegularizationRequest {
+  id                 String           @id @default(uuid())
+  employeeId         String
+  employee           Employee         @relation(fields: [employeeId], references: [id])
+  attendanceRecordId String           @unique
+  attendanceRecord   AttendanceRecord @relation(fields: [attendanceRecordId], references: [id])
+  date               String
+  requestedInTime    String
+  requestedOutTime   String
+  reason             String
+  status             String           @default("PENDING")
+  submittedAt        DateTime         @default(now())
+  approvedBy         String?
+  approvedAt         DateTime?
+}
+
+model Loan {
+  id               String   @id @default(uuid())
+  employeeId       String
+  employee         Employee @relation(fields: [employeeId], references: [id])
+  loanType         String
+  principalAmount  Float
+  monthlyEmiAmount Float
+  startMonthYear   String
+  recoveredAmount  Float    @default(0.0)
+  balanceAmount    Float
+  status           String   @default("ACTIVE")
+  sanctionedDate   DateTime @default(now())
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  timestamp     DateTime @default(now())
+  userId        String
+  userName      String
+  userRole      String
+  module        String
+  action        String
+  recordId      String
+  recordTitle   String
+  previousValue String?
+  newValue      String?
+  ipAddress     String?
+}
+
