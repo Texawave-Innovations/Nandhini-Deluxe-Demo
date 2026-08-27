@@ -2,7 +2,6 @@
 
 import React from 'react';
 import ShellLayout from '@/components/layout/ShellLayout';
-import { ShiftMasterPage } from '@/app/shifts/master/page';
 
 export default function ShiftRulesPage() {
   return (
