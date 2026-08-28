@@ -7,7 +7,8 @@ import { useHRMSStore } from '@/store/hrms-store';
 
 export default function OrgChartPage() {
   const { employees, locations, departments } = useHRMSStore();
-  const gm = employees[0];
+  const activeEmployees = employees.filter(e => e.status !== 'INACTIVE');
+  const gm = activeEmployees[0] || employees[0];
 
   return (
     <ShellLayout>

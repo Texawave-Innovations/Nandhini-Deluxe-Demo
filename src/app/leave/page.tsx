@@ -157,7 +157,7 @@ export default function LeaveManagementPage() {
                 <div>
                   <label className="text-xs font-semibold block mb-1">Employee</label>
                   <select value={selectedEmpId} onChange={e => setSelectedEmpId(e.target.value)} className="w-full border text-xs p-2 rounded">
-                    {employees.map(e => <option key={e.id} value={e.id}>{e.firstName} {e.lastName} ({e.employeeCode})</option>)}
+                    {employees.filter(e => e.status !== 'INACTIVE').map(e => <option key={e.id} value={e.id}>{e.firstName} {e.lastName} ({e.employeeCode})</option>)}
                   </select>
                 </div>
 

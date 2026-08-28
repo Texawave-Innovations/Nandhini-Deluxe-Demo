@@ -111,7 +111,7 @@ export default function Header() {
                     onChange={(e) => setSelectedEmpId(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-300 text-xs rounded p-2 text-slate-800"
                   >
-                    {employees.map(emp => (
+                    {employees.filter(emp => emp.status !== 'INACTIVE').map(emp => (
                       <option key={emp.id} value={emp.id}>
                         {emp.employeeCode} - {emp.firstName} {emp.lastName} ({emp.currentAssignment.departmentId})
                       </option>

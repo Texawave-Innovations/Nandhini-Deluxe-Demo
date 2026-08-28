@@ -25,7 +25,7 @@ export default function MonthlyRosterPage() {
   });
 
   const filteredEmployees = employees.filter(e => 
-    e.currentAssignment.locationId === selectedLoc && e.currentAssignment.departmentId === selectedDept
+    e.status !== 'INACTIVE' && e.currentAssignment.locationId === selectedLoc && e.currentAssignment.departmentId === selectedDept
   );
 
   const handleCellClick = (employeeId: string, date: string, currentShiftId: string) => {

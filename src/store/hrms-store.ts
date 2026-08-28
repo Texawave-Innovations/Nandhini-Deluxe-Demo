@@ -394,7 +394,7 @@ export const useHRMSStore = create<HRMSState>((set, get) => ({
       dateOfBirth: empData.dateOfBirth || '1995-01-01',
       joiningDate: empData.joiningDate || new Date().toISOString().substring(0, 10),
       employmentTypeId: empData.employmentTypeId || 'emp-type-1',
-      status: 'ACTIVE',
+      status: empData.status || 'ACTIVE',
       currentAssignment: assignment,
       assignmentHistory: [assignment]
     };
@@ -521,7 +521,7 @@ export const useHRMSStore = create<HRMSState>((set, get) => ({
     if (!template) return;
 
     const targetEmployees = get().employees.filter(e => 
-      e.currentAssignment.locationId === locationId && e.currentAssignment.departmentId === departmentId
+      e.status !== 'INACTIVE' && e.currentAssignment.locationId === locationId && e.currentAssignment.departmentId === departmentId
     );
 
     const [year, month] = monthYear.split('-').map(Number);

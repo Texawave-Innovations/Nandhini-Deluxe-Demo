@@ -21,7 +21,7 @@ export default function AttendanceRegisterPage() {
 
   const filteredRecords = attendanceRecords.filter(rec => {
     const emp = employees.find(e => e.id === rec.employeeId);
-    if (!emp) return false;
+    if (!emp || emp.status === 'INACTIVE') return false;
 
     const matchesSearch = `${emp.firstName} ${emp.lastName} ${emp.employeeCode}`.toLowerCase().includes(search.toLowerCase());
     const matchesLoc = selectedLoc === 'ALL' || emp.currentAssignment.locationId === selectedLoc;

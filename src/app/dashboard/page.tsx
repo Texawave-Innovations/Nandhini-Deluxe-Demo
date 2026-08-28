@@ -15,6 +15,8 @@ export default function DashboardPage() {
   } = useHRMSStore();
 
   const totalEmp = employees.length;
+  const activeEmp = employees.filter(e => e.status !== 'INACTIVE').length;
+  const inactiveEmp = employees.filter(e => e.status === 'INACTIVE').length;
   const presentToday = attendanceRecords.filter(r => r.status === 'PRESENT' || r.status === 'LATE').length;
   const absentToday = attendanceRecords.filter(r => r.status === 'ABSENT').length;
   const onLeaveToday = attendanceRecords.filter(r => r.status === 'ON_LEAVE').length;
@@ -62,15 +64,17 @@ export default function DashboardPage() {
         {/* TOP KPI CARDS GRID */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
           <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">TOTAL EMPLOYEES</span>
-            <div className="text-xl font-bold text-[#202522] mt-1">{totalEmp}</div>
-            <div className="text-[10px] text-[#23865B] font-medium mt-0.5">+18 this month</div>
+            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">ACTIVE EMPLOYEES</span>
+            <div className="text-xl font-bold text-[#202522] mt-1">{activeEmp}</div>
+            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">
+              {inactiveEmp > 0 ? `${inactiveEmp} inactive` : `of ${totalEmp} total`}
+            </div>
           </div>
 
           <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
             <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">PRESENT TODAY</span>
             <div className="text-xl font-bold text-[#23865B] mt-1">{presentToday}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">{totalEmp ? Math.round((presentToday/totalEmp)*100) : 0}% Attendance</div>
+            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">{activeEmp ? Math.round((presentToday/activeEmp)*100) : 0}% Attendance</div>
           </div>
 
           <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
@@ -172,7 +176,7 @@ export default function DashboardPage() {
                 Attendance Today Overview
               </h3>
               <span className="px-2.5 py-0.5 bg-[#23865B]/10 text-[#23865B] text-xs font-semibold rounded-full border border-[#23865B]/20">
-                {presentToday} / {totalEmp} Present
+                {presentToday} / {activeEmp} Present
               </span>
             </div>
 
@@ -180,7 +184,7 @@ export default function DashboardPage() {
               <div className="relative w-32 h-32 rounded-full border-8 border-[#0F5B55] flex items-center justify-center text-center">
                 <div>
                   <div className="text-2xl font-bold text-[#202522]">{presentToday}</div>
-                  <div className="text-[10px] text-[#66706B]">of {totalEmp} Present</div>
+                  <div className="text-[10px] text-[#66706B]">of {activeEmp} Active</div>
                 </div>
               </div>
 

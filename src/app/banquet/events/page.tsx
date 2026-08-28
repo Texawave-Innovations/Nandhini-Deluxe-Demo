@@ -112,7 +112,7 @@ export default function BanquetPage() {
                       onChange={e => setSelectedEmpId(e.target.value)}
                       className="w-full bg-white border border-slate-300 text-xs rounded p-2 text-slate-800 font-medium"
                     >
-                      {employees.map(e => (
+                      {employees.filter(e => e.status !== 'INACTIVE').map(e => (
                         <option key={e.id} value={e.id}>
                           {e.firstName} {e.lastName} ({e.employeeCode}) - {e.currentAssignment.departmentId}
                         </option>

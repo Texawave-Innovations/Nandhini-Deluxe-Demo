@@ -14,6 +14,7 @@ export default function EmployeesPage() {
   const [selectedLoc, setSelectedLoc] = useState('ALL');
   const [selectedDept, setSelectedDept] = useState('ALL');
   const [selectedEmp, setSelectedEmp] = useState<Employee | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEmp, setEditingEmp] = useState<Employee | null>(null);
@@ -24,6 +25,7 @@ export default function EmployeesPage() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [status, setStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
   const [gender, setGender] = useState<'MALE' | 'FEMALE'>('MALE');
   const [locId, setLocId] = useState('loc-1');
   const [deptId, setDeptId] = useState('dept-1');
@@ -48,6 +50,7 @@ export default function EmployeesPage() {
     setLastName('');
     setEmail('');
     setPhone('');
+    setStatus('ACTIVE');
     setShowAddModal(true);
   };
 
@@ -58,6 +61,7 @@ export default function EmployeesPage() {
     setLastName(emp.lastName);
     setEmail(emp.email);
     setPhone(emp.phone);
+    setStatus(emp.status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE');
     setShowAddModal(true);
   };
 
@@ -65,14 +69,17 @@ export default function EmployeesPage() {
     e.stopPropagation();
     if (confirm(`Are you sure you want to delete Employee "${name}"?`)) {
       deleteEmployee(id);
-      if (selectedEmp?.id === id) setSelectedEmp(null);
+      if (selectedEmp?.id === id) {
+        setSelectedEmp(null);
+        setShowDetailModal(false);
+      }
     }
   };
 
   const handleAddOrUpdateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingEmp) {
-      updateEmployee(editingEmp.id, { firstName, lastName, email, phone });
+      updateEmployee(editingEmp.id, { firstName, lastName, email, phone, status });
     } else {
       addEmployee({
         firstName,
@@ -80,6 +87,7 @@ export default function EmployeesPage() {
         email,
         phone,
         gender,
+        status,
         currentAssignment: {
           id: '',
           employeeId: '',
@@ -169,13 +177,13 @@ export default function EmployeesPage() {
           </div>
         </div>
 
-        {/* Table & Selected Profile Pane */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Table & Selected Profile Popup */}
+        <div className="w-full">
           {/* Enterprise Table Component */}
-          <div className="lg:col-span-2 bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs overflow-hidden">
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs overflow-hidden">
             <div className="p-3 bg-[#F3F0E9] border-b border-[#E5E2DB] text-xs font-semibold text-[#66706B] flex justify-between">
               <span>Showing {filteredEmployees.length} Employees</span>
-              <span>Click row to inspect history timeline</span>
+              <span>Click row to view profile & history</span>
             </div>
 
             <div className="overflow-x-auto">
@@ -195,12 +203,15 @@ export default function EmployeesPage() {
                     const loc = locations.find(l => l.id === emp.currentAssignment.locationId);
                     const dept = departments.find(d => d.id === emp.currentAssignment.departmentId);
                     const role = roles.find(r => r.id === emp.currentAssignment.roleId);
-                    const isSelected = selectedEmp?.id === emp.id;
+                    const isSelected = selectedEmp?.id === emp.id && showDetailModal;
 
                     return (
                       <tr 
                         key={emp.id} 
-                        onClick={() => setSelectedEmp(emp)}
+                        onClick={() => {
+                          setSelectedEmp(emp);
+                          setShowDetailModal(true);
+                        }}
                         className={`cursor-pointer transition-colors ${isSelected ? 'bg-[#0F5B55]/10 font-semibold' : 'hover:bg-[#F3F0E9]/50'}`}
                       >
                         <td className="px-4 py-3">
@@ -211,7 +222,11 @@ export default function EmployeesPage() {
                         <td className="px-4 py-3">{dept?.name || emp.currentAssignment.departmentId}</td>
                         <td className="px-4 py-3">{role?.name || emp.currentAssignment.roleId}</td>
                         <td className="px-4 py-3">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#23865B]/10 text-[#23865B] border border-[#23865B]/20">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                            emp.status === 'ACTIVE'
+                              ? 'bg-[#23865B]/10 text-[#23865B] border-[#23865B]/20'
+                              : 'bg-[#C94B45]/10 text-[#C94B45] border-[#C94B45]/20'
+                          }`}>
                             {emp.status}
                           </span>
                         </td>
@@ -230,20 +245,40 @@ export default function EmployeesPage() {
               </table>
             </div>
           </div>
+        </div>
 
-          {/* Right Column: Selected Employee Profile & Assignment History Timeline */}
-          <div className="space-y-4">
-            {selectedEmp ? (
-              <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs space-y-4">
+        {/* Employee Details Popup Modal */}
+        {showDetailModal && selectedEmp && (
+          <div className="fixed inset-0 bg-slate-950/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-[10px] shadow-xl w-full max-w-lg overflow-hidden border border-[#E5E2DB] max-h-[90vh] flex flex-col">
+              <div className="bg-[#0F5B55] text-white px-5 py-3 flex justify-between items-center shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold bg-white/20 text-white px-2 py-0.5 rounded">
+                    {selectedEmp.employeeCode}
+                  </span>
+                  <h3 className="text-sm font-semibold">
+                    {selectedEmp.firstName} {selectedEmp.lastName}
+                  </h3>
+                </div>
+                <button onClick={() => setShowDetailModal(false)} className="text-xs font-bold hover:opacity-80">✕</button>
+              </div>
+
+              <div className="p-5 space-y-4 overflow-y-auto">
                 <div className="flex justify-between items-start pb-3 border-b border-[#E5E2DB]">
                   <div>
-                    <span className="text-[10px] font-mono font-bold bg-[#F3F0E9] text-[#202522] px-2 py-0.5 rounded">
-                      {selectedEmp.employeeCode}
-                    </span>
-                    <h2 className="text-base font-bold text-[#202522] mt-1">
+                    <h2 className="text-base font-bold text-[#202522]">
                       {selectedEmp.firstName} {selectedEmp.lastName}
                     </h2>
                     <p className="text-xs text-[#66706B]">{selectedEmp.email}</p>
+                    <div className="mt-1">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                        selectedEmp.status === 'ACTIVE'
+                          ? 'bg-[#23865B]/10 text-[#23865B] border-[#23865B]/20'
+                          : 'bg-[#C94B45]/10 text-[#C94B45] border-[#C94B45]/20'
+                      }`}>
+                        {selectedEmp.status}
+                      </span>
+                    </div>
                   </div>
                   <button
                     onClick={() => setShowTransferModal(true)}
@@ -300,13 +335,18 @@ export default function EmployeesPage() {
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-8 text-center text-[#66706B] text-xs shadow-brand-xs">
-                Select an employee from the directory table to inspect detailed profile & historical assignment timeline.
+
+              <div className="bg-[#F3F0E9] px-5 py-2.5 flex justify-end border-t border-[#E5E2DB] shrink-0">
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="px-4 py-1.5 bg-[#0F5B55] text-white text-xs font-semibold rounded-[8px]"
+                >
+                  Close
+                </button>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Add / Edit Employee Modal */}
         {showAddModal && (
@@ -338,6 +378,14 @@ export default function EmployeesPage() {
                     <label className="text-xs font-semibold text-[#202522] block mb-1">Phone</label>
                     <input type="text" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full border border-[#E5E2DB] bg-[#F8F5EE] text-xs p-2 rounded-[8px]" />
                   </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-[#202522] block mb-1">Status</label>
+                  <select value={status} onChange={e => setStatus(e.target.value as 'ACTIVE' | 'INACTIVE')} className="w-full border border-[#E5E2DB] bg-[#F8F5EE] text-xs p-2 rounded-[8px]">
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                  </select>
                 </div>
 
                 {!editingEmp && (
