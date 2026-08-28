@@ -205,7 +205,7 @@ export interface CandidateApplicant {
   candidateName: string;
   email: string;
   phone: string;
-  stage: 'APPLIED' | 'INTERVIEW_SCHEDULED' | 'TECHNICAL_PASSED' | 'OFFER_EXTENDED' | 'REJECTED';
+  stage: 'APPLIED' | 'SCREENING' | 'INTERVIEW_SCHEDULED' | 'TECHNICAL_PASSED' | 'OFFER_EXTENDED' | 'OFFERED' | 'REJECTED';
   interviewDate?: string;
   notes?: string;
 }

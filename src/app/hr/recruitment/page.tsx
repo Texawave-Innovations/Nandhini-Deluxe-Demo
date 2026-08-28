@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import ShellLayout from '@/components/layout/ShellLayout';
 import { Briefcase, Plus } from 'lucide-react';
 import { useHRMSStore } from '@/store/hrms-store';
+import { CandidateApplicant } from '@/types/attendance-leave';
 
 export default function RecruitmentPage() {
   const { candidates, addCandidate, updateCandidateStage } = useHRMSStore();
@@ -79,7 +80,7 @@ export default function RecruitmentPage() {
                     )}
                     <select
                       value={c.stage}
-                      onChange={(e) => updateCandidateStage(c.id, e.target.value as any)}
+                      onChange={(e) => updateCandidateStage(c.id, e.target.value as CandidateApplicant['stage'])}
                       className="border border-[#E5E2DB] text-[13px] rounded-[6px] px-2 py-1 bg-[#F3F0E9] font-medium text-[#202522]"
                     >
                       <option value="APPLIED">Applied</option>
