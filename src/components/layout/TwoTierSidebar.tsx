@@ -27,7 +27,7 @@ export default function TwoTierSidebar() {
     { name: 'Sales', href: '#', icon: ShoppingCart, disabled: true },
     { name: 'Purchases', href: '#', icon: ShoppingBag, disabled: true },
     { name: 'Finance', href: '#', icon: DollarSign, disabled: true },
-    { name: 'HR', href: '/dashboard', icon: Users, active: true },
+    { name: 'HR Module', href: '/dashboard', icon: Users, active: true },
     { name: 'Projects', href: '#', icon: FolderKanban, disabled: true },
     { name: 'Master Lists', href: '/organization/business-units', icon: ListFilter },
     { name: 'Settings', href: '/audit', icon: Settings },
@@ -105,18 +105,18 @@ export default function TwoTierSidebar() {
 
   return (
     <aside className="flex h-full select-none z-30 font-sans">
-      {/* TIER 1 SIDEBAR: Main ERP Vertical Nav (Nandhini Brand Styling) */}
+      {/* SINGLE SIDEBAR: Main ERP Vertical Nav (Nandhini Brand Styling) */}
       <div 
         style={{ backgroundColor: '#0F5B55' }}
         className={`border-r border-[#08463F] flex flex-col justify-between p-3 transition-all duration-300 relative shadow-md ${
-          mainNavCollapsed ? 'w-16' : 'w-52'
+          mainNavCollapsed ? 'w-16' : 'w-56'
         }`}
       >
         {/* Toggle Collapse Button for Main ERP Nav */}
         <button 
           onClick={() => setMainNavCollapsed(!mainNavCollapsed)}
           className="p-1 rounded-full hover:bg-[#08463F] text-amber-300 absolute -right-3 top-4 bg-[#0F5B55] border border-[#C59A45]/40 shadow z-30"
-          title={mainNavCollapsed ? "Expand Main Sidebar" : "Collapse to Icons Only"}
+          title={mainNavCollapsed ? "Expand Main Sidebar" : "Collapse Sidebar"}
         >
           {mainNavCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
         </button>
@@ -130,7 +130,7 @@ export default function TwoTierSidebar() {
             {!mainNavCollapsed && (
               <div className="text-left overflow-hidden">
                 <div className="text-sm font-bold text-white leading-tight truncate">Admin User</div>
-                <div className="text-xs text-amber-300 font-semibold uppercase">Admin</div>
+                <div className="text-xs text-amber-300 font-semibold uppercase">Super Admin</div>
               </div>
             )}
           </div>
@@ -164,7 +164,7 @@ export default function TwoTierSidebar() {
           {/* ERP Core Navigation Items */}
           <div className="space-y-1">
             {mainErpNav.map((item) => {
-              const isHrActive = item.name === 'HR';
+              const isHrActive = item.name === 'HR' || item.name === 'HR Module';
               return (
                 <Link
                   key={item.name}
@@ -209,84 +209,6 @@ export default function TwoTierSidebar() {
             {!mainNavCollapsed && <span>Logout</span>}
           </button>
         </div>
-      </div>
-
-      {/* TIER 2 SIDEBAR: HR Module Expandable Submenu Column */}
-      <div className={`bg-white border-r border-[#E5E2DB] flex flex-col transition-all duration-300 relative ${hrSubmenuCollapsed ? 'w-12' : 'w-56'}`}>
-        {/* Module Header */}
-        <div className="h-14 px-4 border-b border-[#E5E2DB] flex items-center justify-between bg-[#F3F0E9]/50">
-          {!hrSubmenuCollapsed && (
-            <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-lg bg-[#0F5B55]/10 text-[#0F5B55] flex items-center justify-center">
-                <Users className="w-4 h-4" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-[#202522] leading-tight">HR Module</h2>
-                <p className="text-xs text-[#66706B]">People & Payroll</p>
-              </div>
-            </div>
-          )}
-
-          <button 
-            onClick={() => setHrSubmenuCollapsed(!hrSubmenuCollapsed)}
-            className="p-1 rounded-full hover:bg-slate-200 text-slate-500 absolute -right-3 top-4 bg-white border shadow-sm z-20"
-            title={hrSubmenuCollapsed ? "Expand HR Submenu" : "Collapse Submenu"}
-          >
-            {hrSubmenuCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-          </button>
-        </div>
-
-        {/* Grouped Accordion List */}
-        {!hrSubmenuCollapsed ? (
-          <div className="flex-1 overflow-y-auto py-3 px-3 space-y-4">
-            {hrGroupedSubmenus.map((group) => (
-              <div key={group.category} className="space-y-1">
-                <div className="text-xs font-extrabold text-[#66706B] uppercase tracking-wider px-2">
-                  {group.category}
-                </div>
-
-                <div className="space-y-0.5">
-                  {group.items.map((sub) => {
-                    const isSubActive = pathname === sub.href;
-                    return (
-                      <Link
-                        key={sub.name}
-                        href={sub.href}
-                        className={`flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
-                          isSubActive 
-                            ? 'bg-[#0F5B55]/10 text-[#0F5B55] font-bold shadow-xs' 
-                            : 'text-[#202522] hover:bg-[#F3F0E9] font-medium'
-                        }`}
-                      >
-                        <sub.icon className={`w-3.5 h-3.5 ${isSubActive ? 'text-[#0F5B55]' : 'text-[#66706B]'}`} />
-                        <span className="truncate">{sub.name}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          /* Icons only view for collapsed HR submenu */
-          <div className="flex-1 overflow-y-auto py-3 px-1 space-y-3">
-            {hrGroupedSubmenus.flatMap(g => g.items).map((sub) => {
-              const isSubActive = pathname === sub.href;
-              return (
-                <Link
-                  key={sub.name}
-                  href={sub.href}
-                  title={sub.name}
-                  className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
-                    isSubActive ? 'bg-[#0F5B55]/10 text-[#0F5B55] font-bold' : 'text-[#66706B] hover:bg-[#F3F0E9]'
-                  }`}
-                >
-                  <sub.icon className="w-4 h-4" />
-                </Link>
-              );
-            })}
-          </div>
-        )}
       </div>
     </aside>
   );
