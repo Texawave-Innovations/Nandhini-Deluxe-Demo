@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
-  LayoutDashboard, ShoppingCart, ShoppingBag, DollarSign, Users, Briefcase, 
-  FolderKanban, ListFilter, Settings, LogOut, ChevronLeft, ChevronRight,
+  LayoutDashboard, ShoppingCart, ShoppingBag, DollarSign, Users, Briefcase, Package,
+  ListFilter, LogOut, ChevronLeft, ChevronRight,
   MapPin, Network, ClipboardList, Clock, CalendarDays, Award,
   Palmtree, Calendar, CreditCard, ShieldCheck, Ticket, Receipt, UserMinus, PartyPopper, Workflow, FileSpreadsheet
 } from 'lucide-react';
@@ -28,9 +28,7 @@ export default function TwoTierSidebar() {
     { name: 'Purchases', href: '#', icon: ShoppingBag, disabled: true },
     { name: 'Finance', href: '#', icon: DollarSign, disabled: true },
     { name: 'HR Module', href: '/dashboard', icon: Users, active: true },
-    { name: 'Projects', href: '#', icon: FolderKanban, disabled: true },
-    { name: 'Master Lists', href: '/organization/business-units', icon: ListFilter },
-    { name: 'Settings', href: '/audit', icon: Settings },
+    { name: 'Inventory', href: '#', icon: Package, disabled: true },
   ];
 
   // Tier 2: Grouped Submenu Categories under HR Module
@@ -135,31 +133,7 @@ export default function TwoTierSidebar() {
             )}
           </div>
 
-          {/* Persona Role Switcher */}
-          {!mainNavCollapsed ? (
-            <div className="px-1">
-              <label className="text-[12px] font-semibold text-amber-200/70 uppercase tracking-[0.08em] block mb-1">
-                Persona Role
-              </label>
-              <select
-                value={currentRole}
-                onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-                className="w-full bg-[#08463F] text-[14px] leading-5 font-medium text-white border border-[#C59A45]/40 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#C59A45] cursor-pointer shadow-sm"
-              >
-                <option value="SUPER_ADMIN">👑 Super Admin</option>
-                <option value="HR_ADMIN">🏢 HR Admin</option>
-                <option value="LOCATION_HR">📍 Location HR</option>
-                <option value="DEPT_MANAGER">👔 Manager</option>
-                <option value="EMPLOYEE">👤 Employee</option>
-              </select>
-            </div>
-          ) : (
-            <div className="flex justify-center" title={`Current Persona: ${currentRole}`}>
-              <div className="w-8 h-8 rounded-lg bg-[#08463F] text-amber-300 flex items-center justify-center font-bold text-xs border border-[#C59A45]/40">
-                📍
-              </div>
-            </div>
-          )}
+
 
           {/* ERP Core Navigation Items */}
           <div className="space-y-1">

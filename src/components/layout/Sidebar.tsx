@@ -151,25 +151,7 @@ export default function Sidebar() {
 
 
 
-      {/* Role Switcher Demo Control */}
-      {!collapsed && (
-        <div className="p-3 bg-slate-950/60 border-b border-slate-800/80">
-          <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-            Demo Persona Role
-          </label>
-          <select
-            value={currentRole}
-            onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-            className="w-full bg-slate-800 text-xs font-medium text-amber-300 border border-slate-700 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer"
-          >
-            <option value="SUPER_ADMIN">👑 Super Admin (Full Access)</option>
-            <option value="HR_ADMIN">🏢 HR Administrator</option>
-            <option value="LOCATION_HR">📍 Location HR (Indiranagar)</option>
-            <option value="DEPT_MANAGER">👔 Dept Manager (Kitchen)</option>
-            <option value="EMPLOYEE">👤 Employee Self-Service</option>
-          </select>
-        </div>
-      )}
+
 
       {/* Navigation List */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-1">

@@ -107,29 +107,7 @@ export default function DeepTealSidebar() {
         )}
       </div>
 
-      {/* Persona Role Switcher */}
-      {!collapsed ? (
-        <div className="px-4 py-3 bg-[#08463F]/50 border-b border-[#08463F]">
-          <label className="text-[12px] font-semibold text-amber-200/70 uppercase tracking-[0.08em] block mb-1">
-            PERSONA ROLE
-          </label>
-          <select
-            value={currentRole}
-            onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-            className="w-full bg-[#08463F] text-[14px] leading-5 font-medium text-white border border-[#C59A45]/40 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#C59A45] cursor-pointer"
-          >
-            <option value="SUPER_ADMIN">👑 Super Admin</option>
-            <option value="HR_ADMIN">🏢 HR Admin</option>
-            <option value="LOCATION_HR">📍 Location HR</option>
-            <option value="DEPT_MANAGER">👔 Dept Manager</option>
-            <option value="EMPLOYEE">👤 Employee</option>
-          </select>
-        </div>
-      ) : (
-        <div className="py-2 text-center" title={`Current Persona: ${currentRole}`}>
-          <span className="text-amber-300 text-sm font-bold">📍</span>
-        </div>
-      )}
+
 
       {/* Navigation Group Accordions */}
       <div className="flex-1 overflow-y-auto py-3 px-3 space-y-4">
