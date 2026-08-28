@@ -33,11 +33,11 @@ export default function BanquetPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <PartyPopper className="w-5 h-5 text-amber-600" />
+          <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+            <PartyPopper className="w-7 h-7 text-[#0F5B55]" />
             Banquet & Hospitality Event Staffing Engine
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
             On-demand manpower allocation for banquet functions with roster double-booking conflict detection.
           </p>
         </div>
@@ -48,34 +48,34 @@ export default function BanquetPage() {
             <div 
               key={evt.id} 
               onClick={() => setSelectedEventId(evt.id)}
-              className={`p-5 rounded-lg border cursor-pointer transition-all ${
-                selectedEventId === evt.id ? 'bg-amber-50/60 border-amber-500 ring-2 ring-amber-200' : 'bg-white border-slate-200 hover:border-slate-300'
+              className={`p-5 rounded-[10px] border cursor-pointer transition-all shadow-brand-xs ${
+                selectedEventId === evt.id ? 'bg-[#C59A45]/10 border-[#C59A45] ring-2 ring-[#C59A45]/20' : 'bg-white border-[#E5E2DB] hover:border-[#0F5B55]'
               }`}
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <span className="text-[10px] font-mono font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded">
+                  <span className="text-[12px] font-mono font-semibold bg-[#C59A45]/20 text-[#08463F] px-2.5 py-0.5 rounded-[6px]">
                     {evt.code}
                   </span>
-                  <h3 className="text-sm font-bold text-slate-900 mt-1.5">{evt.name}</h3>
+                  <h3 className="text-[17px] leading-6 font-semibold text-[#202522] mt-2">{evt.name}</h3>
                 </div>
-                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
+                <span className="text-[12px] bg-[#23865B]/10 text-[#23865B] border border-[#23865B]/20 font-semibold px-2.5 py-0.5 rounded-full">
                   {evt.status}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-xs bg-white p-3 rounded border border-slate-200 mt-3">
+              <div className="grid grid-cols-3 gap-2 text-[14px] bg-[#F8F5EE] p-3.5 rounded-[8px] border border-[#E5E2DB] mt-3.5">
                 <div>
-                  <span className="text-[10px] text-slate-500 block uppercase font-semibold">Date</span>
-                  <span className="font-mono font-bold text-slate-800">{evt.eventDate}</span>
+                  <span className="text-[12px] text-[#66706B] block font-semibold">Date</span>
+                  <span className="font-mono font-medium text-[#202522]">{evt.eventDate}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 block uppercase font-semibold">Timing</span>
-                  <span className="font-mono font-bold text-slate-800">{evt.startTime} - {evt.endTime}</span>
+                  <span className="text-[12px] text-[#66706B] block font-semibold">Timing</span>
+                  <span className="font-mono font-medium text-[#202522]">{evt.startTime} - {evt.endTime}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-500 block uppercase font-semibold">Expected Guests</span>
-                  <span className="font-bold text-amber-700">{evt.expectedGuests} Pax</span>
+                  <span className="text-[12px] text-[#66706B] block font-semibold">Expected Guests</span>
+                  <span className="font-semibold text-[#C59A45]">{evt.expectedGuests} Pax</span>
                 </div>
               </div>
             </div>
@@ -84,17 +84,17 @@ export default function BanquetPage() {
 
         {/* Staff Allocation Wizard for Selected Event Requirement #16 */}
         {selectedEvent && (
-          <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-5">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs space-y-5">
+            <div className="flex justify-between items-center pb-3 border-b border-[#E5E2DB]">
               <div>
-                <h2 className="text-base font-bold text-slate-900">Manpower Requirements & Allocation: {selectedEvent.name}</h2>
-                <p className="text-xs text-slate-500">{selectedEvent.notes}</p>
+                <h2 className="text-[20px] leading-[28px] font-semibold text-[#0F5B55]">Manpower Requirements & Allocation: {selectedEvent.name}</h2>
+                <p className="text-[14px] text-[#66706B] mt-0.5">{selectedEvent.notes}</p>
               </div>
             </div>
 
             {conflictWarning && (
-              <div className="p-3 bg-red-100 border border-red-300 rounded text-xs font-bold text-red-800 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
+              <div className="p-3.5 bg-[#C94B45]/10 border border-[#C94B45]/30 rounded-[8px] text-[14px] font-semibold text-[#C94B45] flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 flex-shrink-0" />
                 {conflictWarning}
               </div>
             )}
@@ -102,15 +102,15 @@ export default function BanquetPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Allocation Control */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Allocate Staff to Role</h3>
+                <h3 className="text-[15px] font-semibold text-[#202522]">Allocate Staff to Role</h3>
 
-                <div className="space-y-3 bg-slate-50 p-4 rounded border border-slate-200">
+                <div className="space-y-3 bg-[#F8F5EE] p-4 rounded-[8px] border border-[#E5E2DB]">
                   <div>
-                    <label className="text-xs font-semibold text-slate-700 block mb-1">Select Employee to Assign</label>
+                    <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Select Employee to Assign</label>
                     <select 
                       value={selectedEmpId} 
                       onChange={e => setSelectedEmpId(e.target.value)}
-                      className="w-full bg-white border border-slate-300 text-xs rounded p-2 text-slate-800 font-medium"
+                      className="w-full h-11 bg-white border border-[#E5E2DB] text-[15px] leading-5 rounded-[8px] px-3.5 text-[#202522] font-medium cursor-pointer"
                     >
                       {employees.filter(e => e.status !== 'INACTIVE').map(e => (
                         <option key={e.id} value={e.id}>
@@ -125,15 +125,15 @@ export default function BanquetPage() {
                       const shortage = req.requiredCount - req.assignedCount;
 
                       return (
-                        <div key={req.id} className="p-3 bg-white rounded border border-slate-200 flex justify-between items-center">
+                        <div key={req.id} className="p-3.5 bg-white rounded-[8px] border border-[#E5E2DB] flex justify-between items-center">
                           <div>
-                            <span className="text-xs font-bold text-slate-900">Waiter / Steward Staff</span>
-                            <div className="text-[10px] text-slate-500">Required: {req.requiredCount} | Allocated: {req.assignedCount}</div>
+                            <span className="text-[15px] font-semibold text-[#202522]">Waiter / Steward Staff</span>
+                            <div className="text-[12px] text-[#66706B] font-semibold mt-0.5">Required: {req.requiredCount} | Allocated: {req.assignedCount}</div>
                           </div>
 
                           <button
                             onClick={() => handleAssign(req.id)}
-                            className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded shadow-sm"
+                            className="px-4 h-11 bg-[#C59A45] hover:bg-[#b08739] text-[#08463F] font-semibold text-[14px] leading-5 rounded-[8px] shadow-brand-xs cursor-pointer"
                           >
                             Assign Selected
                           </button>
@@ -146,7 +146,7 @@ export default function BanquetPage() {
 
               {/* Current Allocated Roster List */}
               <div className="space-y-3">
-                <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                <h3 className="text-[15px] font-semibold text-[#202522]">
                   Currently Allocated Event Staff ({currentAssignments.length})
                 </h3>
 
@@ -154,15 +154,15 @@ export default function BanquetPage() {
                   {currentAssignments.map(asgn => {
                     const emp = employees.find(e => e.id === asgn.employeeId);
                     return (
-                      <div key={asgn.id} className="p-2.5 bg-slate-50 rounded border border-slate-200 flex justify-between items-center text-xs">
-                        <div className="flex items-center space-x-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <div key={asgn.id} className="p-3 bg-[#F8F5EE] rounded-[8px] border border-[#E5E2DB] flex justify-between items-center text-[14px]">
+                        <div className="flex items-center space-x-2.5">
+                          <CheckCircle2 className="w-4 h-4 text-[#23865B]" />
                           <div>
-                            <div className="font-bold text-slate-900">{emp?.firstName} {emp?.lastName}</div>
-                            <div className="text-[10px] text-slate-500 font-mono">{emp?.employeeCode}</div>
+                            <div className="font-semibold text-[#202522]">{emp?.firstName} {emp?.lastName}</div>
+                            <div className="text-[12px] text-[#66706B] font-mono mt-0.5">{emp?.employeeCode}</div>
                           </div>
                         </div>
-                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded">
+                        <span className="px-2.5 py-1 bg-[#23865B]/10 text-[#23865B] border border-[#23865B]/20 text-[12px] font-semibold rounded-full">
                           CONFIRMED
                         </span>
                       </div>

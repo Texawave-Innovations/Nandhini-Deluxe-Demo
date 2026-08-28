@@ -12,48 +12,48 @@ export default function OvertimePage() {
     <ShellLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <Timer className="w-5 h-5 text-blue-600" />
+          <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+            <Timer className="w-7 h-7 text-[#0F5B55]" />
             Overtime Engine & Approval Queue
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
             Calculated OT hours from attendance compared against standard shift thresholds.
           </p>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
-          <table className="w-full text-xs text-left text-slate-700">
-            <thead className="bg-slate-900 text-white uppercase text-[10px] font-semibold">
+        <div className="bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs overflow-hidden">
+          <table className="w-full text-left text-[#202522]">
+            <thead className="bg-[#F3F0E9]/60 border-b border-[#E5E2DB]">
               <tr>
-                <th className="px-4 py-3">Employee</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Worked Hrs</th>
-                <th className="px-4 py-3">Standard Shift</th>
-                <th className="px-4 py-3">Calculated OT</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Action</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Employee</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Date</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Worked Hours</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Standard Shift</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Calculated OT</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Status</th>
+                <th className="px-4 py-3 text-right text-[13px] leading-5 font-semibold text-[#66706B]">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-[#E5E2DB]">
               {overtimeRecords.map(ot => {
                 const emp = employees.find(e => e.id === ot.employeeId);
                 return (
-                  <tr key={ot.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 font-bold text-slate-900">{emp?.firstName} {emp?.lastName}</td>
-                    <td className="px-4 py-3 font-mono">{ot.date}</td>
-                    <td className="px-4 py-3 font-bold">{ot.workedHours} Hrs</td>
-                    <td className="px-4 py-3">{ot.standardHours} Hrs</td>
-                    <td className="px-4 py-3 text-indigo-700 font-bold">{ot.calculatedOtHours} Hrs</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${ot.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                  <tr key={ot.id} className="hover:bg-[#F3F0E9]/50">
+                    <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{emp?.firstName} {emp?.lastName}</td>
+                    <td className="px-4 py-3.5 font-mono text-[14px] text-[#202522]">{ot.date}</td>
+                    <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{ot.workedHours} Hrs</td>
+                    <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#66706B]">{ot.standardHours} Hrs</td>
+                    <td className="px-4 py-3.5 text-[15px] leading-5 font-semibold text-[#3377A8]">{ot.calculatedOtHours} Hrs</td>
+                    <td className="px-4 py-3.5">
+                      <span className={`px-2.5 py-1 rounded-full text-[12px] leading-4 font-semibold ${ot.status === 'APPROVED' ? 'bg-[#23865B]/10 text-[#23865B] border border-[#23865B]/20' : 'bg-[#C68A28]/10 text-[#C68A28] border border-[#C68A28]/20'}`}>
                         {ot.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3.5 text-right">
                       {ot.status === 'PENDING' && (
                         <button
                           onClick={() => approveOvertime(ot.id, ot.calculatedOtHours)}
-                          className="px-3 py-1 bg-emerald-600 text-white text-[10px] font-bold rounded shadow hover:bg-emerald-700"
+                          className="px-4 h-11 bg-[#23865B] text-white text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs hover:bg-[#1b6b48] cursor-pointer"
                         >
                           Approve OT
                         </button>

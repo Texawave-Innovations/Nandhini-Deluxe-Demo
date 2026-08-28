@@ -92,16 +92,16 @@ export default function DeepTealSidebar() {
       <div className="p-4 border-b border-[#08463F] flex items-center justify-between">
         {!collapsed ? (
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-lg bg-[#C59A45] text-[#08463F] font-serif font-bold text-xl flex items-center justify-center shadow-md">
+            <div className="w-9 h-9 rounded-lg bg-[#C59A45] text-[#08463F] font-sans font-bold text-xl flex items-center justify-center shadow-md">
               N
             </div>
             <div>
               <h1 className="font-serif font-bold text-lg text-white leading-none tracking-wide">NANDHINI</h1>
-              <p className="text-[10px] text-amber-300 font-sans tracking-widest font-semibold uppercase mt-0.5">HRMS ENTERPRISE</p>
+              <p className="text-[12px] text-amber-300 font-sans tracking-[0.08em] font-semibold uppercase mt-0.5">HRMS ENTERPRISE</p>
             </div>
           </div>
         ) : (
-          <div className="w-9 h-9 rounded-lg bg-[#C59A45] text-[#08463F] font-serif font-bold text-xl flex items-center justify-center mx-auto shadow-md">
+          <div className="w-9 h-9 rounded-lg bg-[#C59A45] text-[#08463F] font-sans font-bold text-xl flex items-center justify-center mx-auto shadow-md">
             N
           </div>
         )}
@@ -110,13 +110,13 @@ export default function DeepTealSidebar() {
       {/* Persona Role Switcher */}
       {!collapsed ? (
         <div className="px-4 py-3 bg-[#08463F]/50 border-b border-[#08463F]">
-          <label className="text-[10px] font-bold text-amber-200/70 uppercase tracking-widest block mb-1">
+          <label className="text-[12px] font-semibold text-amber-200/70 uppercase tracking-[0.08em] block mb-1">
             PERSONA ROLE
           </label>
           <select
             value={currentRole}
             onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-            className="w-full bg-[#08463F] text-xs font-semibold text-white border border-[#C59A45]/40 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#C59A45] cursor-pointer"
+            className="w-full bg-[#08463F] text-[14px] leading-5 font-medium text-white border border-[#C59A45]/40 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#C59A45] cursor-pointer"
           >
             <option value="SUPER_ADMIN">👑 Super Admin</option>
             <option value="HR_ADMIN">🏢 HR Admin</option>
@@ -127,7 +127,7 @@ export default function DeepTealSidebar() {
         </div>
       ) : (
         <div className="py-2 text-center" title={`Current Persona: ${currentRole}`}>
-          <span className="text-amber-300 text-xs font-bold">📍</span>
+          <span className="text-amber-300 text-sm font-bold">📍</span>
         </div>
       )}
 
@@ -136,7 +136,7 @@ export default function DeepTealSidebar() {
         {navGroups.map((group) => (
           <div key={group.category} className="space-y-1">
             {!collapsed && (
-              <div className="text-[10px] font-extrabold text-amber-200/60 uppercase tracking-widest px-2 pt-1">
+              <div className="text-[12px] font-semibold text-amber-200/70 uppercase tracking-[0.08em] px-2 pt-1">
                 {group.category}
               </div>
             )}
@@ -149,10 +149,10 @@ export default function DeepTealSidebar() {
                     key={item.name}
                     href={item.href}
                     title={collapsed ? item.name : undefined}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-md text-[15px] leading-5 font-medium transition-all ${
                       isActive 
-                        ? 'bg-white/10 text-white font-bold border-l-2 border-[#C59A45] shadow-xs' 
-                        : 'text-white/75 hover:bg-white/5 hover:text-white'
+                        ? 'bg-white/10 text-white font-semibold border-l-2 border-[#C59A45] shadow-xs' 
+                        : 'text-white/80 hover:bg-white/5 hover:text-white'
                     } ${collapsed ? 'justify-center px-0' : ''}`}
                   >
                     <item.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-amber-300' : 'text-white/70'}`} />
@@ -170,8 +170,8 @@ export default function DeepTealSidebar() {
         <Link
           href="/employee"
           title={collapsed ? "Switch to ESS Portal" : undefined}
-          className={`w-full flex items-center justify-center py-2 bg-[#C59A45] hover:bg-[#b08739] text-[#08463F] font-bold text-xs rounded-md shadow transition-all ${
-            collapsed ? 'px-1 text-[10px]' : 'space-x-1 px-3'
+          className={`w-full flex items-center justify-center py-2 bg-[#C59A45] hover:bg-[#b08739] text-[#08463F] font-semibold text-[14px] leading-5 rounded-md shadow transition-all ${
+            collapsed ? 'px-1 text-[12px]' : 'space-x-1 px-3'
           }`}
         >
           <span>{collapsed ? 'ESS ➔' : 'Switch to ESS Portal ➔'}</span>
@@ -179,7 +179,7 @@ export default function DeepTealSidebar() {
 
         <button 
           title={collapsed ? "Logout" : undefined}
-          className={`w-full flex items-center text-xs font-bold text-red-300 hover:bg-red-950/40 rounded-md transition-colors p-2 ${
+          className={`w-full flex items-center text-[14px] leading-5 font-semibold text-red-300 hover:bg-red-950/40 rounded-md transition-colors p-2 ${
             collapsed ? 'justify-center' : 'space-x-2 px-3 py-1.5'
           }`}
         >

@@ -125,18 +125,18 @@ export default function EmployeesPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-[#202522] tracking-tight flex items-center gap-2">
-              <Users className="w-6 h-6 text-[#0F5B55]" />
+            <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+              <Users className="w-7 h-7 text-[#0F5B55]" />
               Employee Directory
             </h1>
-            <p className="text-xs text-[#66706B] font-medium mt-0.5">
+            <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
               Comprehensive employee database with effective-dated assignment transfer history.
             </p>
           </div>
 
           <button
             onClick={openAddModal}
-            className="flex items-center space-x-1.5 px-4 py-2 bg-[#0F5B55] hover:bg-[#08463F] text-white text-xs font-semibold rounded-[8px] shadow-brand-xs transition-all self-start sm:self-auto"
+            className="flex items-center space-x-2 px-4 h-11 bg-[#0F5B55] hover:bg-[#08463F] text-white text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs transition-all self-start sm:self-auto cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>Add Employee</span>
@@ -146,13 +146,13 @@ export default function EmployeesPage() {
         {/* Filters Bar */}
         <div className="bg-white p-3.5 rounded-[10px] border border-[#E5E2DB] shadow-brand-xs flex flex-col md:flex-row gap-3 items-center justify-between">
           <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#66706B]" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#66706B]" />
             <input
               type="text"
               placeholder="Search by code, name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-[#F3F0E9] border border-[#E5E2DB] rounded-[8px] text-xs text-[#202522] focus:outline-none focus:ring-1 focus:ring-[#0F5B55]"
+              className="w-full h-11 pl-10 pr-4 bg-[#F3F0E9] border border-[#E5E2DB] rounded-[8px] text-[15px] leading-5 text-[#202522] focus:outline-none focus:ring-1 focus:ring-[#0F5B55]"
             />
           </div>
 
@@ -160,7 +160,7 @@ export default function EmployeesPage() {
             <select
               value={selectedLoc}
               onChange={(e) => setSelectedLoc(e.target.value)}
-              className="bg-[#F3F0E9] border border-[#E5E2DB] text-xs rounded-[8px] px-3 py-2 text-[#202522] font-medium"
+              className="bg-[#F3F0E9] border border-[#E5E2DB] h-11 text-[15px] leading-5 rounded-[8px] px-3.5 text-[#202522] font-medium cursor-pointer"
             >
               <option value="ALL">All Locations</option>
               {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -169,7 +169,7 @@ export default function EmployeesPage() {
             <select
               value={selectedDept}
               onChange={(e) => setSelectedDept(e.target.value)}
-              className="bg-[#F3F0E9] border border-[#E5E2DB] text-xs rounded-[8px] px-3 py-2 text-[#202522] font-medium"
+              className="bg-[#F3F0E9] border border-[#E5E2DB] h-11 text-[15px] leading-5 rounded-[8px] px-3.5 text-[#202522] font-medium cursor-pointer"
             >
               <option value="ALL">All Departments</option>
               {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -181,21 +181,21 @@ export default function EmployeesPage() {
         <div className="w-full">
           {/* Enterprise Table Component */}
           <div className="bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs overflow-hidden">
-            <div className="p-3 bg-[#F3F0E9] border-b border-[#E5E2DB] text-xs font-semibold text-[#66706B] flex justify-between">
+            <div className="p-3.5 bg-[#F3F0E9] border-b border-[#E5E2DB] text-[13px] leading-5 font-semibold text-[#66706B] flex justify-between">
               <span>Showing {filteredEmployees.length} Employees</span>
               <span>Click row to view profile & history</span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left text-[#202522]">
-                <thead className="bg-[#F3F0E9]/60 text-[#66706B] font-semibold uppercase text-[11px] border-b border-[#E5E2DB]">
+              <table className="w-full text-left text-[#202522]">
+                <thead className="bg-[#F3F0E9]/60 border-b border-[#E5E2DB]">
                   <tr>
-                    <th className="px-4 py-3">Code & Name</th>
-                    <th className="px-4 py-3">Location</th>
-                    <th className="px-4 py-3">Department</th>
-                    <th className="px-4 py-3">Role</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                    <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Code & Name</th>
+                    <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Location</th>
+                    <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Department</th>
+                    <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Role</th>
+                    <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Status</th>
+                    <th className="px-4 py-3 text-right text-[13px] leading-5 font-semibold text-[#66706B]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E2DB]">
@@ -214,15 +214,15 @@ export default function EmployeesPage() {
                         }}
                         className={`cursor-pointer transition-colors ${isSelected ? 'bg-[#0F5B55]/10 font-semibold' : 'hover:bg-[#F3F0E9]/50'}`}
                       >
-                        <td className="px-4 py-3">
-                          <div className="font-bold text-[#202522]">{emp.firstName} {emp.lastName}</div>
-                          <div className="text-[10px] text-[#66706B] font-mono">{emp.employeeCode}</div>
+                        <td className="px-4 py-3.5">
+                          <div className="text-[15px] leading-5 font-medium text-[#202522]">{emp.firstName} {emp.lastName}</div>
+                          <div className="text-[12px] text-[#66706B] font-mono mt-0.5">{emp.employeeCode}</div>
                         </td>
-                        <td className="px-4 py-3">{loc?.name || emp.currentAssignment.locationId}</td>
-                        <td className="px-4 py-3">{dept?.name || emp.currentAssignment.departmentId}</td>
-                        <td className="px-4 py-3">{role?.name || emp.currentAssignment.roleId}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                        <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{loc?.name || emp.currentAssignment.locationId}</td>
+                        <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{dept?.name || emp.currentAssignment.departmentId}</td>
+                        <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{role?.name || emp.currentAssignment.roleId}</td>
+                        <td className="px-4 py-3.5">
+                          <span className={`px-2.5 py-1 rounded-full text-[12px] leading-4 font-semibold border ${
                             emp.status === 'ACTIVE'
                               ? 'bg-[#23865B]/10 text-[#23865B] border-[#23865B]/20'
                               : 'bg-[#C94B45]/10 text-[#C94B45] border-[#C94B45]/20'
@@ -230,12 +230,12 @@ export default function EmployeesPage() {
                             {emp.status}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-right space-x-1">
-                          <button onClick={(e) => openEditModal(emp, e)} className="p-1 text-[#66706B] hover:text-[#0F5B55]" title="Edit">
-                            <Edit className="w-3.5 h-3.5" />
+                        <td className="px-4 py-3.5 text-right space-x-1">
+                          <button onClick={(e) => openEditModal(emp, e)} className="p-1.5 text-[#66706B] hover:text-[#0F5B55]" title="Edit">
+                            <Edit className="w-4 h-4" />
                           </button>
-                          <button onClick={(e) => handleDelete(emp.id, `${emp.firstName} ${emp.lastName}`, e)} className="p-1 text-[#66706B] hover:text-[#C94B45]" title="Delete">
-                            <Trash2 className="w-3.5 h-3.5" />
+                          <button onClick={(e) => handleDelete(emp.id, `${emp.firstName} ${emp.lastName}`, e)} className="p-1.5 text-[#66706B] hover:text-[#C94B45]" title="Delete">
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
                       </tr>

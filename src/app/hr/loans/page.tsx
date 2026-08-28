@@ -30,52 +30,52 @@ export default function LoansPage() {
   return (
     <ShellLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-blue-600" />
+            <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+              <DollarSign className="w-7 h-7 text-[#0F5B55]" />
               Salary Advances & Loans Recovery Manager
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              TexaWave ERP Loans Engine: Configure recovery start month & monthly EMI auto-deductions during payroll runs.
+            <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
+              Configure recovery start month & monthly EMI auto-deductions during payroll runs.
             </p>
           </div>
 
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center space-x-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow"
+            className="flex items-center space-x-2 px-4 h-11 bg-[#0F5B55] hover:bg-[#08463F] text-white text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs transition-all cursor-pointer self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             <span>Sanction New Loan / Advance</span>
           </button>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
-          <table className="w-full text-xs text-left text-slate-700">
-            <thead className="bg-slate-900 text-white uppercase text-[10px] font-semibold">
+        <div className="bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs overflow-hidden">
+          <table className="w-full text-left text-[#202522]">
+            <thead className="bg-[#F3F0E9]/60 border-b border-[#E5E2DB]">
               <tr>
-                <th className="px-4 py-3">Employee</th>
-                <th className="px-4 py-3">Loan Category</th>
-                <th className="px-4 py-3">Sanctioned Principal</th>
-                <th className="px-4 py-3">Monthly EMI</th>
-                <th className="px-4 py-3">Recovered Amount</th>
-                <th className="px-4 py-3">Outstanding Balance</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Employee</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Loan Category</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Sanctioned Principal</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Monthly EMI</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Recovered Amount</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Outstanding Balance</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-[#E5E2DB]">
               {loans.map(l => {
                 const emp = employees.find(e => e.id === l.employeeId);
                 return (
-                  <tr key={l.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 font-bold text-slate-900">{emp?.firstName} {emp?.lastName} ({emp?.employeeCode})</td>
-                    <td className="px-4 py-3 font-semibold text-blue-700">{l.loanType}</td>
-                    <td className="px-4 py-3 font-mono font-bold text-slate-900">₹{l.principalAmount}</td>
-                    <td className="px-4 py-3 font-mono font-bold text-amber-700">₹{l.monthlyEmiAmount} / mo</td>
-                    <td className="px-4 py-3 font-mono text-emerald-700 font-bold">₹{l.recoveredAmount}</td>
-                    <td className="px-4 py-3 font-mono text-red-600 font-bold">₹{l.balanceAmount}</td>
-                    <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                  <tr key={l.id} className="hover:bg-[#F3F0E9]/50">
+                    <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{emp?.firstName} {emp?.lastName} ({emp?.employeeCode})</td>
+                    <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#0F5B55]">{l.loanType}</td>
+                    <td className="px-4 py-3.5 font-mono text-[15px] leading-5 font-semibold text-[#202522]">₹{l.principalAmount}</td>
+                    <td className="px-4 py-3.5 font-mono text-[15px] leading-5 font-semibold text-[#C68A28]">₹{l.monthlyEmiAmount} / mo</td>
+                    <td className="px-4 py-3.5 font-mono text-[15px] leading-5 font-semibold text-[#23865B]">₹{l.recoveredAmount}</td>
+                    <td className="px-4 py-3.5 font-mono text-[15px] leading-5 font-semibold text-[#C94B45]">₹{l.balanceAmount}</td>
+                    <td className="px-4 py-3.5">
+                      <span className="px-2.5 py-1 rounded-full text-[12px] leading-4 font-semibold bg-[#23865B]/10 text-[#23865B] border border-[#23865B]/20">
                         {l.status}
                       </span>
                     </td>

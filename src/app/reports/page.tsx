@@ -41,26 +41,26 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <FileSpreadsheet className="w-5 h-5 text-blue-600" />
+            <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+              <FileSpreadsheet className="w-7 h-7 text-[#0F5B55]" />
               Management Reports & Payroll-Ready Export
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
               Comprehensive attendance summaries, overtime hours, and roster manpower reports.
             </p>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <button
               onClick={handleExportCSV}
-              className="flex items-center space-x-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded shadow transition-all"
+              className="flex items-center space-x-2 h-11 px-4 bg-[#23865B] hover:bg-[#1b6b48] text-white text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs transition-all cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Export CSV / Excel</span>
             </button>
             <button 
               onClick={() => window.print()}
-              className="flex items-center space-x-1.5 px-3 py-2 bg-slate-800 text-white text-xs font-semibold rounded shadow hover:bg-slate-900"
+              className="flex items-center space-x-2 h-11 px-4 bg-[#0F5B55] text-white text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs hover:bg-[#08463F] cursor-pointer"
             >
               <Printer className="w-4 h-4" />
               <span>Print Summary</span>
@@ -69,24 +69,24 @@ export default function ReportsPage() {
         </div>
 
         {/* Attendance Summary Data Grid */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-bold text-slate-900">Payroll-Ready Monthly Attendance Summary Output</h2>
+        <div className="bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs p-5 space-y-4">
+          <h2 className="text-[20px] leading-[28px] font-semibold text-[#0F5B55]">Payroll-Ready Monthly Attendance Summary Output</h2>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left text-slate-700 border-collapse">
-              <thead className="bg-slate-900 text-white uppercase text-[10px] font-semibold">
+            <table className="w-full text-left text-[#202522]">
+              <thead className="bg-[#F3F0E9]/60 border-b border-[#E5E2DB]">
                 <tr>
-                  <th className="px-4 py-3">Employee Code</th>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Location</th>
-                  <th className="px-4 py-3">Total Worked Days</th>
-                  <th className="px-4 py-3">Late Occurrences</th>
-                  <th className="px-4 py-3">Total OT Hours</th>
-                  <th className="px-4 py-3">Leave Days</th>
-                  <th className="px-4 py-3">Payable Days</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Employee Code</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Name</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Location</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Total Worked Days</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Late Occurrences</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Total OT Hours</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Leave Days</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Payable Days</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-[#E5E2DB]">
                 {employees.map(emp => {
                   const empAtt = attendanceRecords.filter(a => a.employeeId === emp.id);
                   const presentDays = empAtt.filter(a => a.status === 'PRESENT' || a.status === 'LATE').length;
@@ -94,15 +94,15 @@ export default function ReportsPage() {
                   const otHours = empAtt.reduce((sum, a) => sum + a.otHours, 0);
 
                   return (
-                    <tr key={emp.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-2.5 font-mono font-bold text-slate-900">{emp.employeeCode}</td>
-                      <td className="px-4 py-2.5 font-bold text-slate-800">{emp.firstName} {emp.lastName}</td>
-                      <td className="px-4 py-2.5 text-slate-600">{emp.currentAssignment.locationId}</td>
-                      <td className="px-4 py-2.5 font-semibold text-emerald-700">{presentDays} Days</td>
-                      <td className="px-4 py-2.5 text-purple-700 font-bold">{lateCount}</td>
-                      <td className="px-4 py-2.5 font-bold text-indigo-700">{otHours} Hrs</td>
-                      <td className="px-4 py-2.5 text-amber-700 font-semibold">1 Day</td>
-                      <td className="px-4 py-2.5 font-bold text-slate-900 bg-slate-50">26 Days</td>
+                    <tr key={emp.id} className="hover:bg-[#F3F0E9]/50">
+                      <td className="px-4 py-3.5 font-mono text-[12px] font-semibold text-[#202522]">{emp.employeeCode}</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{emp.firstName} {emp.lastName}</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#66706B]">{emp.currentAssignment.locationId}</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-semibold text-[#23865B]">{presentDays} Days</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-semibold text-[#C68A28]">{lateCount}</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-semibold text-[#3377A8]">{otHours} Hrs</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-semibold text-[#C68A28]">1 Day</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-bold text-[#202522] bg-[#F8F5EE]">26 Days</td>
                     </tr>
                   );
                 })}

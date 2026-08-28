@@ -2,15 +2,14 @@
 
 import React, { useState } from 'react';
 import ShellLayout from '@/components/layout/ShellLayout';
-import { Briefcase, Plus, CheckCircle2, UserCheck, FileText } from 'lucide-react';
+import { Briefcase, Plus } from 'lucide-react';
 import { useHRMSStore } from '@/store/hrms-store';
 
-export default function RecruitmentATSPage() {
+export default function RecruitmentPage() {
   const { candidates, addCandidate, updateCandidateStage } = useHRMSStore();
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showOfferModal, setShowOfferModal] = useState<any | null>(null);
 
-  const [jobTitle, setJobTitle] = useState('Restaurant Manager');
+  const [jobTitle, setJobTitle] = useState('Senior Sous Chef');
   const [candidateName, setCandidateName] = useState('Kishore Kumar');
   const [email, setEmail] = useState('kishore.k@gmail.com');
   const [phone, setPhone] = useState('9845012345');
@@ -24,62 +23,71 @@ export default function RecruitmentATSPage() {
   return (
     <ShellLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-blue-600" />
+            <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+              <Briefcase className="w-7 h-7 text-[#0F5B55]" />
               Applicant Tracking System (ATS) & Offer Letter Generator
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              TexaWave Recruitment Module: Job vacancy pipeline, interview scheduler & formal offer letter generation.
+            <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
+              Job vacancy pipeline, interview scheduler & formal offer letter generation.
             </p>
           </div>
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center space-x-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow"
+            className="flex items-center space-x-2 px-4 h-11 bg-[#0F5B55] hover:bg-[#08463F] text-white text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs transition-all cursor-pointer self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
-            <span>Add New Candidate</span>
+            <span>Add Candidate</span>
           </button>
         </div>
 
-        {/* Candidate Pipeline Kanban / Table */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
-          <table className="w-full text-xs text-left text-slate-700">
-            <thead className="bg-slate-900 text-white uppercase text-[10px] font-semibold">
+        <div className="bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs overflow-hidden">
+          <table className="w-full text-left text-[#202522]">
+            <thead className="bg-[#F3F0E9]/60 border-b border-[#E5E2DB]">
               <tr>
-                <th className="px-4 py-3">Candidate Name</th>
-                <th className="px-4 py-3">Applied Position</th>
-                <th className="px-4 py-3">Contact</th>
-                <th className="px-4 py-3">Interview Stage</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Candidate Name</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Target Position</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Contact Info</th>
+                <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Pipeline Stage</th>
+                <th className="px-4 py-3 text-right text-[13px] leading-5 font-semibold text-[#66706B]">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-[#E5E2DB]">
               {candidates.map(c => (
-                <tr key={c.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-bold text-slate-900">{c.candidateName}</td>
-                  <td className="px-4 py-3 font-semibold text-blue-700">{c.jobTitle}</td>
-                  <td className="px-4 py-3 text-slate-600">{c.email} • {c.phone}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                <tr key={c.id} className="hover:bg-[#F3F0E9]/50">
+                  <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{c.candidateName}</td>
+                  <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#0F5B55]">{c.jobTitle}</td>
+                  <td className="px-4 py-3.5 text-[14px] text-[#66706B]">
+                    <div>{c.email}</div>
+                    <div className="font-mono text-[12px]">{c.phone}</div>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <span className="px-2.5 py-1 rounded-full text-[12px] leading-4 font-semibold bg-[#0F5B55]/10 text-[#0F5B55] border border-[#0F5B55]/20 uppercase">
                       {c.stage}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right space-x-2">
-                    <button
-                      onClick={() => updateCandidateStage(c.id, 'TECHNICAL_PASSED')}
-                      className="px-2.5 py-1 bg-emerald-600 text-white rounded font-bold text-[10px]"
+                  <td className="px-4 py-3.5 text-right space-x-2">
+                    {c.stage !== 'OFFERED' && (
+                      <button
+                        onClick={() => updateCandidateStage(c.id, 'OFFERED')}
+                        className="px-3 h-9 bg-[#C59A45] hover:bg-[#b08739] text-[#08463F] font-semibold text-[13px] rounded-[6px] shadow-brand-xs cursor-pointer"
+                      >
+                        Generate Offer
+                      </button>
+                    )}
+                    <select
+                      value={c.stage}
+                      onChange={(e) => updateCandidateStage(c.id, e.target.value as any)}
+                      className="border border-[#E5E2DB] text-[13px] rounded-[6px] px-2 py-1 bg-[#F3F0E9] font-medium text-[#202522]"
                     >
-                      Pass Stage
-                    </button>
-                    <button
-                      onClick={() => setShowOfferModal(c)}
-                      className="px-2.5 py-1 bg-blue-600 text-white rounded font-bold text-[10px]"
-                    >
-                      Generate Offer Letter ✉️
-                    </button>
+                      <option value="APPLIED">Applied</option>
+                      <option value="SCREENING">Screening</option>
+                      <option value="INTERVIEW_SCHEDULED">Interview</option>
+                      <option value="OFFERED">Offered</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
                   </td>
                 </tr>
               ))}
@@ -87,71 +95,38 @@ export default function RecruitmentATSPage() {
           </table>
         </div>
 
-        {/* Add Candidate Modal */}
+        {/* Modal */}
         {showAddModal && (
-          <div className="fixed inset-0 bg-slate-950/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-              <div className="bg-slate-900 text-white px-5 py-3 flex justify-between items-center">
-                <h3 className="text-sm font-bold">Add Applicant Candidate</h3>
-                <button onClick={() => setShowAddModal(false)} className="text-xs font-bold">✕</button>
+          <div className="fixed inset-0 bg-[#202522]/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-[10px] shadow-xl w-full max-w-md overflow-hidden border border-[#E5E2DB]">
+              <div className="bg-[#0F5B55] text-white px-5 py-3.5 flex justify-between items-center">
+                <h3 className="text-[18px] leading-6 font-semibold">Add Candidate to Pipeline</h3>
+                <button onClick={() => setShowAddModal(false)} className="text-sm font-bold text-white/80 hover:text-white cursor-pointer">✕</button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-5 space-y-4">
                 <div>
-                  <label className="text-xs font-semibold block mb-1">Candidate Name</label>
-                  <input type="text" value={candidateName} onChange={e => setCandidateName(e.target.value)} required className="w-full border text-xs p-2 rounded" />
+                  <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Position Applied</label>
+                  <input type="text" value={jobTitle} onChange={e => setJobTitle(e.target.value)} required className="w-full h-11 border border-[#E5E2DB] text-[15px] px-3.5 rounded-[8px] text-[#202522]" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold block mb-1">Applied Position</label>
-                  <input type="text" value={jobTitle} onChange={e => setJobTitle(e.target.value)} required className="w-full border text-xs p-2 rounded" />
+                  <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Candidate Full Name</label>
+                  <input type="text" value={candidateName} onChange={e => setCandidateName(e.target.value)} required className="w-full h-11 border border-[#E5E2DB] text-[15px] px-3.5 rounded-[8px] text-[#202522]" />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-semibold block mb-1">Email</label>
-                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full border text-xs p-2 rounded" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold block mb-1">Phone</label>
-                    <input type="text" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full border text-xs p-2 rounded" />
-                  </div>
+                <div>
+                  <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Email Address</label>
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full h-11 border border-[#E5E2DB] text-[15px] px-3.5 rounded-[8px] text-[#202522]" />
+                </div>
+                <div>
+                  <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Phone Number</label>
+                  <input type="text" value={phone} onChange={e => setPhone(e.target.value)} required className="w-full h-11 border border-[#E5E2DB] text-[15px] px-3.5 rounded-[8px] text-[#202522]" />
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-2">
-                  <button type="button" onClick={() => setShowAddModal(false)} className="px-3 py-1.5 bg-slate-200 text-xs font-semibold rounded">Cancel</button>
-                  <button type="submit" className="px-4 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded shadow">Save Candidate</button>
+                  <button type="button" onClick={() => setShowAddModal(false)} className="px-4 h-11 bg-[#F3F0E9] text-[14px] font-medium text-[#202522] rounded-[8px]">Cancel</button>
+                  <button type="submit" className="px-4 h-11 bg-[#0F5B55] hover:bg-[#08463F] text-white text-[14px] font-semibold rounded-[8px] shadow-brand-xs">Save Candidate</button>
                 </div>
               </form>
-            </div>
-          </div>
-        )}
-
-        {/* Offer Letter Generator Modal */}
-        {showOfferModal && (
-          <div className="fixed inset-0 bg-slate-950/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden">
-              <div className="bg-slate-900 text-white px-5 py-3 flex justify-between items-center">
-                <h3 className="text-sm font-bold">Offer Letter Builder - Nandhini Deluxe Group</h3>
-                <button onClick={() => setShowOfferModal(null)} className="text-xs font-bold">✕</button>
-              </div>
-
-              <div className="p-5 space-y-3 font-serif text-xs text-slate-800 border-b border-slate-200 bg-amber-50/40">
-                <div className="font-bold text-sm">OFFER OF EMPLOYMENT</div>
-                <div>Dear <b>{showOfferModal.candidateName}</b>,</div>
-                <p className="leading-relaxed">
-                  We are pleased to offer you the position of <b>{showOfferModal.jobTitle}</b> at <b>Nandhini Deluxe Restaurants & Hotels</b>. Your annual CTC will be ₹4,20,000 per annum with full PF/ESI statutory benefits.
-                </p>
-                <div>Joining Date: 1st September 2026</div>
-              </div>
-
-              <div className="p-4 flex justify-end space-x-2 bg-slate-50">
-                <button onClick={() => setShowOfferModal(null)} className="px-3 py-1.5 bg-slate-200 text-xs font-semibold rounded">Close</button>
-                <button 
-                  onClick={() => { alert(`Offer Letter dispatched to ${showOfferModal.email}!`); setShowOfferModal(null); }}
-                  className="px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded shadow"
-                >
-                  Dispatch Offer Letter ✉️
-                </button>
-              </div>
             </div>
           </div>
         )}
@@ -159,4 +134,3 @@ export default function RecruitmentATSPage() {
     </ShellLayout>
   );
 }
-

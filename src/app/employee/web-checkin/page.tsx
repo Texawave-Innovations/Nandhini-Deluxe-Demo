@@ -28,18 +28,18 @@ export default function WebCheckinPage() {
     <EmployeePortalLayout>
       <div className="space-y-6 font-sans">
         <div>
-          <h1 className="text-2xl font-bold text-[#202522] tracking-tight flex items-center gap-2">
-            <Camera className="w-6 h-6 text-[#0F5B55]" />
+          <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+            <Camera className="w-7 h-7 text-[#0F5B55]" />
             ESS Web Check-in (Live Facial Verification)
           </h1>
-          <p className="text-xs text-[#66706B] font-medium mt-0.5">
+          <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
             Capture live photo & timestamp to record shift entry or exit.
           </p>
         </div>
 
         {punchSuccess && (
-          <div className="p-4 bg-[#23865B]/10 border border-[#23865B]/30 rounded-[10px] text-xs font-bold text-[#23865B] flex items-center space-x-2">
-            <CheckCircle2 className="w-4 h-4" />
+          <div className="p-4 bg-[#23865B]/10 border border-[#23865B]/30 rounded-[10px] text-[14px] font-semibold text-[#23865B] flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
             <span>{punchSuccess}</span>
           </div>
         )}
@@ -53,9 +53,9 @@ export default function WebCheckinPage() {
                 <img src={photoPreview} alt="Captured Verification" className="w-full h-full object-cover" />
               ) : (
                 <div className="space-y-2">
-                  <Camera className="w-12 h-12 text-amber-400 mx-auto animate-pulse" />
-                  <p className="text-xs font-semibold text-slate-300">Webcam Feed Ready</p>
-                  <p className="text-[10px] text-slate-400 font-mono">Geofence & Facial Verification Active</p>
+                  <Camera className="w-12 h-12 text-[#C59A45] mx-auto animate-pulse" />
+                  <p className="text-[14px] font-semibold text-slate-300">Webcam Feed Ready</p>
+                  <p className="text-[12px] text-slate-400 font-mono">Geofence & Facial Verification Active</p>
                 </div>
               )}
             </div>
@@ -64,7 +64,7 @@ export default function WebCheckinPage() {
             <div className="flex space-x-3 pt-2">
               <button
                 onClick={() => handleCaptureAndPunch('IN')}
-                className="flex-1 py-3 bg-[#0F5B55] hover:bg-[#08463F] text-white text-xs font-semibold rounded-[8px] shadow-brand-xs transition-all flex items-center justify-center space-x-2"
+                className="flex-1 h-11 bg-[#0F5B55] hover:bg-[#08463F] text-white text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs transition-all flex items-center justify-center space-x-2 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Punch IN (Work Start)</span>
@@ -72,7 +72,7 @@ export default function WebCheckinPage() {
 
               <button
                 onClick={() => handleCaptureAndPunch('OUT')}
-                className="flex-1 py-3 bg-[#0F5B55] hover:bg-[#08463F] text-white text-xs font-semibold rounded-[8px] shadow-brand-xs transition-all flex items-center justify-center space-x-2"
+                className="flex-1 h-11 bg-[#0F5B55] hover:bg-[#08463F] text-white text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs transition-all flex items-center justify-center space-x-2 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Punch OUT (Work End)</span>
@@ -82,27 +82,27 @@ export default function WebCheckinPage() {
 
           {/* Verification Details */}
           <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs space-y-4">
-            <h3 className="text-sm font-semibold text-[#202522] border-b border-[#E5E2DB] pb-2 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#0F5B55]" />
+            <h3 className="text-[17px] leading-6 font-semibold text-[#202522] border-b border-[#E5E2DB] pb-2.5 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-[#0F5B55]" />
               Punch Verification Profile
             </h3>
 
-            <div className="space-y-3 text-xs text-[#202522]">
-              <div className="flex justify-between p-2 bg-[#F3F0E9] rounded-[8px]">
-                <span className="text-[#66706B]">Employee Name:</span>
-                <span className="font-bold">{currentEmp.firstName} {currentEmp.lastName}</span>
+            <div className="space-y-3 text-[14px] leading-5 text-[#202522]">
+              <div className="flex justify-between p-3 bg-[#F8F5EE] rounded-[8px] border border-[#E5E2DB]">
+                <span className="text-[#66706B] font-medium">Employee Name:</span>
+                <span className="font-semibold text-[#202522]">{currentEmp.firstName} {currentEmp.lastName}</span>
               </div>
-              <div className="flex justify-between p-2 bg-[#F3F0E9] rounded-[8px]">
-                <span className="text-[#66706B]">Employee Code:</span>
-                <span className="font-bold font-mono">{currentEmp.employeeCode}</span>
+              <div className="flex justify-between p-3 bg-[#F8F5EE] rounded-[8px] border border-[#E5E2DB]">
+                <span className="text-[#66706B] font-medium">Employee Code:</span>
+                <span className="font-semibold font-mono text-[#202522]">{currentEmp.employeeCode}</span>
               </div>
-              <div className="flex justify-between p-2 bg-[#F3F0E9] rounded-[8px]">
-                <span className="text-[#66706B]">Assigned Shift:</span>
-                <span className="font-bold text-[#0F5B55]">Morning Shift (07:00 - 15:30)</span>
+              <div className="flex justify-between p-3 bg-[#F8F5EE] rounded-[8px] border border-[#E5E2DB]">
+                <span className="text-[#66706B] font-medium">Assigned Shift:</span>
+                <span className="font-semibold text-[#0F5B55]">Morning Shift (07:00 - 15:30)</span>
               </div>
-              <div className="flex justify-between p-2 bg-[#F3F0E9] rounded-[8px]">
-                <span className="text-[#66706B]">Location Geofence:</span>
-                <span className="font-bold text-[#23865B]">Whitefield Restaurant (Verified)</span>
+              <div className="flex justify-between p-3 bg-[#F8F5EE] rounded-[8px] border border-[#E5E2DB]">
+                <span className="text-[#66706B] font-medium">Location Geofence:</span>
+                <span className="font-semibold text-[#23865B]">Whitefield Restaurant (Verified)</span>
               </div>
             </div>
           </div>

@@ -13,49 +13,49 @@ export default function AuditTrailPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-blue-600" />
+          <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+            <ShieldCheck className="w-7 h-7 text-[#0F5B55]" />
             Centralized ERP System Audit Trail
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
             Immutable log tracking of user actions, approvals, roster publishes, and master updates across the platform.
           </p>
         </div>
 
         {/* Audit Log Table Requirement #18 */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left text-slate-700">
-              <thead className="bg-slate-900 text-white uppercase text-[10px] font-semibold">
+            <table className="w-full text-left text-[#202522]">
+              <thead className="bg-[#F3F0E9]/60 border-b border-[#E5E2DB]">
                 <tr>
-                  <th className="px-4 py-3">Timestamp</th>
-                  <th className="px-4 py-3">User & Role</th>
-                  <th className="px-4 py-3">Module</th>
-                  <th className="px-4 py-3">Action</th>
-                  <th className="px-4 py-3">Record Title / ID</th>
-                  <th className="px-4 py-3">IP Address</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Timestamp</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">User & Role</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Module</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Action</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Record Title / ID</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">IP Address</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-[#E5E2DB]">
                 {auditLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 font-mono font-semibold text-slate-600">{log.timestamp}</td>
-                    <td className="px-4 py-3">
-                      <div className="font-bold text-slate-900">{log.userName}</div>
-                      <div className="text-[10px] text-slate-500 font-semibold">{log.userRole}</div>
+                  <tr key={log.id} className="hover:bg-[#F3F0E9]/50">
+                    <td className="px-4 py-3.5 font-mono text-[12px] font-medium text-[#66706B]">{log.timestamp}</td>
+                    <td className="px-4 py-3.5">
+                      <div className="text-[15px] leading-5 font-medium text-[#202522]">{log.userName}</div>
+                      <div className="text-[12px] text-[#66706B] font-semibold mt-0.5">{log.userRole}</div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-blue-700 font-bold">{log.module}</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        log.action === 'CREATE' ? 'bg-emerald-100 text-emerald-800' :
-                        log.action === 'APPROVE' || log.action === 'PUBLISH' ? 'bg-blue-100 text-blue-800' :
-                        log.action === 'UPDATE' || log.action === 'ASSIGN' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'
+                    <td className="px-4 py-3.5 font-mono text-[13px] text-[#0F5B55] font-semibold">{log.module}</td>
+                    <td className="px-4 py-3.5">
+                      <span className={`px-2.5 py-1 rounded-full text-[12px] leading-4 font-semibold ${
+                        log.action === 'CREATE' ? 'bg-[#23865B]/10 text-[#23865B] border border-[#23865B]/20' :
+                        log.action === 'APPROVE' || log.action === 'PUBLISH' ? 'bg-[#3377A8]/10 text-[#3377A8] border border-[#3377A8]/20' :
+                        log.action === 'UPDATE' || log.action === 'ASSIGN' ? 'bg-[#C68A28]/10 text-[#C68A28] border border-[#C68A28]/20' : 'bg-slate-100 text-slate-800'
                       }`}>
                         {log.action}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-semibold text-slate-800">{log.recordTitle}</td>
-                    <td className="px-4 py-3 font-mono text-slate-500">{log.ipAddress}</td>
+                    <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{log.recordTitle}</td>
+                    <td className="px-4 py-3.5 font-mono text-[12px] text-[#66706B]">{log.ipAddress}</td>
                   </tr>
                 ))}
               </tbody>

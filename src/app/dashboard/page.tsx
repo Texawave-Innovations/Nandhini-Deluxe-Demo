@@ -34,10 +34,10 @@ export default function DashboardPage() {
         {/* Top Header Greeting Bar */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-[#202522] tracking-tight">
+            <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522]">
               Dashboard
             </h1>
-            <p className="text-xs text-[#66706B] font-medium mt-0.5">
+            <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
               Workforce overview for today • Thursday, 27 August 2026
             </p>
           </div>
@@ -45,7 +45,7 @@ export default function DashboardPage() {
           <div className="flex items-center space-x-3">
             <Link
               href="/employees"
-              className="px-4 py-2 bg-white border border-[#E5E2DB] hover:bg-[#F3F0E9] text-[#202522] font-semibold text-xs rounded-[8px] shadow-brand-xs flex items-center space-x-1.5 transition-all"
+              className="h-11 px-4 bg-white border border-[#E5E2DB] hover:bg-[#F3F0E9] text-[#202522] font-semibold text-[14px] leading-5 rounded-[8px] shadow-brand-xs flex items-center space-x-2 transition-all"
             >
               <Users className="w-4 h-4 text-[#66706B]" />
               <span>Employee Directory</span>
@@ -53,7 +53,7 @@ export default function DashboardPage() {
 
             <Link
               href="/reports"
-              className="px-4 py-2 bg-[#0F5B55] hover:bg-[#08463F] text-white font-semibold text-xs rounded-[8px] shadow-brand-xs flex items-center space-x-1.5 transition-all"
+              className="h-11 px-4 bg-[#0F5B55] hover:bg-[#08463F] text-white font-semibold text-[14px] leading-5 rounded-[8px] shadow-brand-xs flex items-center space-x-2 transition-all"
             >
               <DollarSign className="w-4 h-4" />
               <span>Run Payroll</span>
@@ -63,61 +63,61 @@ export default function DashboardPage() {
 
         {/* TOP KPI CARDS GRID */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">ACTIVE EMPLOYEES</span>
-            <div className="text-xl font-bold text-[#202522] mt-1">{activeEmp}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
+            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Active Employees</span>
+            <div className="text-[34px] leading-[40px] font-bold text-[#202522] mt-1">{activeEmp}</div>
+            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">
               {inactiveEmp > 0 ? `${inactiveEmp} inactive` : `of ${totalEmp} total`}
             </div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">PRESENT TODAY</span>
-            <div className="text-xl font-bold text-[#23865B] mt-1">{presentToday}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">{activeEmp ? Math.round((presentToday/activeEmp)*100) : 0}% Attendance</div>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
+            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Present Today</span>
+            <div className="text-[34px] leading-[40px] font-bold text-[#23865B] mt-1">{presentToday}</div>
+            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">{activeEmp ? Math.round((presentToday/activeEmp)*100) : 0}% Attendance</div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">ABSENT TODAY</span>
-            <div className="text-xl font-bold text-[#C94B45] mt-1">{absentToday}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">Unaccounted</div>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
+            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Absent Today</span>
+            <div className="text-[34px] leading-[40px] font-bold text-[#C94B45] mt-1">{absentToday}</div>
+            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Unaccounted</div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">ON LEAVE</span>
-            <div className="text-xl font-bold text-[#C68A28] mt-1">{onLeaveToday}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">Approved Time Off</div>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
+            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">On Leave</span>
+            <div className="text-[34px] leading-[40px] font-bold text-[#C68A28] mt-1">{onLeaveToday}</div>
+            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Approved Off</div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">LATE TODAY</span>
-            <div className="text-xl font-bold text-[#C68A28] mt-1">{lateToday}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">Grace Exceeded</div>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
+            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Late Today</span>
+            <div className="text-[34px] leading-[40px] font-bold text-[#C68A28] mt-1">{lateToday}</div>
+            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Grace Exceeded</div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">OT TODAY</span>
-            <div className="text-xl font-bold text-[#3377A8] mt-1">{otToday}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">Extra Hours</div>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
+            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">OT Today</span>
+            <div className="text-[34px] leading-[40px] font-bold text-[#3377A8] mt-1">{otToday}</div>
+            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Extra Hours</div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">MISSING PUNCHES</span>
-            <div className="text-xl font-bold text-[#C94B45] mt-1">{missingPunchesCount}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">Needs Fix</div>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
+            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Missing Punches</span>
+            <div className="text-[34px] leading-[40px] font-bold text-[#C94B45] mt-1">{missingPunchesCount}</div>
+            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Needs Fix</div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3 shadow-brand-xs">
-            <span className="text-[10px] font-semibold text-[#66706B] uppercase tracking-wider block">PENDING APPROVALS</span>
-            <div className="text-xl font-bold text-[#0F5B55] mt-1">{pendingApprovalsCount}</div>
-            <div className="text-[10px] text-[#66706B] font-medium mt-0.5">In Queue</div>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
+            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Pending Approvals</span>
+            <div className="text-[34px] leading-[40px] font-bold text-[#0F5B55] mt-1">{pendingApprovalsCount}</div>
+            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">In Queue</div>
           </div>
         </div>
 
         {/* REQUIRES ACTION & REVIEW SECTION */}
-        <div className="space-y-2">
-          <div className="flex items-center space-x-1 text-xs font-semibold text-[#C94B45] uppercase tracking-wider">
-            <AlertCircle className="w-4 h-4" />
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2 text-[20px] leading-[28px] font-semibold text-[#0F5B55]">
+            <AlertCircle className="w-5 h-5 text-[#C94B45]" />
             <span>Requires Action & Review</span>
           </div>
 
@@ -125,13 +125,13 @@ export default function DashboardPage() {
             <div className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs flex justify-between items-center border-l-4 border-l-[#C94B45]">
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-semibold text-[#202522] uppercase">Pending Approvals</span>
-                  <span className="px-2 py-0.5 bg-[#C94B45]/10 text-[#C94B45] font-semibold text-[10px] rounded-full uppercase">Action</span>
+                  <span className="text-[14px] font-medium text-[#202522]">Pending Approvals</span>
+                  <span className="px-2.5 py-0.5 bg-[#C94B45]/10 text-[#C94B45] font-semibold text-[12px] rounded-full uppercase">Action</span>
                 </div>
-                <div className="text-2xl font-bold text-[#C94B45] mt-1">{pendingApprovalsCount}</div>
-                <div className="text-xs text-[#66706B] font-medium mt-0.5">Leaves, loans & bonuses</div>
+                <div className="text-[34px] leading-[40px] font-bold text-[#C94B45] mt-1">{pendingApprovalsCount}</div>
+                <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Leaves, loans & bonuses</div>
               </div>
-              <div className="w-9 h-9 rounded-full bg-[#C94B45]/10 text-[#C94B45] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-[#C94B45]/10 text-[#C94B45] flex items-center justify-center">
                 <AlertCircle className="w-5 h-5" />
               </div>
             </div>
@@ -139,13 +139,13 @@ export default function DashboardPage() {
             <div className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs flex justify-between items-center border-l-4 border-l-[#C68A28]">
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-semibold text-[#202522] uppercase">Open Tickets</span>
-                  <span className="px-2 py-0.5 bg-[#C68A28]/10 text-[#C68A28] font-semibold text-[10px] rounded-full uppercase">Pending</span>
+                  <span className="text-[14px] font-medium text-[#202522]">Open Tickets</span>
+                  <span className="px-2.5 py-0.5 bg-[#C68A28]/10 text-[#C68A28] font-semibold text-[12px] rounded-full uppercase">Pending</span>
                 </div>
-                <div className="text-2xl font-bold text-[#C68A28] mt-1">{openTicketsCount}</div>
-                <div className="text-xs text-[#66706B] font-medium mt-0.5">Unresolved support requests</div>
+                <div className="text-[34px] leading-[40px] font-bold text-[#C68A28] mt-1">{openTicketsCount}</div>
+                <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Unresolved support requests</div>
               </div>
-              <div className="w-9 h-9 rounded-full bg-[#C68A28]/10 text-[#C68A28] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-[#C68A28]/10 text-[#C68A28] flex items-center justify-center">
                 <Ticket className="w-5 h-5" />
               </div>
             </div>
@@ -153,11 +153,11 @@ export default function DashboardPage() {
             <div className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs flex justify-between items-center border-l-4 border-l-[#0F5B55]">
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-semibold text-[#202522] uppercase">Pending Expenses</span>
-                  <span className="px-2 py-0.5 bg-[#0F5B55]/10 text-[#0F5B55] font-semibold text-[10px] rounded-full uppercase">Review</span>
+                  <span className="text-[14px] font-medium text-[#202522]">Pending Expenses</span>
+                  <span className="px-2.5 py-0.5 bg-[#0F5B55]/10 text-[#0F5B55] font-semibold text-[12px] rounded-full uppercase">Review</span>
                 </div>
-                <div className="text-2xl font-bold text-[#0F5B55] mt-1">{pendingExpensesCount}</div>
-                <div className="text-xs text-[#66706B] font-medium mt-0.5">Claims awaiting reimbursement</div>
+                <div className="text-[34px] leading-[40px] font-bold text-[#0F5B55] mt-1">{pendingExpensesCount}</div>
+                <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Claims awaiting reimbursement</div>
               </div>
               <div className="w-9 h-9 rounded-full bg-[#0F5B55]/10 text-[#0F5B55] flex items-center justify-center">
                 <Receipt className="w-5 h-5" />

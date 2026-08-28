@@ -119,7 +119,7 @@ export default function TopHRNav() {
   return (
     <div className="bg-white border-b border-[#E5E2DB] shadow-xs px-6 py-2.5 flex flex-col gap-2">
       {/* Line 1: Top Category Headers */}
-      <div className="flex items-center gap-6 overflow-x-auto text-xs font-bold tracking-wider uppercase select-none border-b border-[#E5E2DB]/60 pb-1 scrollbar-none">
+      <div className="flex items-center gap-6 overflow-x-auto text-[13px] font-semibold tracking-[0.05em] uppercase select-none border-b border-[#E5E2DB]/60 pb-1 scrollbar-none">
         {hrCategories.map((cat) => {
           const isCatSelected = cat.category === activeCategory;
           const hasActivePath = cat.items.some(item => item.href === pathname);
@@ -130,7 +130,7 @@ export default function TopHRNav() {
               onClick={() => handleCategoryClick(cat)}
               className={`transition-all whitespace-nowrap pb-1.5 ${
                 isCatSelected || hasActivePath
-                  ? 'text-[#0F5B55] border-b-2 border-[#0F5B55] font-extrabold'
+                  ? 'text-[#0F5B55] border-b-2 border-[#0F5B55] font-semibold'
                   : 'text-[#66706B] hover:text-[#202522] border-b-2 border-transparent'
               }`}
             >
@@ -142,14 +142,14 @@ export default function TopHRNav() {
 
       {/* Line 2: Sub-tabs of the active category on a separate line below Line 1 */}
       {currentCategoryObj && (
-        <div className="flex items-center gap-2 overflow-x-auto text-xs select-none scrollbar-none py-0.5">
+        <div className="flex items-center gap-2 overflow-x-auto select-none scrollbar-none py-0.5">
           {currentCategoryObj.items.map((sub) => {
             const isSubActive = pathname === sub.href;
             return (
               <Link
                 key={sub.name}
                 href={sub.href}
-                className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1 rounded-full text-[13px] leading-5 font-medium transition-all whitespace-nowrap ${
                   isSubActive
                     ? 'bg-[#0F5B55] text-white shadow-brand-xs border border-[#0F5B55]'
                     : 'bg-[#F3F0E9]/80 text-[#202522] hover:bg-[#F3F0E9] border border-[#E5E2DB]'

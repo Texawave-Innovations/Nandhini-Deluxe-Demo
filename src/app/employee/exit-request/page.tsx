@@ -30,45 +30,45 @@ export default function ESSExitRequestPage() {
     <EmployeePortalLayout>
       <div className="space-y-6 max-w-2xl mx-auto">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <UserMinus className="w-5 h-5 text-red-600" />
+          <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+            <UserMinus className="w-7 h-7 text-[#C94B45]" />
             Resignation Submission & Offboarding Clearance
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">Submit resignation request and monitor department clearance status.</p>
+          <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">Submit resignation request and monitor department clearance status.</p>
         </div>
 
         {isSubmitted ? (
-          <div className="p-6 bg-amber-50 rounded-lg border border-amber-200 text-center space-y-2">
-            <CheckCircle2 className="w-12 h-12 text-amber-600 mx-auto" />
-            <h3 className="font-bold text-slate-900 text-base">Resignation Application Submitted</h3>
-            <p className="text-xs text-slate-600">Notice Period Active (30 Days). Your last working date is set for {lastDate}.</p>
+          <div className="p-6 bg-[#C59A45]/10 rounded-[10px] border border-[#C59A45]/30 text-center space-y-2">
+            <CheckCircle2 className="w-12 h-12 text-[#C59A45] mx-auto" />
+            <h3 className="font-semibold text-[#202522] text-[18px]">Resignation Application Submitted</h3>
+            <p className="text-[14px] text-[#66706B]">Notice Period Active (30 Days). Your last working date is set for {lastDate}.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-4">
-            <div className="bg-slate-50 p-3 rounded border text-xs text-slate-700 space-y-1">
-              <div className="font-bold">Employee: {currentUser.firstName} {currentUser.lastName} ({currentUser.employeeCode})</div>
+          <form onSubmit={handleSubmit} className="bg-white p-6 rounded-[10px] border border-[#E5E2DB] shadow-brand-xs space-y-4">
+            <div className="bg-[#F8F5EE] p-3.5 rounded-[8px] border border-[#E5E2DB] text-[14px] leading-5 text-[#202522] space-y-1">
+              <div className="font-semibold text-[#0F5B55]">Employee: {currentUser.firstName} {currentUser.lastName} ({currentUser.employeeCode})</div>
               <div>Standard Notice Period: 30 Days</div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-semibold block mb-1">Resignation Date</label>
-                <input type="date" value={resignationDate} onChange={e => setResignationDate(e.target.value)} required className="w-full border text-xs p-2 rounded" />
+                <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Resignation Date</label>
+                <input type="date" value={resignationDate} onChange={e => setResignationDate(e.target.value)} required className="w-full h-11 border border-[#E5E2DB] text-[15px] px-3.5 rounded-[8px] text-[#202522]" />
               </div>
               <div>
-                <label className="text-xs font-semibold block mb-1">Expected Last Working Day</label>
-                <input type="date" value={lastDate} onChange={e => setLastDate(e.target.value)} required className="w-full border text-xs p-2 rounded" />
+                <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Expected Last Working Day</label>
+                <input type="date" value={lastDate} onChange={e => setLastDate(e.target.value)} required className="w-full h-11 border border-[#E5E2DB] text-[15px] px-3.5 rounded-[8px] text-[#202522]" />
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-semibold block mb-1">Reason for Resignation</label>
-              <textarea value={reason} onChange={e => setReason(e.target.value)} required className="w-full border text-xs p-2 rounded h-24" />
+              <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Reason for Resignation</label>
+              <textarea value={reason} onChange={e => setReason(e.target.value)} required className="w-full border border-[#E5E2DB] text-[15px] p-3 rounded-[8px] text-[#202522] h-28" />
             </div>
 
             <button
               type="submit"
-              className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded shadow"
+              className="w-full h-11 bg-[#C94B45] hover:bg-[#a83c37] text-white font-semibold text-[14px] leading-5 rounded-[8px] shadow-brand-xs cursor-pointer"
             >
               Submit Resignation Notice
             </button>

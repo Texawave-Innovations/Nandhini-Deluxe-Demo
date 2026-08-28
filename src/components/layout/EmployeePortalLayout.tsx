@@ -34,12 +34,12 @@ export default function EmployeePortalLayout({ children }: { children: React.Rea
       {/* Top Header styled in Nandhini Deep Teal */}
       <header style={{ backgroundColor: '#0F5B55' }} className="text-white h-16 px-6 flex items-center justify-between shadow sticky top-0 z-30 border-b border-[#08463F]">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg bg-[#C59A45] text-[#08463F] font-serif font-bold text-lg flex items-center justify-center shadow">
+          <div className="w-8 h-8 rounded-lg bg-[#C59A45] text-[#08463F] font-sans font-bold text-lg flex items-center justify-center shadow">
             N
           </div>
           <div>
-            <h1 className="font-bold text-sm leading-none tracking-wide text-white">EMPLOYEE SELF-SERVICE (ESS)</h1>
-            <p className="text-[10px] text-amber-300 font-semibold tracking-wider uppercase mt-0.5">Nandhini Deluxe Staff Portal</p>
+            <h1 className="font-bold text-[15px] leading-none tracking-wide text-white">EMPLOYEE SELF-SERVICE (ESS)</h1>
+            <p className="text-[12px] text-amber-300 font-semibold tracking-[0.08em] uppercase mt-0.5">Nandhini Deluxe Staff Portal</p>
           </div>
         </div>
 
@@ -47,9 +47,9 @@ export default function EmployeePortalLayout({ children }: { children: React.Rea
           {/* Uniform Standard Secondary Button */}
           <Link
             href="/dashboard"
-            className="flex items-center space-x-1.5 px-4 py-2 bg-white hover:bg-[#F3F0E9] text-[#202522] border border-[#E5E2DB] text-xs font-semibold rounded-[8px] shadow-brand-xs transition-all"
+            className="flex items-center space-x-1.5 px-4 py-2 bg-white hover:bg-[#F3F0E9] text-[#202522] border border-[#E5E2DB] text-[14px] leading-5 font-semibold rounded-[8px] shadow-brand-xs transition-all"
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-[#66706B]" />
+            <ArrowLeft className="w-4 h-4 text-[#66706B]" />
             <span className="hidden sm:inline">Back to HR Admin Workspace</span>
           </Link>
 
@@ -58,8 +58,8 @@ export default function EmployeePortalLayout({ children }: { children: React.Rea
               {currentUser.firstName[0]}
             </div>
             <div className="hidden md:block text-left text-xs">
-              <div className="font-bold text-white">{currentUser.firstName} {currentUser.lastName}</div>
-              <div className="text-[10px] text-amber-200/80 font-mono">{currentUser.employeeCode}</div>
+              <div className="font-medium text-[14px] leading-tight text-white">{currentUser.firstName} {currentUser.lastName}</div>
+              <div className="text-[12px] text-amber-200/90 font-mono">{currentUser.employeeCode}</div>
             </div>
           </div>
         </div>
@@ -73,11 +73,11 @@ export default function EmployeePortalLayout({ children }: { children: React.Rea
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center space-x-2 px-3 py-1.5 rounded-[8px] text-xs font-semibold whitespace-nowrap transition-colors ${
-                isActive ? 'bg-[#C59A45] text-[#08463F] font-bold shadow' : 'hover:bg-white/10 text-white/80'
+              className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-[8px] text-[14px] leading-5 font-medium whitespace-nowrap transition-colors ${
+                isActive ? 'bg-[#C59A45] text-[#08463F] font-semibold shadow' : 'hover:bg-white/10 text-white/90'
               }`}
             >
-              <item.icon className="w-3.5 h-3.5" />
+              <item.icon className="w-4 h-4" />
               <span>{item.name}</span>
             </Link>
           );

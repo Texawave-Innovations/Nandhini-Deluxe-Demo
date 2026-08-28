@@ -53,26 +53,26 @@ export default function AttendanceRegisterPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <ClipboardCheck className="w-5 h-5 text-blue-600" />
+            <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522] flex items-center gap-2">
+              <ClipboardCheck className="w-7 h-7 text-[#0F5B55]" />
               Attendance Register & Punch Exceptions
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
               Daily attendance logs calculated from hardware biometric punches matched against rostered shifts.
             </p>
           </div>
         </div>
 
         {/* Filter Controls */}
-        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+        <div className="bg-white p-4 rounded-[10px] border border-[#E5E2DB] shadow-brand-xs flex flex-col md:flex-row gap-3 items-center justify-between">
           <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#66706B]" />
             <input
               type="text"
               placeholder="Search employee..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800"
+              className="w-full h-11 pl-10 pr-4 bg-[#F3F0E9] border border-[#E5E2DB] rounded-[8px] text-[15px] leading-5 text-[#202522] focus:outline-none focus:ring-1 focus:ring-[#0F5B55]"
             />
           </div>
 
@@ -80,7 +80,7 @@ export default function AttendanceRegisterPage() {
             <select
               value={selectedLoc}
               onChange={(e) => setSelectedLoc(e.target.value)}
-              className="bg-slate-50 border border-slate-200 text-xs rounded px-3 py-1.5 text-slate-700"
+              className="bg-[#F3F0E9] border border-[#E5E2DB] h-11 text-[15px] leading-5 rounded-[8px] px-3.5 text-[#202522] font-medium cursor-pointer"
             >
               <option value="ALL">All Locations</option>
               {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -89,7 +89,7 @@ export default function AttendanceRegisterPage() {
             <select
               value={selectedDept}
               onChange={(e) => setSelectedDept(e.target.value)}
-              className="bg-slate-50 border border-slate-200 text-xs rounded px-3 py-1.5 text-slate-700"
+              className="bg-[#F3F0E9] border border-[#E5E2DB] h-11 text-[15px] leading-5 rounded-[8px] px-3.5 text-[#202522] font-medium cursor-pointer"
             >
               <option value="ALL">All Departments</option>
               {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -98,67 +98,67 @@ export default function AttendanceRegisterPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-slate-50 border border-slate-200 text-xs rounded px-3 py-1.5 text-slate-700 font-semibold"
+              className="bg-[#F3F0E9] border border-[#E5E2DB] h-11 text-[15px] leading-5 rounded-[8px] px-3.5 text-[#202522] font-semibold cursor-pointer"
             >
               <option value="ALL">All Statuses</option>
-              <option value="PRESENT">PRESENT</option>
-              <option value="LATE">LATE</option>
-              <option value="MISSING_PUNCH">MISSING PUNCH</option>
-              <option value="ABSENT">ABSENT</option>
-              <option value="ON_LEAVE">ON LEAVE</option>
+              <option value="PRESENT">Present</option>
+              <option value="LATE">Late</option>
+              <option value="MISSING_PUNCH">Missing Punch</option>
+              <option value="ABSENT">Absent</option>
+              <option value="ON_LEAVE">On Leave</option>
             </select>
           </div>
         </div>
 
         {/* Register Table Requirement #9 */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-[10px] border border-[#E5E2DB] shadow-brand-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left text-slate-700">
-              <thead className="bg-slate-900 text-white uppercase text-[10px] font-semibold">
+            <table className="w-full text-left text-[#202522]">
+              <thead className="bg-[#F3F0E9]/60 border-b border-[#E5E2DB]">
                 <tr>
-                  <th className="px-4 py-3">Employee</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Shift</th>
-                  <th className="px-4 py-3">First IN</th>
-                  <th className="px-4 py-3">Last OUT</th>
-                  <th className="px-4 py-3">Worked Hrs</th>
-                  <th className="px-4 py-3">Late Mins</th>
-                  <th className="px-4 py-3">OT Hrs</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Regularize</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Employee</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Date</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Shift</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">First In</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Last Out</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Worked Hours</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Late Mins</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">OT Hours</th>
+                  <th className="px-4 py-3 text-[13px] leading-5 font-semibold text-[#66706B]">Status</th>
+                  <th className="px-4 py-3 text-right text-[13px] leading-5 font-semibold text-[#66706B]">Regularize</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-[#E5E2DB]">
                 {filteredRecords.map((rec) => {
                   const emp = employees.find(e => e.id === rec.employeeId);
                   if (!emp) return null;
 
                   return (
-                    <tr key={rec.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3">
-                        <div className="font-bold text-slate-900">{emp.firstName} {emp.lastName}</div>
-                        <div className="text-[10px] text-slate-500 font-mono">{emp.employeeCode}</div>
+                    <tr key={rec.id} className="hover:bg-[#F3F0E9]/50">
+                      <td className="px-4 py-3.5">
+                        <div className="text-[15px] leading-5 font-medium text-[#202522]">{emp.firstName} {emp.lastName}</div>
+                        <div className="text-[12px] text-[#66706B] font-mono mt-0.5">{emp.employeeCode}</div>
                       </td>
-                      <td className="px-4 py-3 font-mono">{rec.date}</td>
-                      <td className="px-4 py-3 font-semibold text-slate-800">Morning (M1)</td>
-                      <td className="px-4 py-3 font-mono font-bold text-emerald-700">{rec.firstIn || '--:--'}</td>
-                      <td className="px-4 py-3 font-mono font-bold text-amber-700">{rec.lastOut || '--:--'}</td>
-                      <td className="px-4 py-3 font-bold">{rec.totalWorkedHours} Hrs</td>
-                      <td className="px-4 py-3 text-purple-700 font-bold">{rec.lateMins > 0 ? `${rec.lateMins}m` : '-'}</td>
-                      <td className="px-4 py-3 text-indigo-700 font-bold">{rec.otHours > 0 ? `${rec.otHours}h` : '-'}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
-                          rec.hasMissingPunch ? 'bg-amber-100 text-amber-800' :
-                          rec.status === 'PRESENT' ? 'bg-emerald-100 text-emerald-800' :
-                          rec.status === 'LATE' ? 'bg-purple-100 text-purple-800' : 'bg-red-100 text-red-800'
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-mono text-[#202522]">{rec.date}</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">Morning (M1)</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-mono font-medium text-[#23865B]">{rec.firstIn || '--:--'}</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-mono font-medium text-[#C68A28]">{rec.lastOut || '--:--'}</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#202522]">{rec.totalWorkedHours} Hrs</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#C68A28]">{rec.lateMins > 0 ? `${rec.lateMins}m` : '-'}</td>
+                      <td className="px-4 py-3.5 text-[15px] leading-5 font-medium text-[#3377A8]">{rec.otHours > 0 ? `${rec.otHours}h` : '-'}</td>
+                      <td className="px-4 py-3.5">
+                        <span className={`px-2.5 py-1 rounded-full text-[12px] leading-4 font-semibold ${
+                          rec.hasMissingPunch ? 'bg-[#C68A28]/10 text-[#C68A28] border border-[#C68A28]/20' :
+                          rec.status === 'PRESENT' ? 'bg-[#23865B]/10 text-[#23865B] border border-[#23865B]/20' :
+                          rec.status === 'LATE' ? 'bg-[#C68A28]/10 text-[#C68A28] border border-[#C68A28]/20' : 'bg-[#C94B45]/10 text-[#C94B45] border border-[#C94B45]/20'
                         }`}>
                           {rec.hasMissingPunch ? 'MISSING PUNCH' : rec.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3.5 text-right">
                         <button
                           onClick={() => { setSelectedRecord(rec); setReqIn(rec.firstIn || '07:00'); setReqOut(rec.lastOut || '15:30'); }}
-                          className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-[10px] rounded"
+                          className="px-3 py-1.5 bg-[#0F5B55] hover:bg-[#08463F] text-white font-semibold text-[13px] leading-5 rounded-[6px] shadow-brand-xs cursor-pointer"
                         >
                           Request Fix
                         </button>
@@ -173,38 +173,38 @@ export default function AttendanceRegisterPage() {
 
         {/* Regularization Request Modal */}
         {selectedRecord && (
-          <div className="fixed inset-0 bg-slate-950/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-              <div className="bg-slate-900 text-white px-5 py-3 flex justify-between items-center">
-                <h3 className="text-sm font-bold">Attendance Regularization Exception Fix</h3>
-                <button onClick={() => setSelectedRecord(null)} className="text-xs font-bold">✕</button>
+          <div className="fixed inset-0 bg-[#202522]/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-[10px] shadow-xl w-full max-w-md overflow-hidden border border-[#E5E2DB]">
+              <div className="bg-[#0F5B55] text-white px-5 py-3.5 flex justify-between items-center">
+                <h3 className="text-[18px] leading-6 font-semibold">Attendance Exception Fix</h3>
+                <button onClick={() => setSelectedRecord(null)} className="text-sm font-bold text-white/80 hover:text-white cursor-pointer">✕</button>
               </div>
 
               <form onSubmit={handleRegularizeSubmit} className="p-5 space-y-4">
-                <div className="bg-amber-50 p-3 rounded border border-amber-200 text-xs text-amber-800 space-y-1">
-                  <div className="font-bold">Target Date: {selectedRecord.date}</div>
+                <div className="bg-[#F8F5EE] p-3.5 rounded-[8px] border border-[#E5E2DB] text-[13px] leading-5 text-[#202522] space-y-1">
+                  <div className="font-semibold text-[#0F5B55]">Target Date: {selectedRecord.date}</div>
                   <div>Current Status: {selectedRecord.hasMissingPunch ? 'Missing Punch Exception' : selectedRecord.status}</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-semibold block mb-1">Requested IN Time</label>
-                    <input type="time" value={reqIn} onChange={e => setReqIn(e.target.value)} required className="w-full border text-xs p-2 rounded" />
+                    <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Requested IN Time</label>
+                    <input type="time" value={reqIn} onChange={e => setReqIn(e.target.value)} required className="w-full h-11 border border-[#E5E2DB] text-[15px] px-3.5 rounded-[8px] text-[#202522]" />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold block mb-1">Requested OUT Time</label>
-                    <input type="time" value={reqOut} onChange={e => setReqOut(e.target.value)} required className="w-full border text-xs p-2 rounded" />
+                    <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Requested OUT Time</label>
+                    <input type="time" value={reqOut} onChange={e => setReqOut(e.target.value)} required className="w-full h-11 border border-[#E5E2DB] text-[15px] px-3.5 rounded-[8px] text-[#202522]" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold block mb-1">Reason for Regularization</label>
-                  <textarea value={reason} onChange={e => setReason(e.target.value)} required className="w-full border text-xs p-2 rounded h-20" />
+                  <label className="text-[14px] leading-5 font-medium text-[#202522] block mb-1">Reason for Regularization</label>
+                  <textarea value={reason} onChange={e => setReason(e.target.value)} required className="w-full border border-[#E5E2DB] text-[15px] p-3 rounded-[8px] text-[#202522] h-24" />
                 </div>
 
                 <div className="flex justify-end space-x-2 pt-2">
-                  <button type="button" onClick={() => setSelectedRecord(null)} className="px-3 py-1.5 bg-slate-200 text-xs font-semibold rounded">Cancel</button>
-                  <button type="submit" className="px-4 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded shadow">Submit Request</button>
+                  <button type="button" onClick={() => setSelectedRecord(null)} className="px-4 h-11 bg-[#F3F0E9] text-[14px] font-medium text-[#202522] rounded-[8px]">Cancel</button>
+                  <button type="submit" className="px-4 h-11 bg-[#0F5B55] hover:bg-[#08463F] text-white text-[14px] font-semibold rounded-[8px] shadow-brand-xs">Submit Request</button>
                 </div>
               </form>
             </div>

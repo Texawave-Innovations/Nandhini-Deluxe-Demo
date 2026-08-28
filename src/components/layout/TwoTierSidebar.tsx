@@ -124,13 +124,13 @@ export default function TwoTierSidebar() {
         <div className="space-y-4">
           {/* Admin User Header Pill */}
           <div className={`flex items-center space-x-2.5 p-2 bg-[#08463F]/70 border border-[#C59A45]/30 rounded-xl ${mainNavCollapsed ? 'justify-center p-1.5' : ''}`}>
-            <div className="w-9 h-9 rounded-full bg-[#C59A45] text-[#08463F] font-serif font-bold flex items-center justify-center text-xs shadow-sm flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-[#C59A45] text-[#08463F] font-sans font-bold flex items-center justify-center text-[13px] shadow-sm flex-shrink-0">
               AU
             </div>
             {!mainNavCollapsed && (
               <div className="text-left overflow-hidden">
-                <div className="text-sm font-bold text-white leading-tight truncate">Admin User</div>
-                <div className="text-xs text-amber-300 font-semibold uppercase">Super Admin</div>
+                <div className="text-[14px] font-semibold text-white leading-tight truncate">Admin User</div>
+                <div className="text-[12px] text-amber-300 font-semibold tracking-[0.08em] uppercase">Super Admin</div>
               </div>
             )}
           </div>
@@ -138,13 +138,13 @@ export default function TwoTierSidebar() {
           {/* Persona Role Switcher */}
           {!mainNavCollapsed ? (
             <div className="px-1">
-              <label className="text-xs font-bold text-amber-200/70 uppercase tracking-wider block mb-1">
+              <label className="text-[12px] font-semibold text-amber-200/70 uppercase tracking-[0.08em] block mb-1">
                 Persona Role
               </label>
               <select
                 value={currentRole}
                 onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-                className="w-full bg-[#08463F] text-xs font-semibold text-white border border-[#C59A45]/40 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#C59A45] cursor-pointer shadow-sm"
+                className="w-full bg-[#08463F] text-[14px] leading-5 font-medium text-white border border-[#C59A45]/40 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#C59A45] cursor-pointer shadow-sm"
               >
                 <option value="SUPER_ADMIN">👑 Super Admin</option>
                 <option value="HR_ADMIN">🏢 HR Admin</option>
@@ -170,9 +170,9 @@ export default function TwoTierSidebar() {
                   key={item.name}
                   href={item.disabled ? '#' : item.href}
                   title={mainNavCollapsed ? item.name : undefined}
-                  className={`flex items-center justify-between p-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  className={`flex items-center justify-between p-2.5 rounded-lg text-[15px] leading-5 font-medium transition-all ${
                     isHrActive 
-                      ? 'bg-white/15 text-white font-bold border-l-2 border-[#C59A45] shadow-xs' 
+                      ? 'bg-white/15 text-white font-semibold border-l-2 border-[#C59A45] shadow-xs' 
                       : item.disabled ? 'text-white/40 cursor-not-allowed' : 'text-white/80 hover:bg-white/10 hover:text-white'
                   } ${mainNavCollapsed ? 'justify-center' : ''}`}
                 >
@@ -192,8 +192,8 @@ export default function TwoTierSidebar() {
           <Link
             href="/employee"
             title={mainNavCollapsed ? "Switch to ESS Portal" : undefined}
-            className={`w-full flex items-center justify-center py-2 bg-[#C59A45] hover:bg-[#b08739] text-[#08463F] text-sm font-bold rounded-lg shadow transition-all ${
-              mainNavCollapsed ? 'px-1 text-xs' : 'space-x-1.5 px-3'
+            className={`w-full flex items-center justify-center py-2 bg-[#C59A45] hover:bg-[#b08739] text-[#08463F] text-[14px] leading-5 font-semibold rounded-lg shadow transition-all ${
+              mainNavCollapsed ? 'px-1 text-[12px]' : 'space-x-1.5 px-3'
             }`}
           >
             <span>{mainNavCollapsed ? 'ESS ➔' : 'Switch to ESS Portal ➔'}</span>
@@ -201,7 +201,7 @@ export default function TwoTierSidebar() {
 
           <button 
             title={mainNavCollapsed ? "Logout" : undefined}
-            className={`w-full flex items-center text-sm font-bold text-red-300 hover:bg-red-950/40 rounded-lg transition-colors p-2 ${
+            className={`w-full flex items-center text-[14px] leading-5 font-semibold text-red-300 hover:bg-red-950/40 rounded-lg transition-colors p-2 ${
               mainNavCollapsed ? 'justify-center' : 'space-x-2 px-3 py-2'
             }`}
           >
