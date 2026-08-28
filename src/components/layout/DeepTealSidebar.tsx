@@ -165,18 +165,8 @@ export default function DeepTealSidebar() {
         ))}
       </div>
 
-      {/* Footer ESS Switch & Logout */}
+      {/* Footer Logout */}
       <div className="p-3 border-t border-[#08463F] space-y-2">
-        <Link
-          href="/employee"
-          title={collapsed ? "Switch to ESS Portal" : undefined}
-          className={`w-full flex items-center justify-center py-2 bg-[#C59A45] hover:bg-[#b08739] text-[#08463F] font-semibold text-[14px] leading-5 rounded-md shadow transition-all ${
-            collapsed ? 'px-1 text-[12px]' : 'space-x-1 px-3'
-          }`}
-        >
-          <span>{collapsed ? 'ESS ➔' : 'Switch to ESS Portal ➔'}</span>
-        </Link>
-
         <button 
           title={collapsed ? "Logout" : undefined}
           className={`w-full flex items-center text-[14px] leading-5 font-semibold text-red-300 hover:bg-red-950/40 rounded-md transition-colors p-2 ${

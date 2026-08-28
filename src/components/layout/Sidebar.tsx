@@ -149,18 +149,7 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* ESS Switch Banner */}
-      {!collapsed && (
-        <div className="p-2.5 bg-blue-950 border-b border-blue-800 flex justify-between items-center">
-          <span className="text-[11px] font-bold text-blue-300 uppercase tracking-wider">Workspace:</span>
-          <Link 
-            href="/employee"
-            className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-[11px] rounded shadow transition-all"
-          >
-            Switch to ESS Portal ➔
-          </Link>
-        </div>
-      )}
+
 
       {/* Role Switcher Demo Control */}
       {!collapsed && (
