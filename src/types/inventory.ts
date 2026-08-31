@@ -38,7 +38,7 @@ export interface StockLedgerEntry {
   entryType: StockLedgerEntryType;
   qty: number; // signed: +in, -out
   balanceAfter: number;
-  refType?: 'BILL' | 'TRANSFER' | 'GRN' | 'MANUAL';
+  refType?: 'BILL' | 'TRANSFER' | 'GRN' | 'SALES_ORDER' | 'MANUAL';
   refId?: string;
   batchNo?: string;
   remarks?: string;

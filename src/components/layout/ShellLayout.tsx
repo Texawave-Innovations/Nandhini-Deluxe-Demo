@@ -13,6 +13,8 @@ import { usePurchaseStore } from '@/store/purchase-store';
 import { useFinanceStore } from '@/store/finance-store';
 import { useReconciliationStore } from '@/store/reconciliation-store';
 import { useTallyStore } from '@/store/tally-store';
+import { useSalesStore } from '@/store/sales-store';
+import { useAIStore } from '@/store/ai-store';
 import '@/app/globals.css';
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
@@ -24,19 +26,22 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
   const initFinance = useFinanceStore((s) => s.initializeFromFirebase);
   const initReconciliation = useReconciliationStore((s) => s.initializeFromFirebase);
   const initTally = useTallyStore((s) => s.initializeFromFirebase);
+  const initSales = useSalesStore((s) => s.initializeFromFirebase);
+  const initAI = useAIStore((s) => s.initializeFromFirebase);
 
   useEffect(() => {
-    // HRMS/POS/Inventory/Vendor have no cross-store data dependency on each other, so they
-    // hydrate in parallel. Purchase, Finance, Reconciliation and Tally do have a real dependency
-    // chain (each reads the previous domain's *already-hydrated* historical records via
+    // HRMS/POS/Inventory/Vendor/Sales/AI have no cross-store data dependency on each other (Sales'
+    // seed reads static mock-data constants, not another store's hydrated state; AI has no seed at
+    // all), so they hydrate in parallel. Purchase, Finance, Reconciliation and Tally do have a real
+    // dependency chain (each reads the previous domain's *already-hydrated* historical records via
     // getState()), so those stages stay sequential — but only 3 stages deep, not 8.
     (async () => {
-      await Promise.all([initializeFromFirebase(), initPOS(), initInventory(), initVendor()]);
+      await Promise.all([initializeFromFirebase(), initPOS(), initInventory(), initVendor(), initSales(), initAI()]);
       await initPurchase(); // needs Vendor + Inventory's item/vendor masters (already hydrated above)
       await initFinance(); // needs Purchase's hydrated GRNs/POs
       await Promise.all([initReconciliation(), initTally()]); // both need Finance; Reconciliation also needs POS, Tally also needs Purchase (both already hydrated above)
     })();
-  }, [initializeFromFirebase, initPOS, initInventory, initVendor, initPurchase, initFinance, initReconciliation, initTally]);
+  }, [initializeFromFirebase, initPOS, initInventory, initVendor, initPurchase, initFinance, initReconciliation, initTally, initSales, initAI]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#F8F5EE] font-sans">

@@ -16,6 +16,12 @@ import {
   INITIAL_COST_CENTERS, INITIAL_SHIFTS, INITIAL_SHIFT_TEMPLATES,
   INITIAL_LEAVE_TYPES, INITIAL_HOLIDAYS, INITIAL_BANQUET_EVENTS, generateSeedEmployees
 } from '../mock-data/seed';
+import {
+  generateRosterAssignments, generateAttendanceRecords, generateRegularizationRequests, generateLeaveRequests,
+  generateOvertimeRecords, generateShiftSwapRequests, generateLoans, generateBonusRecords, generateCandidates,
+  generateHrTickets, generateExpenseClaims, generateExitRequests, generateEmployeeTasks, generateEventAssignments,
+  generateSeedAuditLogs,
+} from '../mock-data/hr-transactions.seed';
 import { firebaseDataService } from '../services/firebaseDataService';
 
 interface HRMSState {
@@ -157,6 +163,29 @@ interface HRMSState {
 
 const seedEmployees = generateSeedEmployees();
 
+// Derived transactional sample data — mirrors the roster → attendance → regularization
+// dependency chain a real deployment would have (roster is the source of truth for who was
+// scheduled, attendance is computed against it, regularizations arise from its exceptions).
+const seedRosterAssignments = generateRosterAssignments(seedEmployees, '2026-08');
+const seedAttendanceRecords = generateAttendanceRecords(seedEmployees, seedRosterAssignments, '2026-08-21', '2026-08-30');
+const seedRegularizationRequests = generateRegularizationRequests(seedAttendanceRecords);
+const seedLeaveRequests = generateLeaveRequests(seedEmployees);
+const seedOvertimeRecords = generateOvertimeRecords(seedEmployees);
+const seedShiftSwapRequests = generateShiftSwapRequests(seedEmployees);
+const seedLoans = generateLoans(seedEmployees);
+const seedBonusRecords = generateBonusRecords(seedEmployees);
+const seedCandidates = generateCandidates();
+const seedHrTickets = generateHrTickets(seedEmployees);
+const seedExpenseClaims = generateExpenseClaims(seedEmployees);
+const seedExitRequests = generateExitRequests(seedEmployees);
+const seedEmployeeTasks = generateEmployeeTasks(seedEmployees);
+const seedEventRequirements: EventStaffRequirement[] = [
+  { id: 'req-1', eventId: 'evt-1', roleId: 'role-6', requiredCount: 15, assignedCount: 2 },
+  { id: 'req-2', eventId: 'evt-1', roleId: 'role-9', requiredCount: 2, assignedCount: 1 },
+];
+const seedEventAssignments = generateEventAssignments(seedEventRequirements, seedEmployees);
+const seedAuditLogs = generateSeedAuditLogs();
+
 export const useHRMSStore = create<HRMSState>((set, get) => ({
   isHydrated: false,
 
@@ -203,18 +232,18 @@ export const useHRMSStore = create<HRMSState>((set, get) => ({
   roles: INITIAL_ROLES,
   costCenters: INITIAL_COST_CENTERS,
   currentRole: 'SUPER_ADMIN',
-  auditLogs: [],
+  auditLogs: seedAuditLogs,
 
   employees: seedEmployees,
 
   shifts: INITIAL_SHIFTS,
   shiftTemplates: INITIAL_SHIFT_TEMPLATES,
   rosters: [],
-  rosterAssignments: [],
+  rosterAssignments: seedRosterAssignments,
 
-  attendanceRecords: [],
+  attendanceRecords: seedAttendanceRecords,
   attendancePunches: [],
-  regularizationRequests: [],
+  regularizationRequests: seedRegularizationRequests,
 
   leaveTypes: INITIAL_LEAVE_TYPES,
   leaveBalances: seedEmployees.map(e => ({
@@ -226,25 +255,22 @@ export const useHRMSStore = create<HRMSState>((set, get) => ({
     pending: 1,
     available: 9
   })),
-  leaveRequests: [],
+  leaveRequests: seedLeaveRequests,
   holidays: INITIAL_HOLIDAYS,
-  overtimeRecords: [],
-  shiftSwapRequests: [],
+  overtimeRecords: seedOvertimeRecords,
+  shiftSwapRequests: seedShiftSwapRequests,
 
   banquetEvents: INITIAL_BANQUET_EVENTS,
-  eventRequirements: [
-    { id: 'req-1', eventId: 'evt-1', roleId: 'role-6', requiredCount: 15, assignedCount: 2 },
-    { id: 'req-2', eventId: 'evt-1', roleId: 'role-9', requiredCount: 2, assignedCount: 1 }
-  ],
-  eventAssignments: [],
+  eventRequirements: seedEventRequirements,
+  eventAssignments: seedEventAssignments,
 
-  loans: [],
-  bonusRecords: [],
-  candidates: [],
-  hrTickets: [],
-  expenseClaims: [],
-  exitRequests: [],
-  employeeTasks: [],
+  loans: seedLoans,
+  bonusRecords: seedBonusRecords,
+  candidates: seedCandidates,
+  hrTickets: seedHrTickets,
+  expenseClaims: seedExpenseClaims,
+  exitRequests: seedExitRequests,
+  employeeTasks: seedEmployeeTasks,
 
   setCurrentRole: (role) => set({ currentRole: role }),
 

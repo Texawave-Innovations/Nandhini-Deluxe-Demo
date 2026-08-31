@@ -31,6 +31,12 @@ interface InventoryState {
   // item's Recipe and posts CONSUMPTION ledger entries + a ConsumptionEvent per line.
   consumeForOrderItems: (params: { billId: string; orderId: string; outletId: string; items: { menuItemId: string; name: string; qty: number }[] }) => void;
 
+  // The single entry point from Sales -> Inventory: the third mirror of the same event-driven
+  // pattern (after consumeForOrderItems for POS and receiveGRNStock for Purchase). Fulfilling a
+  // Sales Order resolves the same Recipe/BOM engine and posts CONSUMPTION entries with
+  // refType 'SALES_ORDER' — sales-store never touches the ledger directly.
+  consumeForSalesOrder: (params: { salesOrderId: string; salesOrderNumber: string; outletId: string; createdBy: string; items: { menuItemId: string; name: string; qty: number }[] }) => void;
+
   // The single entry point from Purchase -> Inventory: given a posted GRN's receipt lines, posts
   // PURCHASE ledger entries (refType 'GRN') and StockBatch rows. Mirrors consumeForOrderItems's
   // batched-write pattern — purchase-store never touches the ledger directly.
@@ -121,6 +127,40 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
           outletId: params.outletId, storeName: 'Main Kitchen Store', itemId: ing.itemId, entryType: 'CONSUMPTION',
           qty: -ing.qty, priorBalance, refType: 'BILL', refId: params.billId,
           remarks: `Auto-consumed for ${line.qty}x ${line.name}`, createdBy: 'System (Recipe Engine)',
+        });
+        newLedgerEntries.push({ ...entry, id: `sl-${Date.now()}-${Math.floor(Math.random() * 10000)}` });
+      });
+    });
+
+    if (events.length === 0 && newLedgerEntries.length === 0) return;
+    set((state) => {
+      const updatedLedger = [...state.ledgerEntries, ...newLedgerEntries];
+      const updatedEvents = [...state.consumptionEvents, ...events];
+      firebaseDataService.saveRecord('erp/inventory/ledgerEntries', updatedLedger);
+      firebaseDataService.saveRecord('erp/inventory/consumptionEvents', updatedEvents);
+      return { ledgerEntries: updatedLedger, consumptionEvents: updatedEvents };
+    });
+  },
+
+  consumeForSalesOrder: (params) => {
+    const { recipes, items: invItems, uomLabel } = get();
+    const events: ConsumptionEvent[] = [];
+    const newLedgerEntries: StockLedgerEntry[] = [];
+
+    params.items.forEach((line) => {
+      const event = recipeService.consumeForSale({
+        billId: params.salesOrderId, orderId: params.salesOrderId, outletId: params.outletId,
+        menuItemId: line.menuItemId, menuItemName: line.name, qtySold: line.qty,
+        recipes, inventoryItems: invItems, uomLabel,
+      });
+      if (!event) return;
+      events.push(event);
+      event.ingredientsConsumed.forEach((ing) => {
+        const priorBalance = inventoryService.getBalanceForItem([...get().ledgerEntries, ...newLedgerEntries], params.outletId, ing.itemId);
+        const entry = inventoryService.buildLedgerEntry({
+          outletId: params.outletId, storeName: 'Main Kitchen Store', itemId: ing.itemId, entryType: 'CONSUMPTION',
+          qty: -ing.qty, priorBalance, refType: 'SALES_ORDER', refId: params.salesOrderId,
+          remarks: `Auto-consumed for ${line.qty}x ${line.name} (${params.salesOrderNumber})`, createdBy: params.createdBy,
         });
         newLedgerEntries.push({ ...entry, id: `sl-${Date.now()}-${Math.floor(Math.random() * 10000)}` });
       });

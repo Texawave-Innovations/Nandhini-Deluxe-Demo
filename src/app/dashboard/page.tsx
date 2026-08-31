@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   IndianRupee, Wallet, CreditCard, Smartphone, Bike, UtensilsCrossed, BedDouble, PartyPopper,
   GitMerge, AlertTriangle, Package, CalendarClock, Users2, Sparkles, TrendingUp, Plus, Clock,
-  Ticket, Receipt, Sparkles as SparklesIcon,
+  Ticket, Receipt, ShoppingCart,
 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { useHRMSStore } from '@/store/hrms-store';
@@ -22,6 +22,11 @@ import { financeService } from '@/services/financeService';
 import { reconciliationService } from '@/services/reconciliationService';
 import { vendorService } from '@/services/vendorService';
 import { useVendorStore } from '@/store/vendor-store';
+import { useSalesStore } from '@/store/sales-store';
+import { useAIStore } from '@/store/ai-store';
+import { salesService } from '@/services/salesService';
+import { aiInsightsService } from '@/services/aiInsightsService';
+import { reportsService } from '@/services/reportsService';
 import KpiCard from '@/components/ui/KpiCard';
 import StatusChip from '@/components/ui/StatusChip';
 
@@ -39,6 +44,8 @@ export default function DashboardPage() {
   const { vendorBills } = useFinanceStore();
   const { vendors } = useVendorStore();
   const { matches: reconciliationMatches, bankTransactions } = useReconciliationStore();
+  const { customers, invoices } = useSalesStore();
+  const { acknowledgements } = useAIStore();
   const { selectedOutletId, businessDate } = useOutletStore();
 
   const outlets = outletService.listOutlets(locations);
@@ -84,14 +91,16 @@ export default function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todaysPayments]);
 
-  // ---- Sales trend, last 5 business dates ----
-  const salesTrend = useMemo(() => {
-    const dates = ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-29', '2026-08-30'];
-    return dates.map((d) => ({
-      date: d.substring(5),
-      value: bills.filter((b) => b.businessDate === d && scopeOutletIds.includes(b.outletId) && b.status !== 'VOID').reduce((s, b) => s + b.netAmount, 0),
-    }));
-  }, [bills, scopeOutletIds]);
+  // ---- Sales trend, trailing 5 days ending on the selected business date ----
+  const salesTrendFrom = useMemo(() => {
+    const d = new Date(`${businessDate}T00:00:00.000Z`);
+    d.setDate(d.getDate() - 4);
+    return d.toISOString().substring(0, 10);
+  }, [businessDate]);
+  const salesTrend = useMemo(
+    () => reportsService.computeSalesTrend(bills, salesTrendFrom, businessDate, scopeOutletIds),
+    [bills, salesTrendFrom, businessDate, scopeOutletIds]
+  );
 
   // ---- Top selling items ----
   const topItems = useMemo(() => {
@@ -128,6 +137,21 @@ export default function DashboardPage() {
   const topVendorOutstanding = rankedVendors[0];
   const reconciliationExceptions = reconciliationService.flagVarianceExceptions(reconciliationMatches).slice(0, 2);
   const txnById = new Map(bankTransactions.map((t) => [t.id, t]));
+
+  // ---- Sales (AR) + AI Insights (Phase 2 slice 2) ----
+  const arAging = salesService.computeARAging(invoices, businessDate);
+  const rankedCustomers = salesService.rankCustomersByOutstanding(customers, invoices);
+  const topCustomerOutstanding = rankedCustomers[0];
+  const aiInsights = useMemo(() => [
+    ...aiInsightsService.detectConsumptionAnomalies(ledgerEntries, items, locations, businessDate),
+    ...aiInsightsService.suggestReorders(items, ledgerEntries),
+    ...aiInsightsService.rankVendorRisk(vendors, vendorBills, businessDate),
+    ...aiInsightsService.rankCustomerRisk(customers, invoices, businessDate),
+    ...aiInsightsService.detectSettlementMismatches(reconciliationMatches),
+  ], [ledgerEntries, items, locations, businessDate, vendors, vendorBills, customers, invoices, reconciliationMatches]);
+  const ackedKeys = new Set(acknowledgements.map((a) => a.insightKey));
+  const openAIInsights = aiInsights.filter((i) => !ackedKeys.has(i.key));
+  const topAIInsights = [...openAIInsights].sort((a, b) => (b.severity === 'HIGH' ? 1 : 0) - (a.severity === 'HIGH' ? 1 : 0)).slice(0, 3);
 
   // ---- Banquet events today (existing HR banquet staffing data) ----
   const banquetEventsToday = banquetEvents.filter((e) => e.eventDate === businessDate);
@@ -186,6 +210,16 @@ export default function DashboardPage() {
             <KpiCard label="Outstanding Vendor Payments" value={inr(apAging.total)} icon={Receipt} valueColorClass="text-[#C94B45]" sublabel={topVendorOutstanding && topVendorOutstanding.outstanding > 0 ? `${topVendorOutstanding.name}: ${inr(topVendorOutstanding.outstanding)}` : undefined} />
             <KpiCard label="Pending Purchase Orders" value={pendingPOCount} icon={Ticket} />
             <KpiCard label="Pending Reconciliation" value={pendingReconciliationCount} icon={GitMerge} valueColorClass={pendingReconciliationCount > 0 ? 'text-[#C68A28]' : 'text-[#23865B]'} />
+          </div>
+        </div>
+
+        {/* SALES + AI INSIGHTS KPI ROW — live, Phase 2 slice 2 */}
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[#66706B] mb-1.5">Sales &amp; Receivables</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <KpiCard label="Total Sales (5 days, in scope)" value={inr(salesTrend.reduce((s, p) => s + p.value, 0))} icon={ShoppingCart} valueColorClass="text-[#0F5B55]" />
+            <KpiCard label="Customer Receivables (AR)" value={inr(arAging.total)} icon={Wallet} valueColorClass="text-[#C94B45]" sublabel={topCustomerOutstanding && topCustomerOutstanding.outstanding > 0 ? `${topCustomerOutstanding.name}: ${inr(topCustomerOutstanding.outstanding)}` : undefined} />
+            <KpiCard label="Open AI Insights" value={openAIInsights.length} icon={Sparkles} valueColorClass={openAIInsights.some((i) => i.severity === 'HIGH') ? 'text-[#C94B45]' : 'text-[#23865B]'} />
           </div>
         </div>
 
@@ -307,17 +341,17 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-dashed border-[#E5E2DB] p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-[#C59A45]" />
-              <h3 className="text-sm font-semibold text-[#202522]">AI Alerts <span className="text-[10px] font-normal text-[#66706B]">(Phase 2 preview)</span></h3>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#C59A45]" />
+                <h3 className="text-sm font-semibold text-[#202522]">AI Alerts</h3>
+              </div>
+              <Link href="/ai" className="text-[12px] text-[#0F5B55] font-semibold">View all →</Link>
             </div>
             <ul className="space-y-1.5 text-[13px] text-[#202522] list-disc list-inside">
-              <li>Chicken consumption at Indiranagar is trending 28% above the 4-week average.</li>
-              {topVendorOutstanding && topVendorOutstanding.outstanding > 0 && (
-                <li>{topVendorOutstanding.name} has {inr(topVendorOutstanding.outstanding)} outstanding due within two days.</li>
-              )}
-              <li>3 settlement mismatches across Swiggy/Zomato require review.</li>
+              {topAIInsights.length === 0 && <li className="text-[#66706B] list-none">No open insights right now.</li>}
+              {topAIInsights.map((insight) => <li key={insight.key}>{insight.description}</li>)}
             </ul>
           </div>
         </div>

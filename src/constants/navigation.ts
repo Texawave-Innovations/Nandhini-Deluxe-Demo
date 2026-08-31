@@ -31,7 +31,7 @@ export interface ModuleNavConfig {
 
 // HR categories, moved verbatim from the legacy TopHRNav so existing HR navigation is unchanged.
 const hrmsCategories: NavCategory[] = [
-  { category: 'OVERVIEW', items: [{ name: 'Dashboard', href: '/dashboard' }] },
+  { category: 'OVERVIEW', items: [{ name: 'HR Overview', href: '/hr/overview' }] },
   { category: 'RECRUITMENT', items: [{ name: 'ATS', href: '/hr/recruitment' }] },
   {
     category: 'PEOPLE & ORG',
@@ -163,6 +163,16 @@ const vendorsCategories: NavCategory[] = [
   { category: 'OVERVIEW', items: [{ name: 'Vendor Dashboard', href: '/vendors' }] },
 ];
 
+const salesCategories: NavCategory[] = [
+  { category: 'OVERVIEW', items: [{ name: 'Sales Dashboard', href: '/sales' }] },
+  { category: 'ACCOUNTS RECEIVABLE', items: [
+    { name: 'Customers', href: '/sales/customers' },
+    { name: 'Sales Orders', href: '/sales/orders' },
+    { name: 'Invoices', href: '/sales/invoices' },
+    { name: 'Customer Payments', href: '/sales/payments' },
+  ] },
+];
+
 const financeCategories: NavCategory[] = [
   { category: 'OVERVIEW', items: [{ name: 'Finance Dashboard', href: '/finance' }] },
   {
@@ -190,6 +200,19 @@ const tallyCategories: NavCategory[] = [
   },
 ];
 
+const reportsCategories: NavCategory[] = [
+  { category: 'OVERVIEW', items: [{ name: 'Reports Dashboard', href: '/reports-analytics' }] },
+  { category: 'REPORTS', items: [
+    { name: 'Sales Reports', href: '/reports-analytics/sales' },
+    { name: 'Inventory Reports', href: '/reports-analytics/inventory' },
+    { name: 'Finance Reports', href: '/reports-analytics/finance' },
+  ] },
+];
+
+const aiCategories: NavCategory[] = [
+  { category: 'OVERVIEW', items: [{ name: 'AI Insights', href: '/ai' }] },
+];
+
 const administrationCategories: NavCategory[] = [
   { category: 'OVERVIEW', items: [{ name: 'Administration', href: '/administration' }] },
   {
@@ -204,7 +227,7 @@ const administrationCategories: NavCategory[] = [
 export const MODULE_NAV: ModuleNavConfig[] = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard', matchPrefixes: ['/dashboard'], status: 'live', categories: [] },
   { id: 'pos', name: 'POS', icon: UtensilsCrossed, href: '/pos', matchPrefixes: ['/pos'], status: 'live', categories: posCategories },
-  { id: 'sales', name: 'Sales', icon: ShoppingCart, href: '/sales', matchPrefixes: ['/sales'], status: 'phase2', categories: [] },
+  { id: 'sales', name: 'Sales', icon: ShoppingCart, href: '/sales', matchPrefixes: ['/sales'], status: 'live', categories: salesCategories },
   { id: 'inventory', name: 'Inventory', icon: Package, href: '/inventory', matchPrefixes: ['/inventory'], status: 'live', categories: inventoryCategories },
   { id: 'recipe', name: 'Recipe / BOM', icon: ChefHat, href: '/masters/recipe', matchPrefixes: ['/masters/recipe'], status: 'live', categories: [] },
   { id: 'purchase', name: 'Purchase', icon: ShoppingBag, href: '/purchase', matchPrefixes: ['/purchase'], status: 'live', categories: purchaseCategories },
@@ -215,12 +238,12 @@ export const MODULE_NAV: ModuleNavConfig[] = [
   { id: 'hotel', name: 'Hotel Operations', icon: BedDouble, href: '/hotel', matchPrefixes: ['/hotel'], status: 'phase2', categories: [] },
   { id: 'banquet', name: 'Banquet Management', icon: PartyPopper, href: '/banquet-mgmt', matchPrefixes: ['/banquet-mgmt'], status: 'phase2', categories: [] },
   {
-    id: 'hrms', name: 'HRMS', icon: Users, href: '/dashboard',
+    id: 'hrms', name: 'HRMS', icon: Users, href: '/hr/overview',
     matchPrefixes: ['/employees', '/attendance', '/roster', '/shifts', '/leave', '/overtime', '/shift-swap', '/organization', '/hr', '/banquet', '/reports', '/audit', '/workflows'],
     status: 'live', categories: hrmsCategories,
   },
-  { id: 'reports', name: 'Reports & Analytics', icon: FileBarChart2, href: '/reports-analytics', matchPrefixes: ['/reports-analytics'], status: 'phase2', categories: [] },
-  { id: 'ai', name: 'AI Insights', icon: Sparkles, href: '/ai', matchPrefixes: ['/ai'], status: 'phase2', categories: [] },
+  { id: 'reports', name: 'Reports & Analytics', icon: FileBarChart2, href: '/reports-analytics', matchPrefixes: ['/reports-analytics'], status: 'live', categories: reportsCategories },
+  { id: 'ai', name: 'AI Insights', icon: Sparkles, href: '/ai', matchPrefixes: ['/ai'], status: 'live', categories: aiCategories },
   { id: 'masters', name: 'Masters', icon: ListTree, href: '/masters', matchPrefixes: ['/masters'], status: 'live', categories: mastersCategories },
   { id: 'administration', name: 'Administration', icon: ShieldCheck, href: '/administration', matchPrefixes: ['/administration'], status: 'live', categories: administrationCategories },
 ];

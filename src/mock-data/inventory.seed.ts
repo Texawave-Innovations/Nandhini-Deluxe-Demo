@@ -147,7 +147,13 @@ export function generateOpeningStock(locations: Location[]): OpeningStockResult 
       const r = seeded(idx + 1);
       // Base opening quantity around ~1.5x-3x reorder level, with ~1 in 9 items pinned low.
       const isForcedLow = idx % 9 === 0;
-      const qty = isForcedLow
+      // Pinned AI-insight continuity item (Chicken (Whole) at Indiranagar, see the backfilled
+      // CONSUMPTION history below) needs a larger opening balance — it gets ~28 days of history
+      // with no offsetting GRN receipts replayed into the ledger, unlike a normal item.
+      const isPinnedConsumptionItem = outlet.id === 'loc-1' && item.id === 'inv-9';
+      const qty = isPinnedConsumptionItem
+        ? 320
+        : isForcedLow
         ? Math.round(item.reorderLevel * (0.35 + r * 0.4))
         : Math.round(item.reorderLevel * (1.5 + r * 2));
 
@@ -183,6 +189,38 @@ export function generateOpeningStock(locations: Location[]): OpeningStockResult 
       }
     });
   });
+
+  // Pinned AI-insight continuity: backfill four weeks of real CONSUMPTION history for
+  // "Chicken (Whole)" at Indiranagar, with a genuine ~30% spike in the most recent 7 days — so
+  // aiInsightsService.detectConsumptionAnomalies has a real trailing-average comparison to report
+  // on day one, rather than the fictional hardcoded dashboard line this replaces.
+  const pinnedOutlet = stores.find((s) => s.id === 'loc-1');
+  const pinnedItem = INITIAL_INVENTORY_ITEMS.find((it) => it.id === 'inv-9');
+  if (pinnedOutlet && pinnedItem) {
+    const openingEntry = ledgerEntries.find((e) => e.outletId === pinnedOutlet.id && e.itemId === pinnedItem.id && e.entryType === 'OPENING');
+    let balance = openingEntry?.balanceAfter ?? 320;
+    for (let daysAgoN = 28; daysAgoN >= 1; daysAgoN--) {
+      const isRecentWeek = daysAgoN <= 7;
+      const r = seeded(daysAgoN * 7 + 3);
+      const dailyQty = Math.round(((isRecentWeek ? 10.5 : 8) + (r - 0.5) * 1.5) * 10) / 10;
+      const entryDate = new Date('2026-08-30T20:00:00.000Z');
+      entryDate.setDate(entryDate.getDate() - daysAgoN);
+      balance = Math.round((balance - dailyQty) * 1000) / 1000;
+      ledgerEntries.push({
+        id: `sl-${ledgerSeq++}`,
+        outletId: pinnedOutlet.id,
+        storeName: 'Main Kitchen Store',
+        itemId: pinnedItem.id,
+        entryType: 'CONSUMPTION',
+        qty: -dailyQty,
+        balanceAfter: balance,
+        refType: 'MANUAL',
+        remarks: 'Historical demo consumption (recipe-driven, backfilled for trend realism)',
+        createdBy: 'System Seed',
+        createdAt: entryDate.toISOString(),
+      });
+    }
+  }
 
   return { ledgerEntries, batches };
 }
