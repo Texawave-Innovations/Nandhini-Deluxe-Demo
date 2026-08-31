@@ -15,6 +15,8 @@ import { useReconciliationStore } from '@/store/reconciliation-store';
 import { useTallyStore } from '@/store/tally-store';
 import { useSalesStore } from '@/store/sales-store';
 import { useAIStore } from '@/store/ai-store';
+import { useHotelStore } from '@/store/hotel-store';
+import { useBanquetStore } from '@/store/banquet-store';
 import '@/app/globals.css';
 
 export default function ShellLayout({ children }: { children: React.ReactNode }) {
@@ -28,20 +30,24 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
   const initTally = useTallyStore((s) => s.initializeFromFirebase);
   const initSales = useSalesStore((s) => s.initializeFromFirebase);
   const initAI = useAIStore((s) => s.initializeFromFirebase);
+  const initHotel = useHotelStore((s) => s.initializeFromFirebase);
+  const initBanquet = useBanquetStore((s) => s.initializeFromFirebase);
 
   useEffect(() => {
-    // HRMS/POS/Inventory/Vendor/Sales/AI have no cross-store data dependency on each other (Sales'
-    // seed reads static mock-data constants, not another store's hydrated state; AI has no seed at
-    // all), so they hydrate in parallel. Purchase, Finance, Reconciliation and Tally do have a real
-    // dependency chain (each reads the previous domain's *already-hydrated* historical records via
-    // getState()), so those stages stay sequential — but only 3 stages deep, not 8.
+    // HRMS/POS/Inventory/Vendor/Sales/AI/Hotel/Banquet have no cross-store data dependency on each
+    // other at hydration time (Sales/Hotel/Banquet seed off static mock-data + locations, not
+    // another store's hydrated state; AI has no seed at all — their later reads of POS orders/bills
+    // for folio/final-bill generation happen on demand, well after this initial hydration), so they
+    // hydrate in parallel. Purchase, Finance, Reconciliation and Tally do have a real dependency
+    // chain (each reads the previous domain's *already-hydrated* historical records via getState()),
+    // so those stages stay sequential — but only 3 stages deep, not 8.
     (async () => {
-      await Promise.all([initializeFromFirebase(), initPOS(), initInventory(), initVendor(), initSales(), initAI()]);
+      await Promise.all([initializeFromFirebase(), initPOS(), initInventory(), initVendor(), initSales(), initAI(), initHotel(), initBanquet()]);
       await initPurchase(); // needs Vendor + Inventory's item/vendor masters (already hydrated above)
       await initFinance(); // needs Purchase's hydrated GRNs/POs
       await Promise.all([initReconciliation(), initTally()]); // both need Finance; Reconciliation also needs POS, Tally also needs Purchase (both already hydrated above)
     })();
-  }, [initializeFromFirebase, initPOS, initInventory, initVendor, initPurchase, initFinance, initReconciliation, initTally, initSales, initAI]);
+  }, [initializeFromFirebase, initPOS, initInventory, initVendor, initPurchase, initFinance, initReconciliation, initTally, initSales, initAI, initHotel, initBanquet]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#F8F5EE] font-sans">

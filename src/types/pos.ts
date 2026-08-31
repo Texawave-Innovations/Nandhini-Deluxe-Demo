@@ -61,6 +61,7 @@ export interface POSOrder {
   tableId?: string;
   floorId?: string;
   roomNumber?: string;
+  banquetBookingId?: string;
   guestCount?: number;
   items: OrderLineItem[];
   status: OrderStatus;

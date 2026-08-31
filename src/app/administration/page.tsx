@@ -42,7 +42,7 @@ export default function AdministrationHubPage() {
         </div>
 
         <div className="bg-[#F3F0E9] border border-[#E5E2DB] rounded-[10px] p-4 text-[13px] text-[#66706B]">
-          Users, Integration Configuration and Notification Settings are part of the Phase 2 build-out, alongside Hotel Operations and Banquet Management (beyond staffing).
+          Users, Integration Configuration and Notification Settings are part of the Phase 2 build-out.
         </div>
       </div>
     </ShellLayout>

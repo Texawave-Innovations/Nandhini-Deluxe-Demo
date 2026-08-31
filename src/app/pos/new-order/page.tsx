@@ -10,6 +10,7 @@ import CartPanel from '@/components/pos/CartPanel';
 import { UtensilsCrossed, ShoppingBag, Bike, BedDouble, PartyPopper, CheckCircle2 } from 'lucide-react';
 import { useHRMSStore } from '@/store/hrms-store';
 import { usePOSStore } from '@/store/pos-store';
+import { useBanquetStore } from '@/store/banquet-store';
 import { useOutletStore } from '@/store/outlet-store';
 import { outletService } from '@/services/outletService';
 import { ROLE_LABELS } from '@/permissions/roleAccess';
@@ -27,6 +28,7 @@ export default function NewOrderPage() {
   const router = useRouter();
   const { locations, currentRole } = useHRMSStore();
   const { floors, tables, counters, orders, createOrder, addItemToOrder, decrementItemInOrder, removeItemFromOrder, sendKOT } = usePOSStore();
+  const { bookings: banquetBookings } = useBanquetStore();
   const { selectedOutletId, businessDate } = useOutletStore();
   const outlets = outletService.listOutlets(locations);
   const effectiveOutletId = selectedOutletId === 'ALL' ? (outlets[0]?.id ?? '') : selectedOutletId;
@@ -34,8 +36,11 @@ export default function NewOrderPage() {
   const [orderType, setOrderType] = useState<OrderType | null>(null);
   const [selectedTable, setSelectedTable] = useState<DiningTable | null>(null);
   const [roomNumber, setRoomNumber] = useState('');
+  const [banquetBookingId, setBanquetBookingId] = useState('');
   const [orderId, setOrderId] = useState<string | null>(null);
   const [kotSent, setKotSent] = useState(false);
+
+  const confirmedBookingsHere = banquetBookings.filter((b) => b.locationId === effectiveOutletId && b.status === 'CONFIRMED');
 
   const outletFloors = floors.filter((f) => f.outletId === effectiveOutletId);
   const outletTables = tables.filter((t) => t.outletId === effectiveOutletId);
@@ -49,6 +54,7 @@ export default function NewOrderPage() {
     const newOrder = createOrder({
       outletId: effectiveOutletId, counterId: counter?.id ?? '', orderType: type, channel: 'DIRECT',
       tableId: table?.id, floorId: table?.floorId, roomNumber: type === 'ROOM_SERVICE' ? roomNumber : undefined,
+      banquetBookingId: type === 'BANQUET' && banquetBookingId ? banquetBookingId : undefined,
       waiterEmployeeId: actor, businessDate,
     });
     setOrderId(newOrder.id);
@@ -56,7 +62,7 @@ export default function NewOrderPage() {
 
   const handleSelectType = (type: OrderType) => {
     setOrderType(type);
-    if (type !== 'DINE_IN' && type !== 'ROOM_SERVICE') startOrder(type);
+    if (type !== 'DINE_IN' && type !== 'ROOM_SERVICE' && type !== 'BANQUET') startOrder(type);
   };
 
   const handleSendKOT = () => {
@@ -66,7 +72,7 @@ export default function NewOrderPage() {
   };
 
   const reset = () => {
-    setOrderType(null); setSelectedTable(null); setRoomNumber(''); setOrderId(null); setKotSent(false);
+    setOrderType(null); setSelectedTable(null); setRoomNumber(''); setBanquetBookingId(''); setOrderId(null); setKotSent(false);
   };
 
   if (kotSent && order) {
@@ -113,6 +119,21 @@ export default function NewOrderPage() {
             <label className="text-[13px] font-semibold text-[#202522] block">Room Number</label>
             <input value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} placeholder="e.g. 204" className="w-full border border-[#E5E2DB] rounded-lg px-3 py-2.5 text-[14px]" />
             <button onClick={() => startOrder('ROOM_SERVICE')} disabled={!roomNumber} className="px-4 py-2.5 bg-[#0F5B55] disabled:bg-[#E5E2DB] text-white text-[13px] font-semibold rounded-[8px]">Continue to Menu</button>
+          </div>
+        )}
+
+        {orderType === 'BANQUET' && !orderId && (
+          <div className="max-w-sm space-y-3">
+            <label className="text-[13px] font-semibold text-[#202522] block">Banquet Booking</label>
+            {confirmedBookingsHere.length === 0 ? (
+              <p className="text-[13px] text-[#66706B]">No confirmed banquet bookings at this outlet. Confirm one in Banquet Management first, or continue without linking a booking.</p>
+            ) : (
+              <select value={banquetBookingId} onChange={(e) => setBanquetBookingId(e.target.value)} className="w-full border border-[#E5E2DB] rounded-lg px-3 py-2.5 text-[14px]">
+                <option value="">— No booking (unlinked) —</option>
+                {confirmedBookingsHere.map((b) => <option key={b.id} value={b.id}>{b.bookingNumber} — {b.customerName} ({b.eventDate})</option>)}
+              </select>
+            )}
+            <button onClick={() => startOrder('BANQUET')} className="px-4 py-2.5 bg-[#0F5B55] text-white text-[13px] font-semibold rounded-[8px]">Continue to Menu</button>
           </div>
         )}
 

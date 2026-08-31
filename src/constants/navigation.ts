@@ -213,6 +213,29 @@ const aiCategories: NavCategory[] = [
   { category: 'OVERVIEW', items: [{ name: 'AI Insights', href: '/ai' }] },
 ];
 
+const hotelCategories: NavCategory[] = [
+  { category: 'OVERVIEW', items: [{ name: 'Hotel Dashboard', href: '/hotel' }] },
+  {
+    category: 'FRONT DESK',
+    items: [
+      { name: 'Rooms', href: '/hotel/rooms' },
+      { name: 'Reservations', href: '/hotel/reservations' },
+      { name: 'Housekeeping', href: '/hotel/housekeeping' },
+    ],
+  },
+];
+
+const banquetMgmtCategories: NavCategory[] = [
+  { category: 'OVERVIEW', items: [{ name: 'Banquet Dashboard', href: '/banquet-mgmt' }] },
+  {
+    category: 'EVENTS',
+    items: [
+      { name: 'Halls', href: '/banquet-mgmt/halls' },
+      { name: 'Bookings', href: '/banquet-mgmt/bookings' },
+    ],
+  },
+];
+
 const administrationCategories: NavCategory[] = [
   { category: 'OVERVIEW', items: [{ name: 'Administration', href: '/administration' }] },
   {
@@ -235,8 +258,8 @@ export const MODULE_NAV: ModuleNavConfig[] = [
   { id: 'finance', name: 'Finance', icon: DollarSign, href: '/finance', matchPrefixes: ['/finance'], status: 'live', categories: financeCategories },
   { id: 'reconciliation', name: 'Reconciliation', icon: GitMerge, href: '/reconciliation', matchPrefixes: ['/reconciliation'], status: 'live', categories: reconciliationCategories },
   { id: 'tally', name: 'Tally / Accounting', icon: BookOpenCheck, href: '/tally', matchPrefixes: ['/tally'], status: 'live', categories: tallyCategories },
-  { id: 'hotel', name: 'Hotel Operations', icon: BedDouble, href: '/hotel', matchPrefixes: ['/hotel'], status: 'phase2', categories: [] },
-  { id: 'banquet', name: 'Banquet Management', icon: PartyPopper, href: '/banquet-mgmt', matchPrefixes: ['/banquet-mgmt'], status: 'phase2', categories: [] },
+  { id: 'hotel', name: 'Hotel Operations', icon: BedDouble, href: '/hotel', matchPrefixes: ['/hotel'], status: 'live', categories: hotelCategories },
+  { id: 'banquet', name: 'Banquet Management', icon: PartyPopper, href: '/banquet-mgmt', matchPrefixes: ['/banquet-mgmt'], status: 'live', categories: banquetMgmtCategories },
   {
     id: 'hrms', name: 'HRMS', icon: Users, href: '/hr/overview',
     matchPrefixes: ['/employees', '/attendance', '/roster', '/shifts', '/leave', '/overtime', '/shift-swap', '/organization', '/hr', '/banquet', '/reports', '/audit', '/workflows'],

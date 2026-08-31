@@ -24,9 +24,13 @@ import { vendorService } from '@/services/vendorService';
 import { useVendorStore } from '@/store/vendor-store';
 import { useSalesStore } from '@/store/sales-store';
 import { useAIStore } from '@/store/ai-store';
+import { useHotelStore } from '@/store/hotel-store';
+import { useBanquetStore } from '@/store/banquet-store';
 import { salesService } from '@/services/salesService';
 import { aiInsightsService } from '@/services/aiInsightsService';
 import { reportsService } from '@/services/reportsService';
+import { hotelService } from '@/services/hotelService';
+import { banquetMgmtService } from '@/services/banquetMgmtService';
 import KpiCard from '@/components/ui/KpiCard';
 import StatusChip from '@/components/ui/StatusChip';
 
@@ -46,6 +50,8 @@ export default function DashboardPage() {
   const { matches: reconciliationMatches, bankTransactions } = useReconciliationStore();
   const { customers, invoices } = useSalesStore();
   const { acknowledgements } = useAIStore();
+  const { rooms: hotelRooms, folios: hotelFolios } = useHotelStore();
+  const { bookings: banquetBookings, finalBills: banquetFinalBills } = useBanquetStore();
   const { selectedOutletId, businessDate } = useOutletStore();
 
   const outlets = outletService.listOutlets(locations);
@@ -153,6 +159,12 @@ export default function DashboardPage() {
   const openAIInsights = aiInsights.filter((i) => !ackedKeys.has(i.key));
   const topAIInsights = [...openAIInsights].sort((a, b) => (b.severity === 'HIGH' ? 1 : 0) - (a.severity === 'HIGH' ? 1 : 0)).slice(0, 3);
 
+  // ---- Hotel Operations + Banquet Management (Phase 2 slice 3) ----
+  const hotelOccupancy = hotelService.computeOccupancy(hotelRooms);
+  const hotelRevenue = hotelService.computeHotelRevenue(hotelFolios);
+  const banquetRevenue = banquetMgmtService.computeBanquetRevenue(banquetFinalBills);
+  const upcomingBanquetBookingsCount = banquetMgmtService.computeUpcomingBookings(banquetBookings, businessDate).length;
+
   // ---- Banquet events today (existing HR banquet staffing data) ----
   const banquetEventsToday = banquetEvents.filter((e) => e.eventDate === businessDate);
 
@@ -223,22 +235,13 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* PHASE 2 PREVIEW KPI ROW — Hotel/Banquet modules not yet built; shown honestly as upcoming, not live */}
+        {/* HOTEL + BANQUET KPI ROW — live, Phase 2 slice 3 */}
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-[#66706B] mb-1.5">Phase 2 — Hotel &amp; Banquet (preview)</div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[#66706B] mb-1.5">Hotel &amp; Banquet Operations</div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {[
-              { label: 'Hotel Revenue', icon: BedDouble }, { label: "Today's Occupancy", icon: BedDouble },
-              { label: 'Banquet Revenue', icon: PartyPopper },
-            ].map((k) => (
-              <div key={k.label} className="bg-white/60 rounded-[10px] border border-dashed border-[#E5E2DB] p-3.5">
-                <div className="flex items-start justify-between">
-                  <span className="text-[13px] leading-5 font-medium text-[#66706B]/70 block">{k.label}</span>
-                  <k.icon className="w-4 h-4 text-[#66706B]/30" />
-                </div>
-                <div className="text-[22px] leading-[30px] font-bold mt-1 text-[#66706B]/40">—</div>
-              </div>
-            ))}
+            <KpiCard label="Hotel Revenue (settled folios)" value={inr(hotelRevenue)} icon={BedDouble} valueColorClass="text-[#0F5B55]" />
+            <KpiCard label="Today's Occupancy" value={`${hotelOccupancy.occupancyPct}%`} icon={BedDouble} sublabel={`${hotelOccupancy.occupied} of ${hotelOccupancy.totalRooms} rooms`} />
+            <KpiCard label="Banquet Revenue (settled)" value={inr(banquetRevenue)} icon={PartyPopper} valueColorClass="text-[#C59A45]" sublabel={upcomingBanquetBookingsCount > 0 ? `${upcomingBanquetBookingsCount} upcoming booking(s)` : undefined} />
           </div>
         </div>
 

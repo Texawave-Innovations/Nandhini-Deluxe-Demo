@@ -33,7 +33,7 @@ interface POSState {
 
   initializeFromFirebase: () => Promise<void>;
 
-  createOrder: (params: { outletId: string; counterId: string; orderType: OrderType; channel: OrderChannel; tableId?: string; floorId?: string; roomNumber?: string; guestCount?: number; waiterEmployeeId?: string; businessDate: string; externalOrderRef?: string }) => POSOrder;
+  createOrder: (params: { outletId: string; counterId: string; orderType: OrderType; channel: OrderChannel; tableId?: string; floorId?: string; roomNumber?: string; banquetBookingId?: string; guestCount?: number; waiterEmployeeId?: string; businessDate: string; externalOrderRef?: string }) => POSOrder;
   addItemToOrder: (orderId: string, item: { menuItemId: string; name: string; qty: number; unitPrice: number; taxPercent: number; instructions?: string }) => void;
   decrementItemInOrder: (orderId: string, lineItemId: string) => void;
   removeItemFromOrder: (orderId: string, lineItemId: string) => void;
@@ -132,7 +132,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
       id: `pord-${Date.now()}`,
       orderNumber: posService.generateOrderNumber(outlet?.code ?? 'OUT'),
       outletId: params.outletId, counterId: params.counterId, orderType: params.orderType, channel: params.channel,
-      tableId: params.tableId, floorId: params.floorId, roomNumber: params.roomNumber, guestCount: params.guestCount,
+      tableId: params.tableId, floorId: params.floorId, roomNumber: params.roomNumber, banquetBookingId: params.banquetBookingId, guestCount: params.guestCount,
       items: [], status: 'OPEN', waiterEmployeeId: params.waiterEmployeeId, businessDate: params.businessDate,
       createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), externalOrderRef: params.externalOrderRef,
     };
@@ -386,11 +386,17 @@ export const usePOSStore = create<POSState>((set, get) => ({
     const razorpaySales = sumBy('RAZORPAY');
     const swiggySales = sumBy('SWIGGY');
     const zomatoSales = sumBy('ZOMATO');
+    // Hotel/Banquet sales are just bills whose order carries that orderType — no separate ledger,
+    // Room Service and Banquet orders already flow through the same POS bill pipeline as dine-in.
+    const ordersById = new Map(get().orders.map((o) => [o.id, o]));
+    const sumByOrderType = (type: 'ROOM_SERVICE' | 'BANQUET') => bills.filter((b) => ordersById.get(b.orderId)?.orderType === type).reduce((s, b) => s + b.netAmount, 0);
+    const hotelSales = sumByOrderType('ROOM_SERVICE');
+    const banquetSales = sumByOrderType('BANQUET');
     const expectedClosingCash = posService.computeExpectedClosingCash(openingCash, cashSales, cashExpenses, 0);
 
     const dayClose: DayClose = {
       id: `dc-${Date.now()}`, outletId, businessDate, openingCash, cashSales, upiSales, cardSales, razorpaySales,
-      swiggySales, zomatoSales, dineoutSales: 0, hotelSales: 0, banquetSales: 0, refunds: 0, cashExpenses,
+      swiggySales, zomatoSales, dineoutSales: 0, hotelSales, banquetSales, refunds: 0, cashExpenses,
       expectedClosingCash, status: 'SUBMITTED', submittedBy, submittedAt: new Date().toISOString(),
     };
     set((state) => {
