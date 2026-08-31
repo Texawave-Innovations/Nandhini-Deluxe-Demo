@@ -3,174 +3,94 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, ShoppingCart, ShoppingBag, DollarSign, Users, Briefcase, Package,
-  ListFilter, LogOut, ChevronLeft, ChevronRight,
-  MapPin, Network, ClipboardList, Clock, CalendarDays, Award,
-  Palmtree, Calendar, CreditCard, ShieldCheck, Ticket, Receipt, UserMinus, PartyPopper, Workflow, FileSpreadsheet
-} from 'lucide-react';
+import { LogOut, ChevronLeft, ChevronRight, Lock } from 'lucide-react';
 import { useHRMSStore } from '@/store/hrms-store';
-import { UserRole } from '@/types/erp-core';
+import { MODULE_NAV, resolveActiveModule } from '@/constants/navigation';
+import { isModuleAllowed, ROLE_LABELS } from '@/permissions/roleAccess';
 
 export default function TwoTierSidebar() {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+  const { currentRole } = useHRMSStore();
 
-  // Both Main ERP Left Bar & HR Submenu can be independently collapsed to icons-only
-  const [mainNavCollapsed, setMainNavCollapsed] = useState(false);
-  const [hrSubmenuCollapsed, setHrSubmenuCollapsed] = useState(false);
-
-  const { currentRole, setCurrentRole } = useHRMSStore();
-
-  // Tier 1: Main ERP Left Navigation Bar
-  const mainErpNav = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Sales', href: '#', icon: ShoppingCart, disabled: true },
-    { name: 'Purchases', href: '#', icon: ShoppingBag, disabled: true },
-    { name: 'Finance', href: '#', icon: DollarSign, disabled: true },
-    { name: 'HR Module', href: '/dashboard', icon: Users, active: true },
-    { name: 'Inventory', href: '#', icon: Package, disabled: true },
-  ];
-
-  // Tier 2: Grouped Submenu Categories under HR Module
-  const hrGroupedSubmenus = [
-    {
-      category: 'OVERVIEW',
-      items: [
-        { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard }
-      ]
-    },
-    {
-      category: 'RECRUITMENT',
-      items: [
-        { name: 'Recruitment (ATS)', href: '/hr/recruitment', icon: Briefcase }
-      ]
-    },
-    {
-      category: 'PEOPLE & ORG',
-      items: [
-        { name: 'Employees', href: '/employees', icon: Users },
-        { name: 'Business Units', href: '/organization/business-units', icon: ListFilter },
-        { name: 'Locations & Geofence', href: '/organization/locations', icon: MapPin },
-        { name: 'Departments', href: '/organization/departments', icon: ListFilter },
-        { name: 'Roles & Designations', href: '/organization/roles', icon: ShieldCheck },
-        { name: 'Org Hierarchy Tree', href: '/hr/org-chart', icon: Network },
-      ]
-    },
-    {
-      category: 'TIME & ATTENDANCE',
-      items: [
-        { name: 'Shift Master', href: '/shifts/master', icon: Clock },
-        { name: 'Shift Templates', href: '/shifts/templates', icon: ListFilter },
-        { name: 'Monthly Roster Grid', href: '/roster/monthly', icon: CalendarDays },
-        { name: 'Manpower Planning', href: '/roster/manpower-planning', icon: Users },
-        { name: "Today's Live Punch", href: '/attendance/today', icon: Clock },
-        { name: 'Attendance Register', href: '/attendance/register', icon: ClipboardList },
-        { name: 'Regularization', href: '/attendance/regularization', icon: Clock },
-        { name: 'Full Month Present (FMP)', href: '/hr/fmp', icon: Award },
-      ]
-    },
-    {
-      category: 'LEAVE MANAGEMENT',
-      items: [
-        { name: 'Leaves & Quotas', href: '/leave', icon: Palmtree },
-        { name: 'Holidays Calendar', href: '/leave', icon: Calendar },
-      ]
-    },
-    {
-      category: 'PAYROLL & STATUTORY',
-      items: [
-        { name: 'PF Compliance (12%)', href: '/hr/pf', icon: ShieldCheck },
-        { name: 'ESI Compliance (0.75%)', href: '/hr/esi', icon: ShieldCheck },
-        { name: 'Salary Loans & EMI', href: '/hr/loans', icon: CreditCard },
-        { name: 'Bonus Schemes', href: '/hr/bonus', icon: DollarSign },
-        { name: 'Overtime Engine', href: '/overtime', icon: Clock },
-        { name: 'Reports & Register', href: '/reports', icon: FileSpreadsheet },
-      ]
-    },
-    {
-      category: 'OPERATIONS & ESS',
-      items: [
-        { name: 'Peer Shift Swap', href: '/shift-swap', icon: Clock },
-        { name: 'Banquet Events', href: '/banquet/events', icon: PartyPopper },
-        { name: 'HR Tickets', href: '/hr/tickets', icon: Ticket },
-        { name: 'Expense Claims', href: '/hr/expenses', icon: Receipt },
-        { name: 'Offboarding Clearance', href: '/hr/exit', icon: UserMinus },
-        { name: 'Workflows Inbox', href: '/workflows', icon: Workflow },
-        { name: 'System Audit Trail', href: '/audit', icon: ShieldCheck },
-      ]
-    }
-  ];
+  const activeModule = resolveActiveModule(pathname);
 
   return (
     <aside className="flex h-full select-none z-30 font-sans">
-      {/* SINGLE SIDEBAR: Main ERP Vertical Nav (Nandhini Brand Styling) */}
-      <div 
+      <div
         style={{ backgroundColor: '#0F5B55' }}
-        className={`border-r border-[#08463F] flex flex-col justify-between p-3 transition-all duration-300 relative shadow-md ${
-          mainNavCollapsed ? 'w-16' : 'w-56'
-        }`}
+        className={`border-r border-[#08463F] flex flex-col justify-between p-3 transition-all duration-300 relative shadow-md ${collapsed ? 'w-16' : 'w-60'}`}
       >
-        {/* Toggle Collapse Button for Main ERP Nav */}
-        <button 
-          onClick={() => setMainNavCollapsed(!mainNavCollapsed)}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
           className="p-1 rounded-full hover:bg-[#08463F] text-amber-300 absolute -right-3 top-4 bg-[#0F5B55] border border-[#C59A45]/40 shadow z-30"
-          title={mainNavCollapsed ? "Expand Main Sidebar" : "Collapse Sidebar"}
+          title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
-          {mainNavCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+          {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
         </button>
 
-        <div className="space-y-4">
-          {/* Admin User Header Pill */}
-          <div className={`flex items-center space-x-2.5 p-2 bg-[#08463F]/70 border border-[#C59A45]/30 rounded-xl ${mainNavCollapsed ? 'justify-center p-1.5' : ''}`}>
+        <div className="space-y-4 flex-1 min-h-0 overflow-y-auto scrollbar-none">
+          <div className={`flex items-center space-x-2.5 p-2 bg-[#08463F]/70 border border-[#C59A45]/30 rounded-xl ${collapsed ? 'justify-center p-1.5' : ''}`}>
             <div className="w-9 h-9 rounded-full bg-[#C59A45] text-[#08463F] font-sans font-bold flex items-center justify-center text-[13px] shadow-sm flex-shrink-0">
-              AU
+              ND
             </div>
-            {!mainNavCollapsed && (
+            {!collapsed && (
               <div className="text-left overflow-hidden">
-                <div className="text-[14px] font-semibold text-white leading-tight truncate">Admin User</div>
-                <div className="text-[12px] text-amber-300 font-semibold tracking-[0.08em] uppercase">Super Admin</div>
+                <div className="text-[13px] font-semibold text-white leading-tight truncate">Nandhini Deluxe</div>
+                <div className="text-[11px] text-amber-300 font-semibold tracking-[0.06em] uppercase truncate">{ROLE_LABELS[currentRole]}</div>
               </div>
             )}
           </div>
 
+          <div className="space-y-0.5">
+            {MODULE_NAV.map((mod) => {
+              const allowed = isModuleAllowed(currentRole, mod.id);
+              const isLive = mod.status === 'live';
+              const isActive = activeModule?.id === mod.id;
+              const isClickable = isLive && allowed;
 
-
-          {/* ERP Core Navigation Items */}
-          <div className="space-y-1">
-            {mainErpNav.map((item) => {
-              const isHrActive = item.name === 'HR' || item.name === 'HR Module';
-              return (
-                <Link
-                  key={item.name}
-                  href={item.disabled ? '#' : item.href}
-                  title={mainNavCollapsed ? item.name : undefined}
-                  className={`flex items-center justify-between p-2.5 rounded-lg text-[15px] leading-5 font-medium transition-all ${
-                    isHrActive 
-                      ? 'bg-white/15 text-white font-semibold border-l-2 border-[#C59A45] shadow-xs' 
-                      : item.disabled ? 'text-white/40 cursor-not-allowed' : 'text-white/80 hover:bg-white/10 hover:text-white'
-                  } ${mainNavCollapsed ? 'justify-center' : ''}`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <item.icon className={`w-4 h-4 ${isHrActive ? 'text-amber-300' : 'text-white/70'}`} />
-                    {!mainNavCollapsed && <span>{item.name}</span>}
+              const content = (
+                <>
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <mod.icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-amber-300' : isClickable ? 'text-white/70' : 'text-white/30'}`} />
+                    {!collapsed && <span className="truncate">{mod.name}</span>}
                   </div>
-                  {!mainNavCollapsed && isHrActive && <div className="w-1.5 h-4 bg-[#C59A45] rounded-full" />}
+                  {!collapsed && isActive && <div className="w-1.5 h-4 bg-[#C59A45] rounded-full flex-shrink-0" />}
+                  {!collapsed && !isLive && (
+                    <span className="text-[9px] font-bold uppercase tracking-wide text-white/40 border border-white/20 rounded px-1 py-0.5 flex-shrink-0">Phase 2</span>
+                  )}
+                  {!collapsed && isLive && !allowed && <Lock className="w-3 h-3 text-white/30 flex-shrink-0" />}
+                </>
+              );
+
+              const className = `flex items-center justify-between p-2.5 rounded-lg text-[14px] leading-5 font-medium transition-all ${collapsed ? 'justify-center' : ''} ${
+                isActive
+                  ? 'bg-white/15 text-white font-semibold border-l-2 border-[#C59A45] shadow-xs'
+                  : isClickable
+                    ? 'text-white/80 hover:bg-white/10 hover:text-white'
+                    : 'text-white/35 cursor-not-allowed'
+              }`;
+
+              return isClickable ? (
+                <Link key={mod.id} href={mod.href} title={collapsed ? mod.name : undefined} className={className}>
+                  {content}
                 </Link>
+              ) : (
+                <div key={mod.id} title={collapsed ? mod.name : !isLive ? `${mod.name} — coming in a later phase` : `${mod.name} — not permitted for ${ROLE_LABELS[currentRole]}`} className={className}>
+                  {content}
+                </div>
               );
             })}
           </div>
         </div>
 
-        {/* Footer Logout */}
-        <div className="space-y-2 pt-2 border-t border-[#08463F]">
-          <button 
-            title={mainNavCollapsed ? "Logout" : undefined}
-            className={`w-full flex items-center text-[14px] leading-5 font-semibold text-red-300 hover:bg-red-950/40 rounded-lg transition-colors p-2 ${
-              mainNavCollapsed ? 'justify-center' : 'space-x-2 px-3 py-2'
-            }`}
+        <div className="space-y-2 pt-2 border-t border-[#08463F] flex-shrink-0">
+          <button
+            title={collapsed ? 'Logout' : undefined}
+            className={`w-full flex items-center text-[14px] leading-5 font-semibold text-red-300 hover:bg-red-950/40 rounded-lg transition-colors p-2 ${collapsed ? 'justify-center' : 'space-x-2 px-3 py-2'}`}
           >
             <LogOut className="w-4 h-4 text-red-300" />
-            {!mainNavCollapsed && <span>Logout</span>}
+            {!collapsed && <span>Logout</span>}
           </button>
         </div>
       </div>

@@ -1,273 +1,353 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import ShellLayout from '@/components/layout/ShellLayout';
-import { 
-  Users, UserCheck, Calendar, AlertCircle, Ticket, Receipt, DollarSign, Plus, Clock, FileSpreadsheet, Sparkles, TrendingUp, UserX
-} from 'lucide-react';
-import { useHRMSStore } from '@/store/hrms-store';
 import Link from 'next/link';
+import {
+  IndianRupee, Wallet, CreditCard, Smartphone, Bike, UtensilsCrossed, BedDouble, PartyPopper,
+  GitMerge, AlertTriangle, Package, CalendarClock, Users2, Sparkles, TrendingUp, Plus, Clock,
+  Ticket, Receipt, Sparkles as SparklesIcon,
+} from 'lucide-react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { useHRMSStore } from '@/store/hrms-store';
+import { usePOSStore } from '@/store/pos-store';
+import { useInventoryStore } from '@/store/inventory-store';
+import { usePurchaseStore } from '@/store/purchase-store';
+import { useFinanceStore } from '@/store/finance-store';
+import { useReconciliationStore } from '@/store/reconciliation-store';
+import { useOutletStore } from '@/store/outlet-store';
+import { outletService } from '@/services/outletService';
+import { inventoryService } from '@/services/inventoryService';
+import { financeService } from '@/services/financeService';
+import { reconciliationService } from '@/services/reconciliationService';
+import { vendorService } from '@/services/vendorService';
+import { useVendorStore } from '@/store/vendor-store';
+import KpiCard from '@/components/ui/KpiCard';
+import StatusChip from '@/components/ui/StatusChip';
+
+const inr = (n: number) => `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+const PIE_COLORS = ['#0F5B55', '#C59A45', '#3377A8', '#C68A28', '#C94B45', '#23865B'];
 
 export default function DashboardPage() {
-  const { 
-    employees, attendanceRecords, regularizationRequests, leaveRequests, 
-    hrTickets, expenseClaims, currentRole 
+  const {
+    employees, attendanceRecords, regularizationRequests, leaveRequests, hrTickets, expenseClaims,
+    locations, banquetEvents,
   } = useHRMSStore();
+  const { bills, payments, orders, dayCloses, menuItems } = usePOSStore();
+  const { ledgerEntries, items, batches } = useInventoryStore();
+  const { purchaseOrders } = usePurchaseStore();
+  const { vendorBills } = useFinanceStore();
+  const { vendors } = useVendorStore();
+  const { matches: reconciliationMatches, bankTransactions } = useReconciliationStore();
+  const { selectedOutletId, businessDate } = useOutletStore();
 
+  const outlets = outletService.listOutlets(locations);
+  const scopeOutletIds = selectedOutletId === 'ALL' ? outlets.map((o) => o.id) : [selectedOutletId];
+  const scopeLabel = selectedOutletId === 'ALL' ? 'All Outlets' : outletService.getOutletById(locations, selectedOutletId)?.name;
+
+  // ---- Bills / payments in scope for the selected business date ----
+  const todaysBills = useMemo(
+    () => bills.filter((b) => b.businessDate === businessDate && scopeOutletIds.includes(b.outletId) && b.status !== 'VOID'),
+    [bills, businessDate, scopeOutletIds]
+  );
+  const todaysBillIds = new Set(todaysBills.map((b) => b.id));
+  const todaysPayments = payments.filter((p) => todaysBillIds.has(p.billId) && p.status === 'SUCCESS');
+  const todaysOrdersById = useMemo(() => new Map(orders.map((o) => [o.id, o])), [orders]);
+
+  const sumByMode = (mode: string) => todaysPayments.filter((p) => p.mode === mode).reduce((s, p) => s + p.amount, 0);
+  const sumByChannel = (channel: string) => todaysBills.filter((b) => todaysOrdersById.get(b.orderId)?.channel === channel).reduce((s, b) => s + b.netAmount, 0);
+
+  const totalSales = todaysBills.reduce((s, b) => s + b.netAmount, 0);
+  const cashSales = sumByMode('CASH');
+  const upiSales = sumByMode('UPI');
+  const cardSales = sumByMode('CARD');
+  const swiggyDelivery = sumByChannel('SWIGGY_DELIVERY');
+  const zomatoDelivery = sumByChannel('ZOMATO_DELIVERY');
+  const swiggyDineout = sumByChannel('SWIGGY_DINEOUT');
+  const zomatoDineout = sumByChannel('ZOMATO_DINEOUT');
+
+  // ---- Outlet comparison (always across all outlets, for this business date) ----
+  const outletComparison = useMemo(() => {
+    return outlets
+      .map((o) => ({
+        name: o.name,
+        value: bills.filter((b) => b.outletId === o.id && b.businessDate === businessDate && b.status !== 'VOID').reduce((s, b) => s + b.netAmount, 0),
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+  }, [outlets, bills, businessDate]);
+
+  // ---- Payment mode distribution ----
+  const paymentModeDist = useMemo(() => {
+    const modes = ['CASH', 'UPI', 'CARD', 'SWIGGY', 'ZOMATO'];
+    return modes.map((m) => ({ name: m, value: sumByMode(m) })).filter((d) => d.value > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todaysPayments]);
+
+  // ---- Sales trend, last 5 business dates ----
+  const salesTrend = useMemo(() => {
+    const dates = ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-29', '2026-08-30'];
+    return dates.map((d) => ({
+      date: d.substring(5),
+      value: bills.filter((b) => b.businessDate === d && scopeOutletIds.includes(b.outletId) && b.status !== 'VOID').reduce((s, b) => s + b.netAmount, 0),
+    }));
+  }, [bills, scopeOutletIds]);
+
+  // ---- Top selling items ----
+  const topItems = useMemo(() => {
+    const qtyByItem = new Map<string, { name: string; qty: number; revenue: number }>();
+    todaysBills.forEach((b) => {
+      const order = todaysOrdersById.get(b.orderId);
+      order?.items.forEach((it) => {
+        const existing = qtyByItem.get(it.menuItemId) ?? { name: it.name, qty: 0, revenue: 0 };
+        existing.qty += it.qty;
+        existing.revenue += it.qty * it.unitPrice;
+        qtyByItem.set(it.menuItemId, existing);
+      });
+    });
+    return Array.from(qtyByItem.values()).sort((a, b) => b.qty - a.qty).slice(0, 5);
+  }, [todaysBills, todaysOrdersById]);
+
+  // ---- Inventory alerts, scoped to selected outlet(s) ----
+  const scopedLedger = ledgerEntries.filter((e) => scopeOutletIds.includes(e.outletId));
+  const stockBalances = inventoryService.computeCurrentStock(scopedLedger);
+  const lowStockItems = inventoryService.getLowStockItems(items, stockBalances).slice(0, 5);
+  const expiringBatches = inventoryService.getExpiringBatches(batches.filter((b) => scopeOutletIds.includes(b.outletId)), businessDate, 3);
+
+  // ---- Cash variance from today's Day Close(s) in scope ----
+  const scopedDayCloses = dayCloses.filter((d) => scopeOutletIds.includes(d.outletId) && d.businessDate === businessDate);
+  const closedDayCloses = scopedDayCloses.filter((d) => d.status === 'CLOSED');
+  const totalVariance = closedDayCloses.reduce((s, d) => s + (d.variance ?? 0), 0);
+
+  // ---- Procure-to-pay + reconciliation KPIs (Phase 2 slice 1) ----
+  const apAging = financeService.computeAPAging(vendorBills, businessDate);
+  const pendingPOCount = purchaseOrders.filter((po) => po.status === 'SUBMITTED' || po.status === 'APPROVED').length;
+  const reconciliationSummary = reconciliationService.computeReconciliationSummary(reconciliationMatches);
+  const pendingReconciliationCount = reconciliationSummary.mismatchCount + reconciliationSummary.unmatchedCount;
+  const rankedVendors = vendorService.rankVendorsByOutstanding(vendors, vendorBills);
+  const topVendorOutstanding = rankedVendors[0];
+  const reconciliationExceptions = reconciliationService.flagVarianceExceptions(reconciliationMatches).slice(0, 2);
+  const txnById = new Map(bankTransactions.map((t) => [t.id, t]));
+
+  // ---- Banquet events today (existing HR banquet staffing data) ----
+  const banquetEventsToday = banquetEvents.filter((e) => e.eventDate === businessDate);
+
+  // ---- HR snapshot (unchanged from the original HR dashboard) ----
   const totalEmp = employees.length;
-  const activeEmp = employees.filter(e => e.status !== 'INACTIVE').length;
-  const inactiveEmp = employees.filter(e => e.status === 'INACTIVE').length;
-  const presentToday = attendanceRecords.filter(r => r.status === 'PRESENT' || r.status === 'LATE').length;
-  const absentToday = attendanceRecords.filter(r => r.status === 'ABSENT').length;
-  const onLeaveToday = attendanceRecords.filter(r => r.status === 'ON_LEAVE').length;
-  const lateToday = attendanceRecords.filter(r => r.lateMins > 0).length;
-  const otToday = attendanceRecords.filter(r => r.otHours > 0).length;
-  const missingPunchesCount = attendanceRecords.filter(r => r.hasMissingPunch).length;
-
-  const pendingApprovalsCount = regularizationRequests.filter(r => r.status === 'PENDING').length + leaveRequests.filter(l => l.status === 'PENDING').length;
-  const openTicketsCount = hrTickets.filter(t => t.status === 'OPEN').length;
-  const pendingExpensesCount = expenseClaims.filter(c => c.status === 'PENDING').length;
+  const activeEmp = employees.filter((e) => e.status !== 'INACTIVE').length;
+  const presentToday = attendanceRecords.filter((r) => r.status === 'PRESENT' || r.status === 'LATE').length;
+  const absentToday = attendanceRecords.filter((r) => r.status === 'ABSENT').length;
+  const onLeaveToday = attendanceRecords.filter((r) => r.status === 'ON_LEAVE').length;
+  const pendingApprovalsCount = regularizationRequests.filter((r) => r.status === 'PENDING').length + leaveRequests.filter((l) => l.status === 'PENDING').length;
+  const openTicketsCount = hrTickets.filter((t) => t.status === 'OPEN').length;
+  const pendingExpensesCount = expenseClaims.filter((c) => c.status === 'PENDING').length;
 
   return (
     <ShellLayout>
       <div className="space-y-6">
-        {/* Top Header Greeting Bar */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-[30px] leading-[38px] font-semibold tracking-[-0.02em] text-[#202522]">
-              Dashboard
-            </h1>
+            <h1 className="text-[28px] leading-[36px] font-semibold tracking-[-0.02em] text-[#202522]">Executive Dashboard</h1>
             <p className="mt-1 text-[14px] leading-5 font-normal text-[#66706B]">
-              Workforce overview for today • Thursday, 27 August 2026
+              {scopeLabel} • Business Date {businessDate}
             </p>
           </div>
-
           <div className="flex items-center space-x-3">
-            <Link
-              href="/employees"
-              className="h-11 px-4 bg-white border border-[#E5E2DB] hover:bg-[#F3F0E9] text-[#202522] font-semibold text-[14px] leading-5 rounded-[8px] shadow-brand-xs flex items-center space-x-2 transition-all"
-            >
-              <Users className="w-4 h-4 text-[#66706B]" />
-              <span>Employee Directory</span>
+            <Link href="/pos/new-order" className="h-11 px-4 bg-[#0F5B55] hover:bg-[#08463F] text-white font-semibold text-[14px] leading-5 rounded-[8px] shadow-brand-xs flex items-center space-x-2 transition-all">
+              <Plus className="w-4 h-4" /><span>New POS Order</span>
             </Link>
-
-            <Link
-              href="/reports"
-              className="h-11 px-4 bg-[#0F5B55] hover:bg-[#08463F] text-white font-semibold text-[14px] leading-5 rounded-[8px] shadow-brand-xs flex items-center space-x-2 transition-all"
-            >
-              <DollarSign className="w-4 h-4" />
-              <span>Run Payroll</span>
+            <Link href="/pos/day-close" className="h-11 px-4 bg-white border border-[#E5E2DB] hover:bg-[#F3F0E9] text-[#202522] font-semibold text-[14px] leading-5 rounded-[8px] shadow-brand-xs flex items-center space-x-2 transition-all">
+              <Clock className="w-4 h-4 text-[#66706B]" /><span>Day Close</span>
             </Link>
           </div>
         </div>
 
-        {/* TOP KPI CARDS GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
-            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Active Employees</span>
-            <div className="text-[34px] leading-[40px] font-bold text-[#202522] mt-1">{activeEmp}</div>
-            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">
-              {inactiveEmp > 0 ? `${inactiveEmp} inactive` : `of ${totalEmp} total`}
+        {/* LIVE KPI GRID */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <KpiCard label="Today's Total Sales" value={inr(totalSales)} icon={IndianRupee} valueColorClass="text-[#0F5B55]" sublabel={`${todaysBills.length} bills`} />
+          <KpiCard label="Cash Sales" value={inr(cashSales)} icon={Wallet} />
+          <KpiCard label="UPI Sales" value={inr(upiSales)} icon={Smartphone} />
+          <KpiCard label="Card Sales" value={inr(cardSales)} icon={CreditCard} />
+          <KpiCard label="Swiggy Sales" value={inr(swiggyDelivery)} icon={Bike} valueColorClass="text-[#C68A28]" />
+          <KpiCard label="Zomato Sales" value={inr(zomatoDelivery)} icon={Bike} valueColorClass="text-[#C94B45]" />
+          <KpiCard label="Swiggy Dineout" value={inr(swiggyDineout)} icon={UtensilsCrossed} />
+          <KpiCard label="Zomato Dineout" value={inr(zomatoDineout)} icon={UtensilsCrossed} />
+          <KpiCard label="Cash Variance (Closed Days)" value={closedDayCloses.length ? inr(totalVariance) : '—'} icon={AlertTriangle} valueColorClass={totalVariance < 0 ? 'text-[#C94B45]' : 'text-[#23865B]'} sublabel={closedDayCloses.length ? `${closedDayCloses.length} outlet(s) closed` : 'No day close yet'} />
+          <KpiCard label="Low Stock Items" value={lowStockItems.length} icon={Package} valueColorClass="text-[#C94B45]" />
+          <KpiCard label="Expiring / Expired Items" value={expiringBatches.length} icon={CalendarClock} valueColorClass="text-[#C68A28]" />
+          <KpiCard label="Banquet Events Today" value={banquetEventsToday.length} icon={PartyPopper} />
+          <KpiCard label="Employees Present" value={presentToday} icon={Users2} sublabel={`of ${activeEmp} active`} />
+        </div>
+
+        {/* PROCURE-TO-PAY + RECONCILIATION KPI ROW — live, Phase 2 slice 1 */}
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[#66706B] mb-1.5">Purchase, Finance &amp; Reconciliation</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <KpiCard label="Outstanding Vendor Payments" value={inr(apAging.total)} icon={Receipt} valueColorClass="text-[#C94B45]" sublabel={topVendorOutstanding && topVendorOutstanding.outstanding > 0 ? `${topVendorOutstanding.name}: ${inr(topVendorOutstanding.outstanding)}` : undefined} />
+            <KpiCard label="Pending Purchase Orders" value={pendingPOCount} icon={Ticket} />
+            <KpiCard label="Pending Reconciliation" value={pendingReconciliationCount} icon={GitMerge} valueColorClass={pendingReconciliationCount > 0 ? 'text-[#C68A28]' : 'text-[#23865B]'} />
+          </div>
+        </div>
+
+        {/* PHASE 2 PREVIEW KPI ROW — Hotel/Banquet modules not yet built; shown honestly as upcoming, not live */}
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[#66706B] mb-1.5">Phase 2 — Hotel &amp; Banquet (preview)</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {[
+              { label: 'Hotel Revenue', icon: BedDouble }, { label: "Today's Occupancy", icon: BedDouble },
+              { label: 'Banquet Revenue', icon: PartyPopper },
+            ].map((k) => (
+              <div key={k.label} className="bg-white/60 rounded-[10px] border border-dashed border-[#E5E2DB] p-3.5">
+                <div className="flex items-start justify-between">
+                  <span className="text-[13px] leading-5 font-medium text-[#66706B]/70 block">{k.label}</span>
+                  <k.icon className="w-4 h-4 text-[#66706B]/30" />
+                </div>
+                <div className="text-[22px] leading-[30px] font-bold mt-1 text-[#66706B]/40">—</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CHARTS */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs">
+            <h3 className="text-sm font-semibold text-[#202522] mb-3">Outlet Performance — {businessDate}</h3>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={outletComparison} layout="vertical" margin={{ left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E2DB" horizontal={false} />
+                <XAxis type="number" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`} tick={{ fontSize: 11, fill: '#66706B' }} />
+                <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 11, fill: '#202522' }} />
+                <Tooltip formatter={(v: number) => inr(v)} />
+                <Bar dataKey="value" fill="#0F5B55" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs">
+            <h3 className="text-sm font-semibold text-[#202522] mb-3">Payment Mode Distribution</h3>
+            {paymentModeDist.length === 0 ? (
+              <div className="h-[220px] flex items-center justify-center text-[13px] text-[#66706B]">No payments yet for this date.</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie data={paymentModeDist} dataKey="value" nameKey="name" innerRadius={45} outerRadius={80} paddingAngle={2}>
+                    {paymentModeDist.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip formatter={(v: number) => inr(v)} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+            <div className="flex flex-wrap gap-2 mt-2 justify-center">
+              {paymentModeDist.map((d, i) => (
+                <span key={d.name} className="text-[11px] flex items-center gap-1 text-[#66706B]">
+                  <span className="w-2 h-2 rounded-full inline-block" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />{d.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs">
+            <h3 className="text-sm font-semibold text-[#202522] mb-3 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-[#0F5B55]" />Sales Trend (5 days)</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={salesTrend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E2DB" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#66706B' }} />
+                <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`} tick={{ fontSize: 11, fill: '#66706B' }} />
+                <Tooltip formatter={(v: number) => inr(v)} />
+                <Line type="monotone" dataKey="value" stroke="#0F5B55" strokeWidth={2} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs">
+            <h3 className="text-sm font-semibold text-[#202522] mb-3">Top Selling Items</h3>
+            <div className="space-y-2">
+              {topItems.length === 0 && <div className="text-[13px] text-[#66706B]">No sales recorded yet for this date.</div>}
+              {topItems.map((it, i) => (
+                <div key={it.name} className="flex items-center justify-between p-2 bg-[#F3F0E9] rounded-md text-[13px]">
+                  <span className="text-[#202522] font-medium truncate">{i + 1}. {it.name}</span>
+                  <span className="text-[#66706B]">{it.qty}x • {inr(it.revenue)}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
-            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Present Today</span>
-            <div className="text-[34px] leading-[40px] font-bold text-[#23865B] mt-1">{presentToday}</div>
-            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">{activeEmp ? Math.round((presentToday/activeEmp)*100) : 0}% Attendance</div>
-          </div>
-
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
-            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Absent Today</span>
-            <div className="text-[34px] leading-[40px] font-bold text-[#C94B45] mt-1">{absentToday}</div>
-            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Unaccounted</div>
-          </div>
-
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
-            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">On Leave</span>
-            <div className="text-[34px] leading-[40px] font-bold text-[#C68A28] mt-1">{onLeaveToday}</div>
-            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Approved Off</div>
-          </div>
-
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
-            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Late Today</span>
-            <div className="text-[34px] leading-[40px] font-bold text-[#C68A28] mt-1">{lateToday}</div>
-            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Grace Exceeded</div>
-          </div>
-
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
-            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">OT Today</span>
-            <div className="text-[34px] leading-[40px] font-bold text-[#3377A8] mt-1">{otToday}</div>
-            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Extra Hours</div>
-          </div>
-
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
-            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Missing Punches</span>
-            <div className="text-[34px] leading-[40px] font-bold text-[#C94B45] mt-1">{missingPunchesCount}</div>
-            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Needs Fix</div>
-          </div>
-
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-3.5 shadow-brand-xs">
-            <span className="text-[13px] leading-5 font-medium text-[#66706B] block">Pending Approvals</span>
-            <div className="text-[34px] leading-[40px] font-bold text-[#0F5B55] mt-1">{pendingApprovalsCount}</div>
-            <div className="text-[13px] text-[#66706B] font-normal mt-0.5">In Queue</div>
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs">
+            <h3 className="text-sm font-semibold text-[#202522] mb-3 flex items-center gap-2"><Package className="w-4 h-4 text-[#C94B45]" />Stock Alerts</h3>
+            <div className="space-y-2">
+              {lowStockItems.length === 0 && <div className="text-[13px] text-[#66706B]">No low-stock items in scope.</div>}
+              {lowStockItems.map((it) => (
+                <div key={it.id} className="flex items-center justify-between p-2 bg-[#F3F0E9] rounded-md text-[13px]">
+                  <span className="text-[#202522] font-medium truncate">{it.name}</span>
+                  <StatusChip label={`${it.currentQty} left`} tone="danger" />
+                </div>
+              ))}
+            </div>
+            <Link href="/inventory/stock" className="text-[12px] text-[#0F5B55] font-semibold mt-3 inline-block">View full stock report →</Link>
           </div>
         </div>
 
-        {/* REQUIRES ACTION & REVIEW SECTION */}
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2 text-[20px] leading-[28px] font-semibold text-[#0F5B55]">
-            <AlertCircle className="w-5 h-5 text-[#C94B45]" />
-            <span>Requires Action & Review</span>
+        {/* RECONCILIATION (live) + AI PREVIEW (still Phase 2) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs">
+            <div className="flex items-center gap-2 mb-3">
+              <GitMerge className="w-4 h-4 text-[#3377A8]" />
+              <h3 className="text-sm font-semibold text-[#202522]">Reconciliation Exceptions</h3>
+            </div>
+            <div className="space-y-2 text-[13px]">
+              {reconciliationExceptions.length === 0 && <div className="text-[#66706B]">No exceptions — every bank line is cleanly matched.</div>}
+              {reconciliationExceptions.map((m) => (
+                <div key={m.id} className="flex items-center justify-between p-2.5 bg-[#F3F0E9] rounded-md">
+                  <span>{m.sourceLabel} vs Bank {txnById.get(m.bankTransactionId)?.description ?? ''}{m.varianceAmount !== 0 ? ` (Δ ${inr(Math.abs(m.varianceAmount))})` : ''}</span>
+                  <StatusChip label={m.status === 'MATCHED' ? 'Matched' : m.status === 'MISMATCH' ? 'Review Required' : 'Unmatched'} tone={m.status === 'MATCHED' ? 'success' : m.status === 'MISMATCH' ? 'danger' : 'neutral'} />
+                </div>
+              ))}
+            </div>
           </div>
 
+          <div className="bg-white rounded-[10px] border border-dashed border-[#E5E2DB] p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-[#C59A45]" />
+              <h3 className="text-sm font-semibold text-[#202522]">AI Alerts <span className="text-[10px] font-normal text-[#66706B]">(Phase 2 preview)</span></h3>
+            </div>
+            <ul className="space-y-1.5 text-[13px] text-[#202522] list-disc list-inside">
+              <li>Chicken consumption at Indiranagar is trending 28% above the 4-week average.</li>
+              {topVendorOutstanding && topVendorOutstanding.outstanding > 0 && (
+                <li>{topVendorOutstanding.name} has {inr(topVendorOutstanding.outstanding)} outstanding due within two days.</li>
+              )}
+              <li>3 settlement mismatches across Swiggy/Zomato require review.</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* HR SNAPSHOT — retained from the original HRMS dashboard */}
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2 text-[18px] leading-[26px] font-semibold text-[#0F5B55]">
+            <Users2 className="w-4 h-4" /><span>HR Snapshot</span>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs flex justify-between items-center border-l-4 border-l-[#C94B45]">
               <div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-[14px] font-medium text-[#202522]">Pending Approvals</span>
-                  <span className="px-2.5 py-0.5 bg-[#C94B45]/10 text-[#C94B45] font-semibold text-[12px] rounded-full uppercase">Action</span>
-                </div>
-                <div className="text-[34px] leading-[40px] font-bold text-[#C94B45] mt-1">{pendingApprovalsCount}</div>
-                <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Leaves, loans & bonuses</div>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-[#C94B45]/10 text-[#C94B45] flex items-center justify-center">
-                <AlertCircle className="w-5 h-5" />
+                <div className="text-[14px] font-medium text-[#202522]">Pending Approvals</div>
+                <div className="text-[28px] leading-[34px] font-bold text-[#C94B45] mt-1">{pendingApprovalsCount}</div>
+                <div className="text-[12px] text-[#66706B] mt-0.5">Leaves & regularizations</div>
               </div>
             </div>
-
             <div className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs flex justify-between items-center border-l-4 border-l-[#C68A28]">
               <div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-[14px] font-medium text-[#202522]">Open Tickets</span>
-                  <span className="px-2.5 py-0.5 bg-[#C68A28]/10 text-[#C68A28] font-semibold text-[12px] rounded-full uppercase">Pending</span>
-                </div>
-                <div className="text-[34px] leading-[40px] font-bold text-[#C68A28] mt-1">{openTicketsCount}</div>
-                <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Unresolved support requests</div>
-              </div>
-              <div className="w-10 h-10 rounded-full bg-[#C68A28]/10 text-[#C68A28] flex items-center justify-center">
-                <Ticket className="w-5 h-5" />
+                <div className="text-[14px] font-medium text-[#202522]">Open HR Tickets</div>
+                <div className="text-[28px] leading-[34px] font-bold text-[#C68A28] mt-1">{openTicketsCount}</div>
+                <div className="text-[12px] text-[#66706B] mt-0.5">Unresolved support requests</div>
               </div>
             </div>
-
             <div className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs flex justify-between items-center border-l-4 border-l-[#0F5B55]">
               <div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-[14px] font-medium text-[#202522]">Pending Expenses</span>
-                  <span className="px-2.5 py-0.5 bg-[#0F5B55]/10 text-[#0F5B55] font-semibold text-[12px] rounded-full uppercase">Review</span>
-                </div>
-                <div className="text-[34px] leading-[40px] font-bold text-[#0F5B55] mt-1">{pendingExpensesCount}</div>
-                <div className="text-[13px] text-[#66706B] font-normal mt-0.5">Claims awaiting reimbursement</div>
+                <div className="text-[14px] font-medium text-[#202522]">Pending Expenses</div>
+                <div className="text-[28px] leading-[34px] font-bold text-[#0F5B55] mt-1">{pendingExpensesCount}</div>
+                <div className="text-[12px] text-[#66706B] mt-0.5">Absent today: {absentToday} • On leave: {onLeaveToday}</div>
               </div>
-              <div className="w-9 h-9 rounded-full bg-[#0F5B55]/10 text-[#0F5B55] flex items-center justify-center">
-                <Receipt className="w-5 h-5" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* BOTTOM SECTION: Attendance Overview & Manpower Shortage */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Attendance Overview Card */}
-          <div className="lg:col-span-2 bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs space-y-4">
-            <div className="flex justify-between items-center pb-2 border-b border-[#E5E2DB]">
-              <h3 className="text-sm font-semibold text-[#202522] flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#0F5B55]" />
-                Attendance Today Overview
-              </h3>
-              <span className="px-2.5 py-0.5 bg-[#23865B]/10 text-[#23865B] text-xs font-semibold rounded-full border border-[#23865B]/20">
-                {presentToday} / {activeEmp} Present
-              </span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center gap-8 py-2">
-              <div className="relative w-32 h-32 rounded-full border-8 border-[#0F5B55] flex items-center justify-center text-center">
-                <div>
-                  <div className="text-2xl font-bold text-[#202522]">{presentToday}</div>
-                  <div className="text-[10px] text-[#66706B]">of {activeEmp} Active</div>
-                </div>
-              </div>
-
-              <div className="flex-1 space-y-2.5 w-full">
-                <div className="flex justify-between items-center p-2.5 bg-[#F3F0E9] rounded-md">
-                  <div className="flex items-center space-x-2 text-xs font-medium text-[#202522]">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#23865B]" />
-                    <span>Present Today</span>
-                  </div>
-                  <span className="text-xs font-semibold text-[#202522]">{presentToday}</span>
-                </div>
-
-                <div className="flex justify-between items-center p-2.5 bg-[#F3F0E9] rounded-md">
-                  <div className="flex items-center space-x-2 text-xs font-medium text-[#202522]">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#C94B45]" />
-                    <span>Absent Today</span>
-                  </div>
-                  <span className="text-xs font-semibold text-[#202522]">{absentToday}</span>
-                </div>
-
-                <div className="flex justify-between items-center p-2.5 bg-[#F3F0E9] rounded-md">
-                  <div className="flex items-center space-x-2 text-xs font-medium text-[#202522]">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#C68A28]" />
-                    <span>On Approved Leave</span>
-                  </div>
-                  <span className="text-xs font-semibold text-[#202522]">{onLeaveToday}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions Grid */}
-          <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs space-y-4">
-            <h3 className="text-sm font-semibold text-[#202522]">Quick Actions</h3>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              <Link
-                href="/employees"
-                className="p-3 bg-[#F3F0E9] hover:bg-[#0F5B55] text-[#202522] hover:text-white rounded-md flex flex-col items-center justify-center text-center space-y-1 transition-all"
-              >
-                <Plus className="w-5 h-5 text-[#0F5B55]" />
-                <span className="text-xs font-medium">Add Employee</span>
-              </Link>
-
-              <Link
-                href="/attendance/register"
-                className="p-3 bg-[#F3F0E9] hover:bg-[#0F5B55] text-[#202522] hover:text-white rounded-md flex flex-col items-center justify-center text-center space-y-1 transition-all"
-              >
-                <Clock className="w-5 h-5 text-[#0F5B55]" />
-                <span className="text-xs font-medium">Mark Attendance</span>
-              </Link>
-
-              <Link
-                href="/leave"
-                className="p-3 bg-[#F3F0E9] hover:bg-[#0F5B55] text-[#202522] hover:text-white rounded-md flex flex-col items-center justify-center text-center space-y-1 transition-all"
-              >
-                <UserCheck className="w-5 h-5 text-[#0F5B55]" />
-                <span className="text-xs font-medium">Approve Leaves</span>
-              </Link>
-
-              <Link
-                href="/reports"
-                className="p-3 bg-[#F3F0E9] hover:bg-[#0F5B55] text-[#202522] hover:text-white rounded-md flex flex-col items-center justify-center text-center space-y-1 transition-all"
-              >
-                <DollarSign className="w-5 h-5 text-[#0F5B55]" />
-                <span className="text-xs font-medium">Run Payroll</span>
-              </Link>
-
-              <Link
-                href="/hr/tickets"
-                className="p-3 bg-[#F3F0E9] hover:bg-[#0F5B55] text-[#202522] hover:text-white rounded-md flex flex-col items-center justify-center text-center space-y-1 transition-all"
-              >
-                <Ticket className="w-5 h-5 text-[#0F5B55]" />
-                <span className="text-xs font-medium">View Tickets</span>
-              </Link>
-
-              <Link
-                href="/hr/expenses"
-                className="p-3 bg-[#F3F0E9] hover:bg-[#0F5B55] text-[#202522] hover:text-white rounded-md flex flex-col items-center justify-center text-center space-y-1 transition-all"
-              >
-                <Receipt className="w-5 h-5 text-[#0F5B55]" />
-                <span className="text-xs font-medium">Expense Review</span>
-              </Link>
             </div>
           </div>
         </div>

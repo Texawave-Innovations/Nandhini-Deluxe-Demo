@@ -15,10 +15,14 @@ export default function LocationsPage() {
     e.preventDefault();
     addLocation({
       businessUnitId: 'bu-1',
+      regionId: 'reg-1',
       code,
       name,
       city: 'Bengaluru',
       address: 'Bangalore, Karnataka',
+      outletType: 'RESTAURANT',
+      isOutlet: true,
+      features: { hasRestaurant: true, hasHotel: false, hasBanquet: false, hasLiquorSection: false, hasKitchen: true, hasInventoryStore: true },
       status: 'ACTIVE'
     });
     setShowModal(false);

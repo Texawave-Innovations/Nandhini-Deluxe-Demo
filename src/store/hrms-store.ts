@@ -1,8 +1,8 @@
 // Expanded Zustand Central Store with Initial Firebase Hydration & Real-time Auto Sync
 
 import { create } from 'zustand';
-import { 
-  Organization, BusinessUnit, Location, Department, Role, CostCenter, UserRole, AuditLog 
+import {
+  Organization, BusinessUnit, Location, Region, Department, Role, CostCenter, UserRole, AuditLog
 } from '../types/erp-core';
 import { Employee, EmployeeAssignment } from '../types/employee';
 import { ShiftMaster, ShiftTemplate, RosterShiftAssignment, Roster } from '../types/shift-roster';
@@ -11,10 +11,10 @@ import {
   OvertimeRecord, ShiftSwapRequest, BanquetEvent, EventStaffRequirement, EventStaffAssignment,
   LoanRecord, BonusRecord, CandidateApplicant, HrTicket, ExpenseClaim, ExitRequest, EmployeeTask
 } from '../types/attendance-leave';
-import { 
-  INITIAL_ORG, INITIAL_BUSINESS_UNITS, INITIAL_LOCATIONS, INITIAL_DEPARTMENTS, INITIAL_ROLES, 
-  INITIAL_COST_CENTERS, INITIAL_SHIFTS, INITIAL_SHIFT_TEMPLATES, 
-  INITIAL_LEAVE_TYPES, INITIAL_HOLIDAYS, INITIAL_BANQUET_EVENTS, generateSeedEmployees 
+import {
+  INITIAL_ORG, INITIAL_BUSINESS_UNITS, INITIAL_LOCATIONS, INITIAL_REGIONS, INITIAL_DEPARTMENTS, INITIAL_ROLES,
+  INITIAL_COST_CENTERS, INITIAL_SHIFTS, INITIAL_SHIFT_TEMPLATES,
+  INITIAL_LEAVE_TYPES, INITIAL_HOLIDAYS, INITIAL_BANQUET_EVENTS, generateSeedEmployees
 } from '../mock-data/seed';
 import { firebaseDataService } from '../services/firebaseDataService';
 
@@ -26,6 +26,7 @@ interface HRMSState {
   // ERP Core Masters
   organization: Organization;
   businessUnits: BusinessUnit[];
+  regions: Region[];
   locations: Location[];
   departments: Department[];
   roles: Role[];
@@ -196,6 +197,7 @@ export const useHRMSStore = create<HRMSState>((set, get) => ({
 
   organization: INITIAL_ORG,
   businessUnits: INITIAL_BUSINESS_UNITS,
+  regions: INITIAL_REGIONS,
   locations: INITIAL_LOCATIONS,
   departments: INITIAL_DEPARTMENTS,
   roles: INITIAL_ROLES,

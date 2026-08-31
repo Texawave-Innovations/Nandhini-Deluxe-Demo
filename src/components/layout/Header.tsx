@@ -1,11 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Bell, User, Zap, HelpCircle, Shield, CheckCircle2 } from 'lucide-react';
+import { Search, Bell, User, Zap, HelpCircle, Shield, CheckCircle2, ChevronDown } from 'lucide-react';
 import { useHRMSStore } from '@/store/hrms-store';
+import { ROLE_LABELS } from '@/permissions/roleAccess';
+import { UserRole } from '@/types/erp-core';
+
+const DEMO_ROLES: UserRole[] = [
+  'SUPER_ADMIN', 'CORPORATE_MANAGEMENT', 'OUTLET_MANAGER', 'RESTAURANT_MANAGER', 'CASHIER',
+  'KITCHEN_STAFF', 'INVENTORY_MANAGER', 'FINANCE_MANAGER', 'HOTEL_RECEPTIONIST', 'BANQUET_MANAGER',
+  'HR_ADMIN', 'AUDITOR',
+];
 
 export default function Header() {
-  const { currentRole, regularizationRequests, leaveRequests, simulateBiometricPunch, employees } = useHRMSStore();
+  const { currentRole, setCurrentRole, regularizationRequests, leaveRequests, simulateBiometricPunch, employees } = useHRMSStore();
   const [showPunchModal, setShowPunchModal] = useState(false);
   const [selectedEmpId, setSelectedEmpId] = useState('emp-1');
   const [punchType, setPunchType] = useState<'IN' | 'OUT'>('IN');
@@ -65,16 +73,22 @@ export default function Header() {
 
         <div className="h-6 w-px bg-slate-200 mx-1" />
 
-        {/* User Persona Profile */}
-        <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs">
-            {currentRole.substring(0, 2)}
+        {/* Role Switcher — demonstrates role-based UI: switching hides/shows sidebar modules */}
+        <div className="relative flex items-center space-x-2.5">
+          <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+            {ROLE_LABELS[currentRole].split(' ').map((w) => w[0]).slice(0, 2).join('')}
           </div>
-          <div className="text-left hidden md:block">
-            <div className="text-xs font-semibold text-slate-800 leading-tight">
-              {currentRole === 'SUPER_ADMIN' ? 'System Administrator' : currentRole.replace('_', ' ')}
-            </div>
-            <div className="text-[10px] text-slate-500 font-medium">Nandhini Deluxe HQ</div>
+          <div className="relative">
+            <select
+              value={currentRole}
+              onChange={(e) => setCurrentRole(e.target.value as UserRole)}
+              className="appearance-none bg-transparent text-xs font-semibold text-slate-800 leading-tight pr-4 py-0.5 focus:outline-none cursor-pointer hidden md:block"
+              title="Switch demo role — the sidebar and outlet access update to match"
+            >
+              {DEMO_ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+            </select>
+            <ChevronDown className="w-3 h-3 text-slate-400 absolute right-0 top-1 pointer-events-none hidden md:block" />
+            <div className="text-[10px] text-slate-500 font-medium hidden md:block">Nandhini Deluxe HQ</div>
           </div>
         </div>
       </div>

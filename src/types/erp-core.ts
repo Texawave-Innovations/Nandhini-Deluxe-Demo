@@ -23,9 +23,34 @@ export interface BusinessUnit {
   status: Status;
 }
 
+// A Region groups Outlets geographically (Organization -> Region -> Outlet).
+export interface Region {
+  id: string;
+  orgId: string;
+  code: string;
+  name: string;
+  status: Status;
+}
+
+export type OutletType = 'RESTAURANT' | 'HOTEL' | 'BANQUET' | 'HYBRID' | 'CENTRAL_KITCHEN' | 'CORPORATE';
+
+// Feature flags describe which operational surfaces an Outlet exposes.
+export interface OutletFeatures {
+  hasRestaurant: boolean;
+  hasHotel: boolean;
+  hasBanquet: boolean;
+  hasLiquorSection: boolean;
+  hasKitchen: boolean;
+  hasInventoryStore: boolean;
+}
+
+// `Location` is the Outlet Master. Every operational outlet (Restaurant/Hotel/Banquet/Hybrid)
+// is a Location with isOutlet=true; Central Kitchen / Corporate HQ remain Locations but are
+// not outlets (isOutlet=false) and are excluded from the Outlet Switcher.
 export interface Location {
   id: string;
   businessUnitId: string;
+  regionId?: string;
   code: string;
   name: string;
   city: string;
@@ -33,6 +58,10 @@ export interface Location {
   geofenceRadiusMeters?: number;
   latitude?: number;
   longitude?: number;
+  outletType: OutletType;
+  isOutlet: boolean;
+  features: OutletFeatures;
+  openedDate?: string;
   status: Status;
 }
 
@@ -61,7 +90,26 @@ export interface CostCenter {
   status: Status;
 }
 
-export type UserRole = 'SUPER_ADMIN' | 'HR_ADMIN' | 'LOCATION_HR' | 'DEPT_MANAGER' | 'EMPLOYEE';
+export type UserRole =
+  | 'SUPER_ADMIN'
+  | 'CORPORATE_MANAGEMENT'
+  | 'OUTLET_MANAGER'
+  | 'RESTAURANT_MANAGER'
+  | 'CASHIER'
+  | 'KITCHEN_STAFF'
+  | 'INVENTORY_MANAGER'
+  | 'PURCHASE_MANAGER'
+  | 'FINANCE_EXECUTIVE'
+  | 'FINANCE_MANAGER'
+  | 'HOTEL_RECEPTIONIST'
+  | 'HOUSEKEEPING'
+  | 'BANQUET_MANAGER'
+  | 'HR_EXECUTIVE'
+  | 'HR_ADMIN'
+  | 'LOCATION_HR'
+  | 'DEPT_MANAGER'
+  | 'AUDITOR'
+  | 'EMPLOYEE';
 
 export interface User {
   id: string;

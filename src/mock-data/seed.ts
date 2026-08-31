@@ -1,6 +1,6 @@
 // Comprehensive realistic seed data for Nandhini Deluxe HRMS Demo
 
-import { Organization, BusinessUnit, Location, Department, Role, CostCenter, AuditLog } from '../types/erp-core';
+import { Organization, BusinessUnit, Location, Region, Department, Role, CostCenter, AuditLog, OutletFeatures } from '../types/erp-core';
 import { EmploymentType, Employee } from '../types/employee';
 import { ShiftMaster, ShiftTemplate } from '../types/shift-roster';
 import { LeaveType, Holiday, BanquetEvent } from '../types/attendance-leave';
@@ -21,13 +21,46 @@ export const INITIAL_BUSINESS_UNITS: BusinessUnit[] = [
   { id: 'bu-4', orgId: 'org-1', code: 'ND-CORP', name: 'Nandhini Corporate Office', type: 'CORPORATE', status: 'ACTIVE' },
 ];
 
+export const INITIAL_REGIONS: Region[] = [
+  { id: 'reg-1', orgId: 'org-1', code: 'BLR', name: 'Bangalore', status: 'ACTIVE' },
+];
+
+const REST_FEATURES = (liquor: boolean): OutletFeatures => ({
+  hasRestaurant: true, hasHotel: false, hasBanquet: false, hasLiquorSection: liquor, hasKitchen: true, hasInventoryStore: true,
+});
+const HOTEL_FEATURES: OutletFeatures = {
+  hasRestaurant: true, hasHotel: true, hasBanquet: false, hasLiquorSection: true, hasKitchen: true, hasInventoryStore: true,
+};
+const HYBRID_HOTEL_BANQUET_FEATURES: OutletFeatures = {
+  hasRestaurant: true, hasHotel: true, hasBanquet: true, hasLiquorSection: true, hasKitchen: true, hasInventoryStore: true,
+};
+const HYBRID_REST_BANQUET_FEATURES: OutletFeatures = {
+  hasRestaurant: true, hasHotel: false, hasBanquet: true, hasLiquorSection: true, hasKitchen: true, hasInventoryStore: true,
+};
+const NON_OUTLET_FEATURES: OutletFeatures = {
+  hasRestaurant: false, hasHotel: false, hasBanquet: false, hasLiquorSection: false, hasKitchen: false, hasInventoryStore: false,
+};
+
+// 16 outlets across Bangalore (RESTAURANT / HOTEL / BANQUET / HYBRID) + 1 Central Kitchen + 1 Corporate HQ (non-outlet).
 export const INITIAL_LOCATIONS: Location[] = [
-  { id: 'loc-1', businessUnitId: 'bu-1', code: 'IND-REST', name: 'Indiranagar Restaurant', city: 'Bengaluru', address: '100ft Road, Indiranagar', status: 'ACTIVE' },
-  { id: 'loc-2', businessUnitId: 'bu-1', code: 'KOR-REST', name: 'Koramangala Restaurant', city: 'Bengaluru', address: '80ft Road, Koramangala 4th Block', status: 'ACTIVE' },
-  { id: 'loc-3', businessUnitId: 'bu-2', code: 'MTH-HOTEL', name: 'Marathahalli Hotel & Convention', city: 'Bengaluru', address: 'Outer Ring Road, Marathahalli', status: 'ACTIVE' },
-  { id: 'loc-4', businessUnitId: 'bu-2', code: 'BG-HOTEL', name: 'Bannerghatta Hotel', city: 'Bengaluru', address: 'Bannerghatta Main Road', status: 'ACTIVE' },
-  { id: 'loc-5', businessUnitId: 'bu-3', code: 'PEEN-CK', name: 'Peenya Central Kitchen Hub', city: 'Bengaluru', address: 'Peenya Industrial Area Stage 2', status: 'ACTIVE' },
-  { id: 'loc-6', businessUnitId: 'bu-4', code: 'JAY-CORP', name: 'Jayanagar Corporate HQ', city: 'Bengaluru', address: '4th T Block, Jayanagar', status: 'ACTIVE' },
+  { id: 'loc-1', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'IND-REST', name: 'Indiranagar', city: 'Bengaluru', address: '100ft Road, Indiranagar', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(true), openedDate: '2015-06-01', status: 'ACTIVE' },
+  { id: 'loc-2', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'KOR-REST', name: 'Koramangala', city: 'Bengaluru', address: '80ft Road, Koramangala 4th Block', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(true), openedDate: '2016-02-14', status: 'ACTIVE' },
+  { id: 'loc-3', businessUnitId: 'bu-2', regionId: 'reg-1', code: 'MTH-HOTEL', name: 'Marathahalli Hotel & Convention', city: 'Bengaluru', address: 'Outer Ring Road, Marathahalli', outletType: 'HYBRID', isOutlet: true, features: HYBRID_HOTEL_BANQUET_FEATURES, openedDate: '2014-11-20', status: 'ACTIVE' },
+  { id: 'loc-4', businessUnitId: 'bu-2', regionId: 'reg-1', code: 'BG-HOTEL', name: 'Bannerghatta Hotel', city: 'Bengaluru', address: 'Bannerghatta Main Road', outletType: 'HOTEL', isOutlet: true, features: HOTEL_FEATURES, openedDate: '2018-08-09', status: 'ACTIVE' },
+  { id: 'loc-5', businessUnitId: 'bu-3', regionId: 'reg-1', code: 'PEEN-CK', name: 'Peenya Central Kitchen Hub', city: 'Bengaluru', address: 'Peenya Industrial Area Stage 2', outletType: 'CENTRAL_KITCHEN', isOutlet: false, features: { ...NON_OUTLET_FEATURES, hasKitchen: true, hasInventoryStore: true }, status: 'ACTIVE' },
+  { id: 'loc-6', businessUnitId: 'bu-4', regionId: 'reg-1', code: 'JAY-CORP', name: 'Jayanagar Corporate HQ', city: 'Bengaluru', address: '4th T Block, Jayanagar', outletType: 'CORPORATE', isOutlet: false, features: NON_OUTLET_FEATURES, status: 'ACTIVE' },
+  { id: 'loc-7', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'JAY-REST', name: 'Jayanagar', city: 'Bengaluru', address: '4th Block, Jayanagar', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(true), openedDate: '2013-01-10', status: 'ACTIVE' },
+  { id: 'loc-8', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'RAJ-REST', name: 'Rajajinagar', city: 'Bengaluru', address: 'Dr Rajkumar Road, Rajajinagar', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(false), openedDate: '2017-04-22', status: 'ACTIVE' },
+  { id: 'loc-9', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'JPN-REST', name: 'JP Nagar', city: 'Bengaluru', address: '24th Main, JP Nagar 6th Phase', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(true), openedDate: '2019-03-18', status: 'ACTIVE' },
+  { id: 'loc-10', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'WF-HYB', name: 'Whitefield', city: 'Bengaluru', address: 'ITPL Main Road, Whitefield', outletType: 'HYBRID', isOutlet: true, features: HYBRID_REST_BANQUET_FEATURES, openedDate: '2020-09-05', status: 'ACTIVE' },
+  { id: 'loc-11', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'MAL-REST', name: 'Malleshwaram', city: 'Bengaluru', address: 'Sampige Road, Malleshwaram', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(false), openedDate: '2012-07-15', status: 'ACTIVE' },
+  { id: 'loc-12', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'HSR-REST', name: 'HSR Layout', city: 'Bengaluru', address: '27th Main, HSR Layout Sector 2', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(true), openedDate: '2021-01-11', status: 'ACTIVE' },
+  { id: 'loc-13', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'BAN-REST', name: 'Banashankari', city: 'Bengaluru', address: 'Kumaraswamy Layout Main Road, Banashankari', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(false), openedDate: '2016-10-02', status: 'ACTIVE' },
+  { id: 'loc-14', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'YEL-REST', name: 'Yelahanka', city: 'Bengaluru', address: 'Bengaluru International Airport Road, Yelahanka', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(false), openedDate: '2022-05-30', status: 'ACTIVE' },
+  { id: 'loc-15', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'ECY-REST', name: 'Electronic City', city: 'Bengaluru', address: 'Hosur Road, Electronic City Phase 1', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(true), openedDate: '2018-12-01', status: 'ACTIVE' },
+  { id: 'loc-16', businessUnitId: 'bu-2', regionId: 'reg-1', code: 'HEB-HYB', name: 'Hebbal', city: 'Bengaluru', address: 'Bellary Road, Hebbal', outletType: 'HYBRID', isOutlet: true, features: HYBRID_HOTEL_BANQUET_FEATURES, openedDate: '2023-02-14', status: 'ACTIVE' },
+  { id: 'loc-17', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'BTM-REST', name: 'BTM Layout', city: 'Bengaluru', address: '29th Main, BTM Layout 2nd Stage', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(false), status: 'ACTIVE' },
+  { id: 'loc-18', businessUnitId: 'bu-1', regionId: 'reg-1', code: 'SJP-REST', name: 'Sarjapur Road', city: 'Bengaluru', address: 'Sarjapur Main Road, near Wipro Circle', outletType: 'RESTAURANT', isOutlet: true, features: REST_FEATURES(true), status: 'ACTIVE' },
 ];
 
 export const INITIAL_DEPARTMENTS: Department[] = [
