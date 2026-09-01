@@ -5,6 +5,8 @@ import TwoTierSidebar from '@/components/layout/TwoTierSidebar';
 import Header from '@/components/layout/Header';
 import OutletSwitcherBar from '@/components/layout/OutletSwitcherBar';
 import TopModuleNav from '@/components/layout/TopModuleNav';
+import WalkthroughTour from '@/components/layout/WalkthroughTour';
+import AIAssistantWidget from '@/components/ai/AIAssistantWidget';
 import { useHRMSStore } from '@/store/hrms-store';
 import { usePOSStore } from '@/store/pos-store';
 import { useInventoryStore } from '@/store/inventory-store';
@@ -70,6 +72,10 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
           {children}
         </main>
       </div>
+
+      {/* First-visit onboarding + always-on assistant, available from every module */}
+      <WalkthroughTour />
+      <AIAssistantWidget />
     </div>
   );
 }

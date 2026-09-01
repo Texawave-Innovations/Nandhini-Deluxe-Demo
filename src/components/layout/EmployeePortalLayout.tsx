@@ -8,6 +8,8 @@ import {
   UserMinus, User, ArrowLeft
 } from 'lucide-react';
 import { useHRMSStore } from '@/store/hrms-store';
+import WalkthroughTour from '@/components/layout/WalkthroughTour';
+import AIAssistantWidget from '@/components/ai/AIAssistantWidget';
 
 export default function EmployeePortalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -88,6 +90,9 @@ export default function EmployeePortalLayout({ children }: { children: React.Rea
       <main className="flex-1 p-6 max-w-6xl w-full mx-auto">
         {children}
       </main>
+
+      <WalkthroughTour />
+      <AIAssistantWidget />
     </div>
   );
 }

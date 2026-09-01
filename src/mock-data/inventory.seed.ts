@@ -131,6 +131,38 @@ export interface OpeningStockResult {
   batches: StockBatch[];
 }
 
+// aiInsightsService.suggestReorders sums stock ORG-WIDE across every store (not per-outlet —
+// see that function's own comment), so the "~1 in 9 items pinned low" per-outlet dip below can
+// never actually surface a reorder insight: with 17 inventory-carrying stores, the ~16 stores
+// that roll a normal (1.5x-3x reorder level) quantity for that same item swamp the one low store.
+// This set forces a handful of items low at EVERY store simultaneously — a genuine org-wide dip —
+// so AI Insights -> Inventory has real, varied (HIGH/MEDIUM) reorder suggestions on day one,
+// spread across categories rather than depending on per-outlet luck. Value = target org-wide
+// stock as a fraction of reorderLevel (suggestReorders: <=0 or <50% of reorderLevel -> HIGH,
+// otherwise MEDIUM).
+const ORG_WIDE_LOW_STOCK_ITEMS: Record<string, number> = {
+  'Prawns': 0,
+  'Paneer': 0.1,
+  'Maida (Refined Flour)': 0.2,
+  'Turmeric Powder': 0.35,
+  'Dishwash Liquid': 0.55,
+  'Refined Sunflower Oil': 0.6,
+  'Coffee Decoction': 0.75,
+  'Whisky Bottle (750ml)': 0.9,
+};
+
+// aiInsightsService.detectConsumptionAnomalies needs >=5 "older" days + >=3 "recent" days of real
+// CONSUMPTION history per outlet+item before it will flag anything (see that function's own
+// comment) — the seed can't rely on live usage to build that up before a demo, so it's backfilled
+// here for a spread of outlet+item pairs (not just one), each with a genuine recent-week spike, so
+// the Inventory category of AI Insights shows multiple anomalies across different outlets.
+const CONSUMPTION_ANOMALY_PINS: { outletId: string; itemName: string; openingQty: number; recentDailyBase: number; olderDailyBase: number }[] = [
+  { outletId: 'loc-1', itemName: 'Chicken (Whole)', openingQty: 320, recentDailyBase: 10.5, olderDailyBase: 8 },
+  { outletId: 'loc-3', itemName: 'Basmati Rice', openingQty: 260, recentDailyBase: 13, olderDailyBase: 9.5 },
+  { outletId: 'loc-10', itemName: 'Onion', openingQty: 400, recentDailyBase: 22, olderDailyBase: 15 },
+  { outletId: 'loc-16', itemName: 'Milk', openingQty: 300, recentDailyBase: 17, olderDailyBase: 12 },
+];
+
 // Generates opening stock for every outlet/central-kitchen store that carries inventory.
 // A few items are deliberately pinned below reorder level (low stock) and a few perishable
 // batches deliberately pinned near/at expiry, so Dashboard + Inventory alert screens have data.
@@ -145,14 +177,18 @@ export function generateOpeningStock(locations: Location[]): OpeningStockResult 
     INITIAL_INVENTORY_ITEMS.forEach((item, itemIdx) => {
       const idx = outletIdx * 97 + itemIdx;
       const r = seeded(idx + 1);
-      // Base opening quantity around ~1.5x-3x reorder level, with ~1 in 9 items pinned low.
+      // Base opening quantity around ~1.5x-3x reorder level, with ~1 in 9 items pinned low
+      // per-outlet (feeds outlet-scoped low-stock views elsewhere in Inventory/Dashboard).
       const isForcedLow = idx % 9 === 0;
-      // Pinned AI-insight continuity item (Chicken (Whole) at Indiranagar, see the backfilled
-      // CONSUMPTION history below) needs a larger opening balance — it gets ~28 days of history
+      const orgWideLowFraction = ORG_WIDE_LOW_STOCK_ITEMS[item.name];
+      // Pinned AI-insight continuity items (see CONSUMPTION_ANOMALY_PINS + the backfilled
+      // CONSUMPTION history below) need a larger opening balance — they get ~28 days of history
       // with no offsetting GRN receipts replayed into the ledger, unlike a normal item.
-      const isPinnedConsumptionItem = outlet.id === 'loc-1' && item.id === 'inv-9';
-      const qty = isPinnedConsumptionItem
-        ? 320
+      const anomalyPin = CONSUMPTION_ANOMALY_PINS.find((p) => p.outletId === outlet.id && p.itemName === item.name);
+      const qty = anomalyPin
+        ? anomalyPin.openingQty
+        : orgWideLowFraction !== undefined
+        ? Math.round(item.reorderLevel * orgWideLowFraction * (0.85 + r * 0.3) / stores.length)
         : isForcedLow
         ? Math.round(item.reorderLevel * (0.35 + r * 0.4))
         : Math.round(item.reorderLevel * (1.5 + r * 2));
@@ -190,19 +226,21 @@ export function generateOpeningStock(locations: Location[]): OpeningStockResult 
     });
   });
 
-  // Pinned AI-insight continuity: backfill four weeks of real CONSUMPTION history for
-  // "Chicken (Whole)" at Indiranagar, with a genuine ~30% spike in the most recent 7 days — so
+  // Pinned AI-insight continuity: backfill four weeks of real CONSUMPTION history for each
+  // CONSUMPTION_ANOMALY_PINS entry, with a genuine spike in the most recent 7 days — so
   // aiInsightsService.detectConsumptionAnomalies has a real trailing-average comparison to report
-  // on day one, rather than the fictional hardcoded dashboard line this replaces.
-  const pinnedOutlet = stores.find((s) => s.id === 'loc-1');
-  const pinnedItem = INITIAL_INVENTORY_ITEMS.find((it) => it.id === 'inv-9');
-  if (pinnedOutlet && pinnedItem) {
+  // on day one, spread across multiple outlets rather than a single fictional hardcoded line.
+  CONSUMPTION_ANOMALY_PINS.forEach((pin, pinIdx) => {
+    const pinnedOutlet = stores.find((s) => s.id === pin.outletId);
+    const pinnedItem = INITIAL_INVENTORY_ITEMS.find((it) => it.name === pin.itemName);
+    if (!pinnedOutlet || !pinnedItem) return;
     const openingEntry = ledgerEntries.find((e) => e.outletId === pinnedOutlet.id && e.itemId === pinnedItem.id && e.entryType === 'OPENING');
-    let balance = openingEntry?.balanceAfter ?? 320;
+    let balance = openingEntry?.balanceAfter ?? pin.openingQty;
     for (let daysAgoN = 28; daysAgoN >= 1; daysAgoN--) {
       const isRecentWeek = daysAgoN <= 7;
-      const r = seeded(daysAgoN * 7 + 3);
-      const dailyQty = Math.round(((isRecentWeek ? 10.5 : 8) + (r - 0.5) * 1.5) * 10) / 10;
+      const r = seeded(pinIdx * 131 + daysAgoN * 7 + 3);
+      const base = isRecentWeek ? pin.recentDailyBase : pin.olderDailyBase;
+      const dailyQty = Math.round((base + (r - 0.5) * base * 0.15) * 10) / 10;
       const entryDate = new Date('2026-08-30T20:00:00.000Z');
       entryDate.setDate(entryDate.getDate() - daysAgoN);
       balance = Math.round((balance - dailyQty) * 1000) / 1000;
@@ -220,7 +258,7 @@ export function generateOpeningStock(locations: Location[]): OpeningStockResult 
         createdAt: entryDate.toISOString(),
       });
     }
-  }
+  });
 
   return { ledgerEntries, batches };
 }

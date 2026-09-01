@@ -1,24 +1,14 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import ShellLayout from '@/components/layout/ShellLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import KpiCard from '@/components/ui/KpiCard';
 import InsightCard from '@/components/ai/InsightCard';
 import { Sparkles, AlertTriangle, CheckCircle2, Package, Wallet, TrendingUp } from 'lucide-react';
-import { useInventoryStore } from '@/store/inventory-store';
-import { useHRMSStore } from '@/store/hrms-store';
-import { useOutletStore } from '@/store/outlet-store';
-import { useVendorStore } from '@/store/vendor-store';
-import { useFinanceStore } from '@/store/finance-store';
-import { useSalesStore } from '@/store/sales-store';
-import { useReconciliationStore } from '@/store/reconciliation-store';
-import { usePOSStore } from '@/store/pos-store';
-import { useAIStore } from '@/store/ai-store';
-import { aiInsightsService } from '@/services/aiInsightsService';
-import { AIInsight, AIInsightCategory } from '@/types/ai';
+import { useAIInsights } from '@/hooks/useAIInsights';
+import { AIInsightCategory } from '@/types/ai';
 
-const AS_OF_DATE = '2026-08-31';
 const CATEGORY_META: Record<AIInsightCategory, { label: string; icon: typeof Package }> = {
   INVENTORY: { label: 'Inventory', icon: Package },
   FINANCE: { label: 'Finance', icon: Wallet },
@@ -26,31 +16,9 @@ const CATEGORY_META: Record<AIInsightCategory, { label: string; icon: typeof Pac
 };
 
 export default function AIInsightsPage() {
-  const { ledgerEntries, items } = useInventoryStore();
-  const { locations } = useHRMSStore();
-  const { businessDate } = useOutletStore();
-  const { vendors } = useVendorStore();
-  const { vendorBills } = useFinanceStore();
-  const { customers, invoices } = useSalesStore();
-  const { matches } = useReconciliationStore();
-  const { bills } = usePOSStore();
-  const { acknowledgements, acknowledgeInsight } = useAIStore();
-
-  const insights = useMemo<AIInsight[]>(() => [
-    ...aiInsightsService.detectConsumptionAnomalies(ledgerEntries, items, locations, businessDate),
-    ...aiInsightsService.suggestReorders(items, ledgerEntries),
-    ...aiInsightsService.rankVendorRisk(vendors, vendorBills, AS_OF_DATE),
-    ...aiInsightsService.rankCustomerRisk(customers, invoices, AS_OF_DATE),
-    ...aiInsightsService.detectSettlementMismatches(matches),
-    ...aiInsightsService.forecastNextWeekRevenue(bills, businessDate),
-  ], [ledgerEntries, items, locations, businessDate, vendors, vendorBills, customers, invoices, matches, bills]);
-
-  const ackByKey = new Map(acknowledgements.map((a) => [a.insightKey, a]));
-  const openCount = insights.filter((i) => !ackByKey.has(i.key)).length;
-  const highSeverityCount = insights.filter((i) => i.severity === 'HIGH' && !ackByKey.has(i.key)).length;
-
-  const byCategory: Record<AIInsightCategory, AIInsight[]> = { INVENTORY: [], FINANCE: [], SALES: [] };
-  insights.forEach((i) => byCategory[i.category].push(i));
+  const { insights, openInsights, highSeverityOpen, byCategory, ackByKey, acknowledgements, acknowledgeInsight } = useAIInsights();
+  const openCount = openInsights.length;
+  const highSeverityCount = highSeverityOpen.length;
 
   return (
     <ShellLayout>

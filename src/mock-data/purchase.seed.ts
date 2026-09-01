@@ -41,13 +41,18 @@ interface StatusGroup {
   receivePortion: 'NONE' | 'PARTIAL' | 'FULL';
 }
 
+// RECEIVED/CLOSED windows reach back far enough (up to ~110 days) that, once a vendor's
+// paymentTermsDays (7-30) is added, aiInsightsService.rankVendorRisk's AS_OF_DATE genuinely finds
+// them overdue across the d30/d60/d90+ aging buckets — a narrower ~40-day window left almost
+// every bill still current, so only 1-2 of 12 vendors ever surfaced a vendor-risk insight.
+// Counts are bumped too (17 -> 21 GRNs) so every vendor gets at least one, most two.
 const GROUPS: StatusGroup[] = [
   { status: 'DRAFT', count: 4, minDays: 1, maxDays: 4, receivePortion: 'NONE' },
   { status: 'SUBMITTED', count: 4, minDays: 3, maxDays: 6, receivePortion: 'NONE' },
   { status: 'APPROVED', count: 4, minDays: 5, maxDays: 9, receivePortion: 'NONE' },
-  { status: 'PARTIALLY_RECEIVED', count: 6, minDays: 10, maxDays: 20, receivePortion: 'PARTIAL' },
-  { status: 'RECEIVED', count: 6, minDays: 15, maxDays: 30, receivePortion: 'FULL' },
-  { status: 'CLOSED', count: 4, minDays: 25, maxDays: 40, receivePortion: 'FULL' },
+  { status: 'PARTIALLY_RECEIVED', count: 6, minDays: 15, maxDays: 45, receivePortion: 'PARTIAL' },
+  { status: 'RECEIVED', count: 8, minDays: 20, maxDays: 70, receivePortion: 'FULL' },
+  { status: 'CLOSED', count: 6, minDays: 40, maxDays: 110, receivePortion: 'FULL' },
   { status: 'CANCELLED', count: 2, minDays: 5, maxDays: 15, receivePortion: 'NONE' },
 ];
 
