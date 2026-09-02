@@ -84,10 +84,16 @@ export function generateHotelSeed(locations: Location[]): HotelSeedResult {
       const checkOutDate = daysFromBase(checkOutOffset);
       const checkInDate = daysFromBase(checkOutOffset - nights);
       const guest = GUEST_NAMES[histIdx % GUEST_NAMES.length];
+      // Pinned AI-insight continuity: this first (most recent) historical checkout shares its
+      // phone number with the pinned CHECKED_IN guest below (also "Arvind Subramaniam") and gets a
+      // real room-service line on their folio, so aiInsightsService.suggestGuestPersonalization has
+      // a genuine returning-guest match with a real past order to reference on day one.
+      const isReturningGuestPin = histIdx === 0;
+      const guestPhone = isReturningGuestPin ? '9840412345' : `98404${20000 + histIdx}`;
 
       const reservation: Reservation = {
         id: `res-${resSeq}`, reservationNumber: hotelService.generateReservationNumber(reservations),
-        locationId: loc.id, roomId: room.id, guestName: guest, guestPhone: `98404${20000 + histIdx}`,
+        locationId: loc.id, roomId: room.id, guestName: guest, guestPhone,
         checkInDate, checkOutDate, actualCheckInAt: isoAt(checkInDate, 13), actualCheckOutAt: isoAt(checkOutDate, 11),
         numberOfGuests: 1 + (histIdx % room.maxOccupancy), ratePerNight: room.rateInr, status: 'CHECKED_OUT',
         createdAt: isoAt(checkInDate, 9),
@@ -96,17 +102,21 @@ export function generateHotelSeed(locations: Location[]): HotelSeedResult {
       resSeq++;
 
       const roomChargeTotal = hotelService.computeRoomChargeTotal(room.rateInr, nights);
+      const roomServiceLines = isReturningGuestPin
+        ? [{ type: 'ROOM_SERVICE' as const, description: 'Filter Coffee + Masala Dosa', amount: 320 }, { type: 'ROOM_SERVICE' as const, description: 'Chicken Biryani (dinner)', amount: 450 }]
+        : [];
+      const folioTotal = roomChargeTotal + roomServiceLines.reduce((s, l) => s + l.amount, 0);
       const folio: Folio = {
         id: `folio-${reservation.id}`, reservationId: reservation.id, roomId: room.id, locationId: loc.id,
-        lines: [{ type: 'ROOM', description: `Room ${room.roomNumber} (${room.roomType}) x ${nights} night${nights > 1 ? 's' : ''}`, amount: roomChargeTotal }],
-        totalAmount: roomChargeTotal, amountPaid: roomChargeTotal, status: 'SETTLED',
+        lines: [{ type: 'ROOM', description: `Room ${room.roomNumber} (${room.roomType}) x ${nights} night${nights > 1 ? 's' : ''}`, amount: roomChargeTotal }, ...roomServiceLines],
+        totalAmount: folioTotal, amountPaid: folioTotal, status: 'SETTLED',
         generatedAt: isoAt(checkOutDate, 10), settledAt: isoAt(checkOutDate, 11),
       };
       folios.push(folio);
 
       const mode = PAYMENT_MODES[histIdx % PAYMENT_MODES.length];
       const payment: HotelPayment = {
-        id: `hpay-${paySeq}`, reservationId: reservation.id, amount: roomChargeTotal, mode,
+        id: `hpay-${paySeq}`, reservationId: reservation.id, amount: folioTotal, mode,
         ...(mode !== 'CASH' ? { referenceNo: `${mode}-${810000 + paySeq}` } : {}),
         paidAt: isoAt(checkOutDate, 11),
       };

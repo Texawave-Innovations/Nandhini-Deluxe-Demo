@@ -24,7 +24,7 @@ interface PurchaseState {
   rejectPO: (id: string, actor: string) => void;
   cancelPO: (id: string) => void;
 
-  postGRN: (params: { poId: string; lines: { itemId: string; receivedQty: number; batchNo?: string; expiryDate?: string }[]; receivedBy: string; invoiceRefNo?: string }) => GRN | undefined;
+  postGRN: (params: { poId: string; lines: { itemId: string; receivedQty: number; rate?: number; batchNo?: string; expiryDate?: string }[]; receivedBy: string; invoiceRefNo?: string }) => GRN | undefined;
 }
 
 export const usePurchaseStore = create<PurchaseState>((set, get) => ({

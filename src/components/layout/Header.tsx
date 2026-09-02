@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Bell, User, Zap, HelpCircle, Shield, CheckCircle2, ChevronDown } from 'lucide-react';
+import { Search, Bell, User, Zap, HelpCircle, Shield, CheckCircle2, ChevronDown, Sparkles } from 'lucide-react';
 import { useHRMSStore } from '@/store/hrms-store';
 import { useUIStore } from '@/store/ui-store';
 import { ROLE_LABELS } from '@/permissions/roleAccess';
 import { UserRole } from '@/types/erp-core';
+import AIRoadmapModal from '@/components/ai/AIRoadmapModal';
 
 const DEMO_ROLES: UserRole[] = [
   'SUPER_ADMIN', 'CORPORATE_MANAGEMENT', 'OUTLET_MANAGER', 'RESTAURANT_MANAGER', 'CASHIER',
@@ -17,6 +18,7 @@ export default function Header() {
   const { currentRole, setCurrentRole, regularizationRequests, leaveRequests, simulateBiometricPunch, employees } = useHRMSStore();
   const { openTour } = useUIStore();
   const [showPunchModal, setShowPunchModal] = useState(false);
+  const [showRoadmap, setShowRoadmap] = useState(false);
   const [selectedEmpId, setSelectedEmpId] = useState('emp-1');
   const [punchType, setPunchType] = useState<'IN' | 'OUT'>('IN');
   const [punchTime, setPunchTime] = useState('07:00');
@@ -68,6 +70,15 @@ export default function Header() {
           className="p-2 rounded-full hover:bg-slate-100 text-slate-600"
         >
           <HelpCircle className="w-4 h-4" />
+        </button>
+
+        {/* AI Roadmap — what's live in this demo vs. what we can build next */}
+        <button
+          onClick={() => setShowRoadmap(true)}
+          title="AI Roadmap — what's live and what's next"
+          className="p-2 rounded-full hover:bg-slate-100 text-slate-600"
+        >
+          <Sparkles className="w-4 h-4" />
         </button>
 
         {/* Notifications */}
@@ -205,6 +216,8 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      <AIRoadmapModal open={showRoadmap} onClose={() => setShowRoadmap(false)} />
     </header>
   );
 }

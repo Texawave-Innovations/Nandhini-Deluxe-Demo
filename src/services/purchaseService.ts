@@ -4,6 +4,29 @@
 
 import { GRN, GRNLineItem, POLineItem, POStatus, PurchaseOrder } from '@/types/purchase';
 
+// Deterministic string hash -> [0, 1), used only by simulateInvoiceScan below so the same PO
+// "scans" the same way every time (a reliable, repeatable demo instead of Math.random noise).
+function hashToUnit(input: string): number {
+  let h = 0;
+  for (let i = 0; i < input.length; i++) h = (h * 31 + input.charCodeAt(i)) >>> 0;
+  return (h % 1000) / 1000;
+}
+
+export interface ScannedInvoiceLine {
+  itemId: string;
+  extractedQty: number;
+  extractedRate: number;
+  confidencePercent: number;
+  flagged: boolean; // qty or rate diverges from the PO — worth a human glance before posting
+}
+
+export interface ScannedInvoiceResult {
+  vendorMatchConfidence: number;
+  extractedInvoiceNumber: string;
+  extractedDate: string;
+  lines: ScannedInvoiceLine[];
+}
+
 export const purchaseService = {
   generatePONumber(existing: PurchaseOrder[]): string {
     return `PO-${String(1000 + existing.length + 1).slice(-4)}`;
@@ -76,5 +99,41 @@ export const purchaseService = {
       const cumulative = (poLine?.receivedQty ?? 0) + l.receivedQty;
       return { itemId: l.itemId, overReceived: !!poLine && cumulative > poLine.orderedQty };
     });
+  },
+
+  // Simulates what a vision-OCR model would extract from a photographed vendor invoice —
+  // deterministic (hashToUnit, not Math.random) so the same PO scans the same way every time,
+  // making this reliable and repeatable for a live demo. Same honesty convention as
+  // aiInsightsService: no hosted model, clearly a rule-based stand-in for one.
+  //
+  // Roughly 70% of open PO lines come back an exact match, ~20% a small short-delivery, and ~10%
+  // with a rate a few percent above the PO rate — enough, on that last bucket, to genuinely cross
+  // financeService.performThreeWayMatch's existing 2%/₹5 tolerance once a Bill is created from the
+  // resulting GRN, so a live MISMATCH is reachable in the demo, not scripted after the fact.
+  simulateInvoiceScan(po: PurchaseOrder): ScannedInvoiceResult {
+    const openLines = po.lines.filter((l) => l.receivedQty < l.orderedQty);
+
+    const lines: ScannedInvoiceLine[] = openLines.map((l) => {
+      const remaining = l.orderedQty - l.receivedQty;
+      const bucket = hashToUnit(`${po.id}::${l.itemId}`);
+
+      if (bucket < 0.70 || remaining <= 1) {
+        return { itemId: l.itemId, extractedQty: remaining, extractedRate: l.rate, confidencePercent: 97, flagged: false };
+      }
+      if (bucket < 0.90) {
+        const shortBy = 1 + (Math.floor((bucket - 0.70) * 100) % 3); // 1-3 units, deterministic per line
+        return { itemId: l.itemId, extractedQty: Math.max(1, remaining - shortBy), extractedRate: l.rate, confidencePercent: 91, flagged: true };
+      }
+      const bumpPercent = 3 + (Math.floor((bucket - 0.90) * 100) % 7); // roughly 3%-9% above the PO rate
+      const extractedRate = Math.round(l.rate * (1 + bumpPercent / 100) * 100) / 100;
+      return { itemId: l.itemId, extractedQty: remaining, extractedRate, confidencePercent: 81, flagged: true };
+    });
+
+    return {
+      vendorMatchConfidence: 98,
+      extractedInvoiceNumber: `INV-${po.poNumber.replace('PO-', '')}-${String(100 + Math.floor(hashToUnit(po.id) * 900)).slice(-3)}`,
+      extractedDate: new Date().toISOString().substring(0, 10),
+      lines,
+    };
   },
 };

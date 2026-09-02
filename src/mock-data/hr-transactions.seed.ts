@@ -154,6 +154,27 @@ export function generateAttendanceRecords(
       });
     });
   });
+
+  // Pinned AI-insight continuity: aiInsightsService.flagAttendancePatterns needs >=4 LATE (or >=3
+  // ABSENT) occurrences in a trailing 30-day window — the cyclic per-employee distribution above
+  // only ever produces up to 2 LATE within any 10-day seed window, so it can never clear that
+  // threshold on its own. Overlay a real pattern onto one employee's last 4 working days in-window
+  // so AI Insights -> Workforce has a genuine flag on day one instead of an empty tab.
+  const patternEmployee = active[2];
+  if (patternEmployee) {
+    records
+      .filter((r) => r.employeeId === patternEmployee.id)
+      .slice(-4)
+      .forEach((rec) => {
+        const shift = shiftTimes[rec.scheduledShiftId as string] ?? shiftTimes['shift-g1'];
+        rec.status = 'LATE';
+        rec.lateMins = 25;
+        rec.firstIn = addMinutes(shift.start, rec.lateMins);
+        rec.totalWorkedHours = Math.round(Math.max(0, shift.hours - rec.lateMins / 60) * 100) / 100;
+        rec.punches = rec.punches.map((p) => (p.punchType === 'IN' ? { ...p, timestamp: `${rec.date}T${rec.firstIn}:00.000Z` } : p));
+      });
+  }
+
   return records;
 }
 

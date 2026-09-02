@@ -77,7 +77,19 @@ const WEIGHT_POOL = POPULAR_ITEM_WEIGHTS.flatMap((w) => Array(w.weight).fill(w.i
 
 // Includes today (2026-08-30) so the Dashboard/POS Reports look populated on first load; the
 // live demo flow (New Order -> ... -> Day Close) then adds further bills on top of this baseline.
-const PAST_BUSINESS_DATES = ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-29', '2026-08-30'];
+// A sparser prior-week trio (7-11 days back) gives aiInsightsService.forecastNextWeekRevenue a real
+// "prior window" to compare the trailing 7 days against — without it, the AI hub's Sales tab has
+// nothing to compute a revenue projection from on day one.
+const PRIOR_WEEK_DATES = ['2026-08-19', '2026-08-21', '2026-08-23'];
+const PAST_BUSINESS_DATES = [...PRIOR_WEEK_DATES, '2026-08-26', '2026-08-27', '2026-08-28', '2026-08-29', '2026-08-30'];
+
+// Named cashiers (rather than a single generic "Cashier") so aiInsightsService.flagCashierAnomalies
+// has real per-cashier discount/complimentary rates to compare against an outlet's own average.
+// One outlet's second cashier is deliberately biased toward heavy discounting/comps below, so AI
+// Insights -> Front of House has a genuine anomaly on day one rather than an empty tab.
+const CASHIER_NAMES = ['Ravi Kumar', 'Divya Shetty', 'Manoj Pillai'];
+const FLAGGED_OUTLET_INDEX = 0; // first restaurant outlet in iteration order
+const FLAGGED_CASHIER = 'Divya Shetty';
 const CHANNELS: { channel: OrderChannel; mode: PaymentMode; weight: number }[] = [
   { channel: 'DIRECT', mode: 'CASH', weight: 30 },
   { channel: 'DIRECT', mode: 'UPI', weight: 25 },
@@ -110,14 +122,22 @@ export function generateHistoricalPOSData(outlets: Location[], menuItems: MenuIt
 
   const restaurantOutlets = outlets.filter((o) => o.features.hasRestaurant);
 
+  // aiInsightsService.benchmarkOutletPerformance flags an outlet trailing its peers' 7-day revenue
+  // median — the last restaurant outlet in iteration order deliberately runs a fraction of the
+  // normal bill volume so AI Insights -> Executive has a real underperformer on day one.
+  const underperformerOutletId = restaurantOutlets[restaurantOutlets.length - 1]?.id;
+
   restaurantOutlets.forEach((outlet, oi) => {
     const counter = counters.find((c) => c.outletId === outlet.id && c.type === 'RESTAURANT');
     if (!counter) return;
+    const isUnderperformer = outlet.id === underperformerOutletId;
 
     PAST_BUSINESS_DATES.forEach((businessDate, di) => {
-      const billsToday = 3 + Math.floor(seeded(oi * 31 + di * 7 + 1) * 3); // 3-5 bills/outlet/day
+      const billsToday = isUnderperformer ? 1 : 3 + Math.floor(seeded(oi * 31 + di * 7 + 1) * 3); // 3-5 bills/outlet/day, 1 for the deliberate underperformer
       for (let b = 0; b < billsToday; b++) {
         const seedBase = oi * 500 + di * 50 + b;
+        const cashierName = CASHIER_NAMES[(di * 7 + b) % CASHIER_NAMES.length];
+        const isFlaggedCashierBill = oi === FLAGGED_OUTLET_INDEX && cashierName === FLAGGED_CASHIER;
         const itemCount = 1 + Math.floor(seeded(seedBase + 2) * 3);
         const items = Array.from({ length: itemCount }).map((_, ii) => {
           const poolIdx = Math.floor(seeded(seedBase * 3 + ii) * WEIGHT_POOL.length);
@@ -133,7 +153,9 @@ export function generateHistoricalPOSData(outlets: Location[], menuItems: MenuIt
         const pick = CHANNEL_POOL[Math.floor(seeded(seedBase * 7) * CHANNEL_POOL.length)];
         const isComplimentary = seedBase % 47 === 0;
         const isVoid = seedBase % 61 === 0;
-        const discountAmount = !isComplimentary && seedBase % 9 === 0 ? Math.round(gross * 0.1) : 0;
+        const discountAmount = isFlaggedCashierBill && !isComplimentary
+          ? Math.round(gross * 0.35)
+          : !isComplimentary && seedBase % 9 === 0 ? Math.round(gross * 0.1) : 0;
         const taxAmount = Math.round((gross - discountAmount) * 0.05);
         const netRaw = gross - discountAmount + taxAmount;
         const roundOff = Math.round(netRaw) - netRaw;
@@ -159,7 +181,7 @@ export function generateHistoricalPOSData(outlets: Location[], menuItems: MenuIt
           complimentaryReason: isComplimentary ? 'Guest relations gesture' : undefined,
           complimentaryRequestedBy: isComplimentary ? 'Restaurant Manager' : undefined,
           complimentaryApprovedBy: isComplimentary ? 'Outlet Manager' : undefined,
-          status: isVoid ? 'VOID' : 'PAID', createdBy: 'Cashier', createdAt: order.createdAt,
+          status: isVoid ? 'VOID' : 'PAID', createdBy: cashierName, createdAt: order.createdAt,
           paidAt: isVoid ? undefined : order.updatedAt,
         };
         bills.push(bill);

@@ -1,0 +1,324 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Nandhini Deluxe — AI Roadmap</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #202522; background: #FFFFFF; font-size: 10.5px; line-height: 1.45; }
+  header { border-bottom: 2px solid #0F5B55; padding-bottom: 10px; margin-bottom: 16px; }
+  .eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #C59A45; margin: 0 0 4px; }
+  h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: 26px; margin: 0 0 6px; color: #0F5B55; }
+  .sub { font-size: 11px; color: #66706B; margin: 0; max-width: 90%; }
+  section { break-inside: auto; margin-bottom: 12px; }
+  h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 15px; font-weight: 700; color: #0F5B55; border-bottom: 1px solid #E5E2DB; padding-bottom: 3px; margin: 0 0 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { border: 1px solid #E5E2DB; border-radius: 6px; padding: 8px 10px; break-inside: avoid; }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+  .card-title { font-weight: 700; font-size: 10.5px; line-height: 1.25; }
+  .chip { font-size: 7px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+  .card-what { margin: 0 0 4px; color: #202522; }
+  .card-field { margin: 0 0 2px; color: #66706B; }
+  .card-field .k { font-weight: 700; color: #202522; text-transform: uppercase; font-size: 8px; letter-spacing: 0.05em; margin-right: 4px; }
+  footer { margin-top: 14px; padding-top: 8px; border-top: 1px solid #E5E2DB; font-size: 8.5px; color: #66706B; }
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">Intelligence Roadmap</p>
+    <h1>Nandhini Deluxe — AI Roadmap</h1>
+    <p class="sub">13 of 24 ideas below are already live in this demo, computed from real data the same way every other module works — the rest is exactly what we can build next, each scoped to the screen and data it extends.</p>
+  </header>
+  
+    <section>
+      <h2>Purchase &amp; Finance</h2>
+      <div class="grid">
+        
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Invoice Scan → GRN → 3-Way Match</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Photograph a vendor invoice at GRN entry; it auto-fills the receipt and the existing 3-way match engine catches the rest.</p>
+      <p class="card-field"><span class="k">How</span>A vision model reads the invoice into structured line items; each field carries a confidence score, so low-confidence lines are flagged for a human glance rather than trusted silently.</p>
+      <p class="card-field"><span class="k">Value</span>Cuts GRN entry from ~10 minutes to under one, and catches short-deliveries or rate drift the moment the invoice is scanned.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Duplicate &amp; Price-Creep Watch</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Catches a vendor invoice submitted twice, or a rate that has crept up across bills without a renegotiated PO.</p>
+      <p class="card-field"><span class="k">How</span>Exact-match duplicate detection on vendor + invoice number, plus a rate-drift check per vendor+item across recent bills.</p>
+      <p class="card-field"><span class="k">Value</span>Two ways to overpay a vendor, caught automatically instead of by a sharp-eyed reviewer.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Cash-Flow Gap Signal</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Flags when near-term vendor bills outweigh near-term customer collections.</p>
+      <p class="card-field"><span class="k">How</span>Nets the existing AP and AR aging-bucket calculations against each other — no new forecasting model, just the two ledgers read together.</p>
+      <p class="card-field"><span class="k">Value</span>A payables crunch seen a week early instead of discovered at payment time.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Plain-English Match Notes</div>
+        <div class="chip" style="color:#3377A8;background:#E4EEF5">READY TO BUILD NEXT</div>
+      </div>
+      <p class="card-what">Turns a bare "MISMATCH — ₹340 variance" into a written explanation of what likely happened and what to check.</p>
+      <p class="card-field"><span class="k">How</span>An LLM narrates the existing 3-way match output — no new matching logic, just readable copy on top of it.</p>
+      <p class="card-field"><span class="k">Value</span>A finance exec can act on the mismatch without opening the line-by-line panel first.</p>
+    </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Front of House</h2>
+      <div class="grid">
+        
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Discount &amp; Void Watch</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Flags a cashier or outlet whose complimentary bills and discounts run well above their peers.</p>
+      <p class="card-field"><span class="k">How</span>Statistical comparison of each cashier's concession rate against their outlet's own average, over a trailing 14-day window.</p>
+      <p class="card-field"><span class="k">Value</span>Surfaces a billing-integrity issue before it becomes a quarter-end surprise.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Billing-Time Upsell Prompts</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Identifies a popular item that rarely gets paired with another popular item, as a concrete bundle suggestion.</p>
+      <p class="card-field"><span class="k">How</span>Market-basket co-occurrence analysis over recent orders — the same technique behind "customers who bought this also bought."</p>
+      <p class="card-field"><span class="k">Value</span>A specific, testable combo idea to lift average ticket, not a generic upsell tip.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Order-Chit Recognition</div>
+        <div class="chip" style="color:#3377A8;background:#E4EEF5">READY TO BUILD NEXT</div>
+      </div>
+      <p class="card-what">A captain's handwritten table chit, photographed at the counter, becomes a punched POS order.</p>
+      <p class="card-field"><span class="k">How</span>Vision-LLM reads handwriting against the live Menu Master and resolves item names by fuzzy match.</p>
+      <p class="card-field"><span class="k">Value</span>No re-typing item names under pressure during a rush.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Aggregator Review Triage</div>
+        <div class="chip" style="color:#66706B;background:#F3F0E9">ON THE ROADMAP</div>
+      </div>
+      <p class="card-what">Swiggy/Zomato reviews auto-sorted into food, delivery, or service complaints and routed to the right outlet manager.</p>
+      <p class="card-field"><span class="k">How</span>Sentiment and topic classification (NLP) over review text — needs a review dataset the app doesn't ingest today, only settlement amounts.</p>
+      <p class="card-field"><span class="k">Value</span>The angriest complaints reach a manager first, not buried in a star-rating average.</p>
+    </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Kitchen &amp; Inventory</h2>
+      <div class="grid">
+        
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Demand-Aware Reordering</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Catches an item that's still above its static reorder level but trending toward a stockout — the case a fixed threshold misses.</p>
+      <p class="card-field"><span class="k">How</span>Recent consumption trend converted into "days of cover" against current stock, layered on top of the existing reorder-level rule.</p>
+      <p class="card-field"><span class="k">Value</span>A purchase order goes out before the shelf actually empties, not after.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Expiry &amp; Waste Radar</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Flags a batch drifting toward expiry early enough to push it into a special, a staff meal, or a transfer.</p>
+      <p class="card-field"><span class="k">How</span>Forward-looking scan of batch expiry dates already captured at GRN — distinct from the existing wastage report, which only looks backward at what's already been thrown out.</p>
+      <p class="card-field"><span class="k">Value</span>Fewer write-offs, caught while the stock is still usable.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Camera Stock Count</div>
+        <div class="chip" style="color:#66706B;background:#F3F0E9">ON THE ROADMAP</div>
+      </div>
+      <p class="card-what">Walk the store room, photograph each shelf; the count reconciles against what the ledger expects.</p>
+      <p class="card-field"><span class="k">How</span>Computer-vision object counting per SKU — genuinely harder than invoice OCR, since a cluttered shelf is a much noisier scene than a printed line item.</p>
+      <p class="card-field"><span class="k">Value</span>A physical audit in minutes rather than a clipboard afternoon — worth prototyping, but flagged honestly as lower-fidelity than the other vision use cases.</p>
+    </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Sales &amp; Guest Accounts</h2>
+      <div class="grid">
+        
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Collections Assistant</div>
+        <div class="chip" style="color:#3377A8;background:#E4EEF5">READY TO BUILD NEXT</div>
+      </div>
+      <p class="card-what">Drafts the payment-reminder message for every overdue account, tone-matched to how overdue it is.</p>
+      <p class="card-field"><span class="k">How</span>LLM drafting keyed off the existing AR aging bucket and customer risk ranking.</p>
+      <p class="card-field"><span class="k">Value</span>Ready-to-send reminders instead of a finance exec writing each one from scratch.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Quote &amp; Proposal Drafting</div>
+        <div class="chip" style="color:#3377A8;background:#E4EEF5">READY TO BUILD NEXT</div>
+      </div>
+      <p class="card-what">Guest count, occasion, and budget in — a formatted catering proposal out.</p>
+      <p class="card-field"><span class="k">How</span>LLM generation grounded in the Menu Master and historical pricing for similar orders.</p>
+      <p class="card-field"><span class="k">Value</span>A same-call proposal instead of a follow-up email days later.</p>
+    </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Hotel Front Desk</h2>
+      <div class="grid">
+        
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Dynamic Rate Advisor</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Suggests a rate bump when the next few days are trending toward a sellout, or a promo when occupancy is running low.</p>
+      <p class="card-field"><span class="k">How</span>Near-term booked-room-nights compared against total room-nights available per outlet.</p>
+      <p class="card-field"><span class="k">Value</span>A revenue-manager habit, applied automatically at outlets too small to have one.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Guest Memory Upsell</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">A returning guest checked in today gets flagged with what they actually ordered last stay.</p>
+      <p class="card-field"><span class="k">How</span>Matches the current guest's phone number against past reservations, then reads their last stay's folio for a concrete room-service history.</p>
+      <p class="card-field"><span class="k">Value</span>A proactive "the usual?" instead of a generic greeting.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">No-Show Risk Flag</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Flags a reservation still marked BOOKED on or after its own check-in date.</p>
+      <p class="card-field"><span class="k">How</span>A direct read of reservation status against the business date — the actual moment a no-show becomes real, not a speculative prediction.</p>
+      <p class="card-field"><span class="k">Value</span>A room released or a guest called before the night is lost to an empty booking.</p>
+    </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Banquet &amp; Events</h2>
+      <div class="grid">
+        
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Hall Demand Heatmap</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Flags a hall with zero confirmed bookings in the next two weeks.</p>
+      <p class="card-field"><span class="k">How</span>A direct scan of upcoming CONFIRMED bookings per hall against the calendar.</p>
+      <p class="card-field"><span class="k">Value</span>Time to run a promotion before the date is a guaranteed empty hall, not after.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Instant Banquet Quote</div>
+        <div class="chip" style="color:#3377A8;background:#E4EEF5">READY TO BUILD NEXT</div>
+      </div>
+      <p class="card-what">Hall, date, guest count, and budget in — a package quote with menu suggestions out.</p>
+      <p class="card-field"><span class="k">How</span>LLM generation grounded in hall capacity, past booking rates, and the Menu Master.</p>
+      <p class="card-field"><span class="k">Value</span>A same-conversation quote instead of a callback the next day.</p>
+    </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Workforce (HRMS)</h2>
+      <div class="grid">
+        
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Attendance Pattern Watch</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Flags an employee whose late arrivals or unplanned absences have piled up over the last month.</p>
+      <p class="card-field"><span class="k">How</span>Trailing 30-day count of LATE/ABSENT attendance statuses per employee against a threshold.</p>
+      <p class="card-field"><span class="k">Value</span>A manager conversation happens while it's still a pattern, not after it becomes a habit.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Resume Screening &amp; Ranking</div>
+        <div class="chip" style="color:#3377A8;background:#E4EEF5">READY TO BUILD NEXT</div>
+      </div>
+      <p class="card-what">A stack of applications for an open role becomes a ranked shortlist with the reasoning shown.</p>
+      <p class="card-field"><span class="k">How</span>Resume parsing plus skill/requirement matching against the role — needs a resume-upload field the ATS doesn't capture today.</p>
+      <p class="card-field"><span class="k">Value</span>Hours of first-pass screening compressed into a ranked list.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Smart Roster Builder</div>
+        <div class="chip" style="color:#66706B;background:#F3F0E9">ON THE ROADMAP</div>
+      </div>
+      <p class="card-what">Builds next month's shift roster balancing labor cost, expected footfall, and weekly-off preferences.</p>
+      <p class="card-field"><span class="k">How</span>A real constraint-based schedule optimizer — genuine optimization engineering, not a quick add, replacing today's deterministic seed generator.</p>
+      <p class="card-field"><span class="k">Value</span>The single biggest time sink in outlet management, automated — but scoped honestly as the heaviest build on this list.</p>
+    </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Executive Intelligence</h2>
+      <div class="grid">
+        
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Peer-Outlet Benchmarking</div>
+        <div class="chip" style="color:#23865B;background:#E1F0E7">LIVE IN THIS DEMO</div>
+      </div>
+      <p class="card-what">Flags the one outlet trailing its peers on trailing revenue by a meaningful margin.</p>
+      <p class="card-field"><span class="k">How</span>Reuses the existing outlet-comparison report, adding a peer-median deviation check on top.</p>
+      <p class="card-field"><span class="k">Value</span>The comparison a regional manager doesn't have time to run by hand every week.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Ask-Your-Data Assistant</div>
+        <div class="chip" style="color:#3377A8;background:#E4EEF5">READY TO BUILD NEXT</div>
+      </div>
+      <p class="card-what">The existing chat widget upgraded from keyword matching to real questions answered in real language.</p>
+      <p class="card-field"><span class="k">How</span>LLM function-calling over the Reports &amp; Analytics service and live store data, with drill-down links back into the app.</p>
+      <p class="card-field"><span class="k">Value</span>"Which outlet's margin dropped last week, and why?" — answered, not just routed to a report.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">Auto-Narrated Daily Digest</div>
+        <div class="chip" style="color:#3377A8;background:#E4EEF5">READY TO BUILD NEXT</div>
+      </div>
+      <p class="card-what">Every outlet manager gets three sentences on yesterday: sales vs. target, one thing to fix, one thing going well.</p>
+      <p class="card-field"><span class="k">How</span>LLM narrative generation over the existing dashboard KPI computation; the text is a straightforward build, sending it out by WhatsApp/email is a further step needing a messaging integration.</p>
+      <p class="card-field"><span class="k">Value</span>A daily brief that's actually read, instead of a dashboard that has to be opened.</p>
+    </div>
+      </div>
+    </section>
+  <footer>Every "live" item is a deterministic, rule-based computation over this demo's own data — not a hosted AI model — the same honesty convention the rest of the platform already uses.</footer>
+</body>
+</html>

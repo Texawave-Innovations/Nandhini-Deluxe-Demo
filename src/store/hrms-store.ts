@@ -212,10 +212,10 @@ export const useHRMSStore = create<HRMSState>((set, get) => ({
         departments: fbDepts && fbDepts.length > 0 ? fbDepts : INITIAL_DEPARTMENTS,
         roles: fbRoles && fbRoles.length > 0 ? fbRoles : INITIAL_ROLES,
         shifts: fbShifts && fbShifts.length > 0 ? fbShifts : INITIAL_SHIFTS,
-        rosterAssignments: fbRosterAsgn || [],
-        attendanceRecords: fbAttRecs || [],
-        loans: fbLoans || [],
-        hrTickets: fbTickets || [],
+        rosterAssignments: fbRosterAsgn && fbRosterAsgn.length > 0 ? fbRosterAsgn : seedRosterAssignments,
+        attendanceRecords: fbAttRecs && fbAttRecs.length > 0 ? fbAttRecs : seedAttendanceRecords,
+        loans: fbLoans && fbLoans.length > 0 ? fbLoans : seedLoans,
+        hrTickets: fbTickets && fbTickets.length > 0 ? fbTickets : seedHrTickets,
         isHydrated: true
       });
     } catch (e) {

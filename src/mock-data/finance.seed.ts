@@ -98,5 +98,31 @@ export function generateFinanceSeed(purchaseOrders: PurchaseOrder[], grns: GRN[]
     billSeq++;
   });
 
+  // Pinned AI-insight continuity below: two checks in aiInsightsService.detectVendorBillAnomalies
+  // and one in projectCashFlowGap need a scenario the GRN-driven generation above never happens to
+  // produce on its own — so AI Insights -> Finance shows a real flag for each on day one.
+
+  // (a) Duplicate vendor invoice number: two distinct bills for the same vendor, same invoice
+  // number — the kind of double-entry a manual glance at the bill list would miss.
+  const dupCandidates = vendorBills.filter((b) => b.status !== 'CANCELLED');
+  const dupVendorId = dupCandidates[0]?.vendorId;
+  const dupPair = dupVendorId ? dupCandidates.filter((b) => b.vendorId === dupVendorId) : [];
+  if (dupPair.length >= 2) {
+    dupPair[1].vendorInvoiceNumber = dupPair[0].vendorInvoiceNumber;
+  }
+
+  // (b) A small near-term bill outside the GRN cycle, so payables due soon genuinely outpace
+  // receivables due soon (the AP/AR totals from the generated bills alone fall just short).
+  const gapFillerVendor = vendors[0];
+  if (gapFillerVendor) {
+    vendorBills.push({
+      id: 'apb-gap-filler', billNumber: 'APB-9099', vendorInvoiceNumber: `INV-${gapFillerVendor.code}-9099`,
+      vendorId: gapFillerVendor.id, grnId: 'grn-gap-filler', poId: 'po-gap-filler', outletId: 'loc-1',
+      invoiceDate: '2026-08-28', dueDate: '2026-09-02',
+      lines: [{ itemId: 'inv-1', billedQty: 1, rate: 35000, lineTotal: 35000 }],
+      taxAmount: 0, totalAmount: 35000, amountPaid: 0, status: 'APPROVED', createdBy: 'Finance Executive', createdAt: '2026-08-28T10:00:00.000Z',
+    });
+  }
+
   return { vendorBills, vendorPayments };
 }

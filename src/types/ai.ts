@@ -2,7 +2,9 @@
 // export — no external model, just aiInsightsService's heuristics over live store data). An
 // AIInsight is always computed fresh, never persisted; only a viewer's acknowledgement of one is.
 
-export type AIInsightCategory = 'INVENTORY' | 'FINANCE' | 'SALES';
+// POS/HR/HOTEL/BANQUET/EXECUTIVE added alongside the original three to cover the Tier-1 AI
+// Insights slice — same deterministic-heuristic convention, just more operating areas.
+export type AIInsightCategory = 'INVENTORY' | 'FINANCE' | 'SALES' | 'POS' | 'HR' | 'HOTEL' | 'BANQUET' | 'EXECUTIVE';
 export type AIInsightSeverity = 'HIGH' | 'MEDIUM' | 'LOW';
 
 export interface AIInsight {
