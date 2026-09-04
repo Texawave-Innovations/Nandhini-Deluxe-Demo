@@ -138,16 +138,16 @@ export const aiInsightsService = {
   // The AI-graduated version of the dashboard's pre-existing "3 settlement mismatches" line — now
   // reading live reconciliation-store.matches instead of a hardcoded count.
   detectSettlementMismatches(matches: ReconciliationMatch[]): AIInsight[] {
-    const mismatched = matches.filter((m) => m.status === 'MISMATCH');
+    const suggested = matches.filter((m) => m.status === 'SUGGESTED');
     const unmatched = matches.filter((m) => m.status === 'UNMATCHED');
-    if (mismatched.length + unmatched.length === 0) return [];
+    if (suggested.length + unmatched.length === 0) return [];
     return [{
       key: 'settlement-mismatches',
       category: 'FINANCE',
-      severity: mismatched.length > 0 ? 'HIGH' : 'MEDIUM',
+      severity: suggested.length > 0 ? 'HIGH' : 'MEDIUM',
       title: 'Bank reconciliation exceptions require review',
-      description: `${mismatched.length} mismatched and ${unmatched.length} unmatched bank transaction(s) are pending review across POS, channel settlements, and vendor payments.`,
-      suggestedAction: 'Open Reconciliation and manually resolve the flagged transactions.',
+      description: `${suggested.length} suggested and ${unmatched.length} unmatched bank transaction(s) are pending review across POS, channel settlements, vendor payments, and customer receipts.`,
+      suggestedAction: 'Open Reconciliation and confirm or manually resolve the flagged transactions.',
       computedAt: new Date().toISOString(),
     }];
   },

@@ -41,7 +41,7 @@ export default function FinanceReportsPage() {
           <KpiCard label="Total Payables (AP)" value={inr(apAging.total)} icon={Wallet} valueColorClass="text-[#C94B45]" />
           <KpiCard label="Total Receivables (AR)" value={inr(arAging.total)} icon={ShoppingCart} valueColorClass="text-[#C94B45]" />
           <KpiCard label="Reconciliation Matched" value={reconciliationSummary.matchedCount} icon={GitMerge} valueColorClass="text-[#23865B]" />
-          <KpiCard label="Reconciliation Exceptions" value={reconciliationSummary.mismatchCount + reconciliationSummary.unmatchedCount} icon={GitMerge} valueColorClass="text-[#C68A28]" />
+          <KpiCard label="Reconciliation Exceptions" value={reconciliationSummary.suggestedCount + reconciliationSummary.unmatchedCount} icon={GitMerge} valueColorClass="text-[#C68A28]" />
         </div>
 
         <div className="bg-white rounded-[10px] border border-[#E5E2DB] p-5 shadow-brand-xs">

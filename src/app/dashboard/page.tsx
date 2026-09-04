@@ -138,7 +138,7 @@ export default function DashboardPage() {
   const apAging = financeService.computeAPAging(vendorBills, businessDate);
   const pendingPOCount = purchaseOrders.filter((po) => po.status === 'SUBMITTED' || po.status === 'APPROVED').length;
   const reconciliationSummary = reconciliationService.computeReconciliationSummary(reconciliationMatches);
-  const pendingReconciliationCount = reconciliationSummary.mismatchCount + reconciliationSummary.unmatchedCount;
+  const pendingReconciliationCount = reconciliationSummary.suggestedCount + reconciliationSummary.unmatchedCount;
   const rankedVendors = vendorService.rankVendorsByOutstanding(vendors, vendorBills);
   const topVendorOutstanding = rankedVendors[0];
   const reconciliationExceptions = reconciliationService.flagVarianceExceptions(reconciliationMatches).slice(0, 2);
@@ -338,7 +338,7 @@ export default function DashboardPage() {
               {reconciliationExceptions.map((m) => (
                 <div key={m.id} className="flex items-center justify-between p-2.5 bg-[#F3F0E9] rounded-md">
                   <span>{m.sourceLabel} vs Bank {txnById.get(m.bankTransactionId)?.description ?? ''}{m.varianceAmount !== 0 ? ` (Δ ${inr(Math.abs(m.varianceAmount))})` : ''}</span>
-                  <StatusChip label={m.status === 'MATCHED' ? 'Matched' : m.status === 'MISMATCH' ? 'Review Required' : 'Unmatched'} tone={m.status === 'MATCHED' ? 'success' : m.status === 'MISMATCH' ? 'danger' : 'neutral'} />
+                  <StatusChip label={m.status === 'MATCHED' ? 'Matched' : m.status === 'SUGGESTED' ? 'Suggested' : 'Unmatched'} tone={m.status === 'MATCHED' ? 'success' : m.status === 'SUGGESTED' ? 'warning' : 'neutral'} />
                 </div>
               ))}
             </div>
