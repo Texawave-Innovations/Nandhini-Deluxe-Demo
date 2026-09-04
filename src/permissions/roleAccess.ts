@@ -30,16 +30,16 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 
 // Module ids as declared in constants/navigation.ts
 export const ROLE_MODULE_ACCESS: Record<UserRole, string[]> = {
-  SUPER_ADMIN: ['dashboard', 'pos', 'sales', 'inventory', 'recipe', 'purchase', 'vendors', 'finance', 'reconciliation', 'tally', 'hotel', 'banquet', 'hrms', 'reports', 'ai', 'masters', 'administration'],
-  CORPORATE_MANAGEMENT: ['dashboard', 'sales', 'purchase', 'finance', 'reconciliation', 'tally', 'hotel', 'banquet', 'hrms', 'reports', 'ai', 'masters', 'administration'],
+  SUPER_ADMIN: ['dashboard', 'pos', 'sales', 'inventory', 'recipe', 'purchase', 'vendors', 'tally', 'hotel', 'banquet', 'hrms', 'reports', 'ai', 'masters', 'administration'],
+  CORPORATE_MANAGEMENT: ['dashboard', 'sales', 'purchase', 'tally', 'hotel', 'banquet', 'hrms', 'reports', 'ai', 'masters', 'administration'],
   OUTLET_MANAGER: ['dashboard', 'pos', 'sales', 'inventory', 'recipe', 'purchase', 'hotel', 'banquet', 'hrms', 'reports', 'masters'],
   RESTAURANT_MANAGER: ['dashboard', 'pos', 'inventory', 'recipe', 'reports'],
   CASHIER: ['dashboard', 'pos'],
   KITCHEN_STAFF: ['pos', 'inventory'],
   INVENTORY_MANAGER: ['dashboard', 'inventory', 'recipe', 'purchase', 'vendors'],
   PURCHASE_MANAGER: ['dashboard', 'purchase', 'vendors', 'inventory', 'reports'],
-  FINANCE_EXECUTIVE: ['dashboard', 'finance', 'sales', 'reconciliation', 'tally', 'reports'],
-  FINANCE_MANAGER: ['dashboard', 'finance', 'sales', 'reconciliation', 'tally', 'vendors', 'reports', 'administration'],
+  FINANCE_EXECUTIVE: ['dashboard', 'tally', 'sales', 'reports'],
+  FINANCE_MANAGER: ['dashboard', 'tally', 'sales', 'vendors', 'reports', 'administration'],
   HOTEL_RECEPTIONIST: ['dashboard', 'hotel', 'pos'],
   HOUSEKEEPING: ['hotel'],
   BANQUET_MANAGER: ['dashboard', 'banquet', 'pos'],
@@ -47,7 +47,7 @@ export const ROLE_MODULE_ACCESS: Record<UserRole, string[]> = {
   HR_ADMIN: ['dashboard', 'hrms', 'administration'],
   LOCATION_HR: ['hrms'],
   DEPT_MANAGER: ['dashboard', 'hrms'],
-  AUDITOR: ['dashboard', 'reconciliation', 'tally', 'reports', 'administration', 'hrms'],
+  AUDITOR: ['dashboard', 'tally', 'reports', 'administration', 'hrms'],
   EMPLOYEE: ['hrms'],
 };
 

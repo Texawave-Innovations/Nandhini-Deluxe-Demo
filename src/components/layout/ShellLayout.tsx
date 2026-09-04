@@ -16,6 +16,7 @@ import { useFinanceStore } from '@/store/finance-store';
 import { useReconciliationStore } from '@/store/reconciliation-store';
 import { useTallyStore } from '@/store/tally-store';
 import { useSalesStore } from '@/store/sales-store';
+import { useLedgerStore } from '@/store/ledger-store';
 import { useAIStore } from '@/store/ai-store';
 import { useHotelStore } from '@/store/hotel-store';
 import { useBanquetStore } from '@/store/banquet-store';
@@ -31,6 +32,7 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
   const initReconciliation = useReconciliationStore((s) => s.initializeFromFirebase);
   const initTally = useTallyStore((s) => s.initializeFromFirebase);
   const initSales = useSalesStore((s) => s.initializeFromFirebase);
+  const initLedger = useLedgerStore((s) => s.initializeFromFirebase);
   const initAI = useAIStore((s) => s.initializeFromFirebase);
   const initHotel = useHotelStore((s) => s.initializeFromFirebase);
   const initBanquet = useBanquetStore((s) => s.initializeFromFirebase);
@@ -48,8 +50,9 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
       await initPurchase(); // needs Vendor + Inventory's item/vendor masters (already hydrated above)
       await initFinance(); // needs Purchase's hydrated GRNs/POs
       await Promise.all([initReconciliation(), initTally()]); // both need Finance; Reconciliation also needs POS, Tally also needs Purchase (both already hydrated above)
+      await initLedger(); // needs Finance (AP) + Sales (AR) + Vendor + Customer, all hydrated above
     })();
-  }, [initializeFromFirebase, initPOS, initInventory, initVendor, initPurchase, initFinance, initReconciliation, initTally, initSales, initAI, initHotel, initBanquet]);
+  }, [initializeFromFirebase, initPOS, initInventory, initVendor, initPurchase, initFinance, initReconciliation, initTally, initSales, initAI, initHotel, initBanquet, initLedger]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#F8F5EE] font-sans">

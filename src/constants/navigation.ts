@@ -5,7 +5,7 @@
 
 import {
   LayoutDashboard, UtensilsCrossed, ShoppingCart, Package, ChefHat, ShoppingBag, Truck,
-  DollarSign, GitMerge, BookOpenCheck, BedDouble, PartyPopper, Users, FileBarChart2,
+  BookOpenCheck, BedDouble, PartyPopper, Users, FileBarChart2,
   Sparkles, ListTree, ShieldCheck, type LucideIcon,
 } from 'lucide-react';
 
@@ -173,7 +173,11 @@ const salesCategories: NavCategory[] = [
   ] },
 ];
 
-const financeCategories: NavCategory[] = [
+// Finance (AP), Reconciliation (BRS) and Tally (voucher export) are collapsed into one sidebar
+// module ("Tally / Accounting") since they're all accountant-persona screens with heavy
+// cross-references — see MODULE_NAV's 'tally' entry. No routes moved; every href below is
+// unchanged from the 3 previously-separate modules.
+const tallyAccountingCategories: NavCategory[] = [
   { category: 'OVERVIEW', items: [{ name: 'Finance Dashboard', href: '/finance' }] },
   {
     category: 'ACCOUNTS PAYABLE',
@@ -182,18 +186,18 @@ const financeCategories: NavCategory[] = [
       { name: 'Vendor Payments', href: '/finance/payments' },
     ],
   },
-];
-
-const reconciliationCategories: NavCategory[] = [
-  { category: 'OVERVIEW', items: [{ name: 'Reconciliation Dashboard', href: '/reconciliation' }] },
-  { category: 'BANK', items: [{ name: 'Bank Statement', href: '/reconciliation/bank-statement' }] },
-];
-
-const tallyCategories: NavCategory[] = [
-  { category: 'OVERVIEW', items: [{ name: 'Tally Dashboard', href: '/tally' }] },
+  { category: 'AGGREGATORS', items: [{ name: 'Aggregator Ledgers', href: '/finance/aggregators' }] },
   {
-    category: 'VOUCHERS',
+    category: 'RECONCILIATION',
     items: [
+      { name: 'Reconciliation Dashboard', href: '/reconciliation' },
+      { name: 'Bank Statement', href: '/reconciliation/bank-statement' },
+    ],
+  },
+  {
+    category: 'TALLY / VOUCHERS',
+    items: [
+      { name: 'Tally Dashboard', href: '/tally' },
       { name: 'Vouchers', href: '/tally/vouchers' },
       { name: 'Export History', href: '/tally/export-history' },
     ],
@@ -255,9 +259,7 @@ export const MODULE_NAV: ModuleNavConfig[] = [
   { id: 'recipe', name: 'Recipe / BOM', icon: ChefHat, href: '/masters/recipe', matchPrefixes: ['/masters/recipe'], status: 'live', categories: [] },
   { id: 'purchase', name: 'Purchase', icon: ShoppingBag, href: '/purchase', matchPrefixes: ['/purchase'], status: 'live', categories: purchaseCategories },
   { id: 'vendors', name: 'Vendors', icon: Truck, href: '/vendors', matchPrefixes: ['/vendors'], status: 'live', categories: vendorsCategories },
-  { id: 'finance', name: 'Finance', icon: DollarSign, href: '/finance', matchPrefixes: ['/finance'], status: 'live', categories: financeCategories },
-  { id: 'reconciliation', name: 'Reconciliation', icon: GitMerge, href: '/reconciliation', matchPrefixes: ['/reconciliation'], status: 'live', categories: reconciliationCategories },
-  { id: 'tally', name: 'Tally / Accounting', icon: BookOpenCheck, href: '/tally', matchPrefixes: ['/tally'], status: 'live', categories: tallyCategories },
+  { id: 'tally', name: 'Tally / Accounting', icon: BookOpenCheck, href: '/finance', matchPrefixes: ['/finance', '/reconciliation', '/tally'], status: 'live', categories: tallyAccountingCategories },
   { id: 'hotel', name: 'Hotel Operations', icon: BedDouble, href: '/hotel', matchPrefixes: ['/hotel'], status: 'live', categories: hotelCategories },
   { id: 'banquet', name: 'Banquet Management', icon: PartyPopper, href: '/banquet-mgmt', matchPrefixes: ['/banquet-mgmt'], status: 'live', categories: banquetMgmtCategories },
   {

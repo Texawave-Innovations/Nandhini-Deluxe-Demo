@@ -37,13 +37,17 @@ export default function FinanceDashboardPage() {
           <KpiCard label="Bills Mismatched" value={mismatchedBills.length} icon={FileWarning} valueColorClass="text-[#C94B45]" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Link href="/finance/bills" className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs hover:border-[#0F5B55] transition-all flex items-center justify-between">
             <div><div className="text-[14px] font-semibold text-[#202522]">Vendor Bills</div><div className="text-[12px] text-[#66706B] mt-0.5">Bill-from-GRN creation, 3-way match viewer, and approval.</div></div>
             <ArrowRight className="w-4 h-4 text-[#66706B]" />
           </Link>
           <Link href="/finance/payments" className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs hover:border-[#0F5B55] transition-all flex items-center justify-between">
             <div><div className="text-[14px] font-semibold text-[#202522]">Vendor Payments</div><div className="text-[12px] text-[#66706B] mt-0.5">Record a payment and allocate it across a vendor's outstanding bills.</div></div>
+            <ArrowRight className="w-4 h-4 text-[#66706B]" />
+          </Link>
+          <Link href="/finance/aggregators" className="bg-white border border-[#E5E2DB] rounded-[10px] p-4 shadow-brand-xs hover:border-[#0F5B55] transition-all flex items-center justify-between">
+            <div><div className="text-[14px] font-semibold text-[#202522]">Aggregator Ledgers</div><div className="text-[12px] text-[#66706B] mt-0.5">Swiggy/Zomato gross sales, commission, and expected vs actual bank payout.</div></div>
             <ArrowRight className="w-4 h-4 text-[#66706B]" />
           </Link>
         </div>
