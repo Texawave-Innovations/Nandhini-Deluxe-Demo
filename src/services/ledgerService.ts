@@ -406,6 +406,35 @@ ${body}
 </ENVELOPE>`;
   },
 
+  // Trailing-N-week ACTUAL cash flow (not a forecast — see projectionService for that): sums
+  // POSTED RECEIPT vouchers (cash in) and PAYMENT vouchers (cash out) into weekly buckets ending
+  // on asOfDate. Feeds the Unified Dashboard's "Cash In vs Cash Out" trend — the same voucher
+  // data every other ledger screen reads, never a separately computed total.
+  buildActualCashFlowTrend(vouchers: Voucher[], weeks: number, asOfDate: string): { weekLabel: string; cashIn: number; cashOut: number; net: number }[] {
+    const addDays = (dateStr: string, n: number) => {
+      const d = new Date(dateStr);
+      d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    };
+    const horizonStart = addDays(asOfDate, -(weeks * 7 - 1));
+    const posted = vouchers.filter((v) => v.status === 'POSTED' && (v.voucherType === 'RECEIPT' || v.voucherType === 'PAYMENT'));
+
+    const buckets: { weekLabel: string; start: string; endExclusive: string }[] = [];
+    let cursor = horizonStart;
+    while (cursor <= asOfDate) {
+      const end = addDays(cursor, 7);
+      buckets.push({ weekLabel: `Wk of ${cursor.slice(5)}`, start: cursor, endExclusive: end });
+      cursor = end;
+    }
+
+    return buckets.map((b) => {
+      const inBucket = posted.filter((v) => v.voucherDate >= b.start && v.voucherDate < b.endExclusive);
+      const cashIn = round2(inBucket.filter((v) => v.voucherType === 'RECEIPT').reduce((s, v) => s + ledgerService.voucherTotal(v), 0));
+      const cashOut = round2(inBucket.filter((v) => v.voucherType === 'PAYMENT').reduce((s, v) => s + ledgerService.voucherTotal(v), 0));
+      return { weekLabel: b.weekLabel, cashIn, cashOut, net: round2(cashIn - cashOut) };
+    });
+  },
+
   // The only sanctioned path to "undo" a POSTED voucher — never mutate a POSTED voucher's lines.
   // Same lines with drCr flipped on every line.
   buildReversalVoucher(

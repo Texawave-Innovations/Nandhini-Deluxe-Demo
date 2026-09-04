@@ -111,6 +111,14 @@ export const reconciliationService = {
     };
   },
 
+  // Sum of bank-line amounts sitting in limbo — SUGGESTED (not yet confirmed) or UNMATCHED. The
+  // Unified Dashboard's single "Total Unreconciled Amount" card — distinct from
+  // computeReconciliationSummary's totalVarianceAmount (which sums |variance| across every match,
+  // MATCHED included).
+  computeUnreconciledAmount(matches: ReconciliationMatch[]): number {
+    return round2(matches.filter((m) => m.status !== 'MATCHED').reduce((s, m) => s + m.bankAmount, 0));
+  },
+
   flagVarianceExceptions(matches: ReconciliationMatch[], thresholdAmount = 500): ReconciliationMatch[] {
     return matches
       .filter((m) => m.status !== 'MATCHED' || Math.abs(m.varianceAmount) > thresholdAmount)

@@ -178,7 +178,7 @@ const salesCategories: NavCategory[] = [
 // cross-references — see MODULE_NAV's 'tally' entry. No routes moved; every href below is
 // unchanged from the 3 previously-separate modules.
 const tallyAccountingCategories: NavCategory[] = [
-  { category: 'OVERVIEW', items: [{ name: 'Finance Dashboard', href: '/finance' }] },
+  { category: 'OVERVIEW', items: [{ name: 'Unified Dashboard', href: '/finance' }] },
   {
     category: 'ACCOUNTS PAYABLE',
     items: [
