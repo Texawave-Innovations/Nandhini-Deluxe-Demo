@@ -3,7 +3,7 @@
 // Finance (AP) / Sales (AR) business events, validates double-entry balance, and computes
 // chronological running balances. ledger-store.ts is the only caller.
 
-import { DrCr, LedgerAccount, LedgerAccountType, LedgerEntry, Voucher, VoucherType } from '@/types/ledger';
+import { DrCr, LedgerAccount, LedgerAccountType, LedgerEntry, Voucher, VoucherExportBatch, VoucherType } from '@/types/ledger';
 import { FIXED_LEDGER_ACCOUNTS } from '@/mock-data/ledger.seed';
 import { Vendor } from '@/types/vendor';
 import { Customer, SalesInvoice, CustomerPayment } from '@/types/sales';
@@ -360,6 +360,50 @@ export const ledgerService = {
         rows,
       };
     });
+  },
+
+  // A voucher's "amount" for display/export purposes — sum of its debit lines, which by
+  // construction (isBalanced) always equals the sum of its credit lines.
+  voucherTotal(voucher: Pick<Voucher, 'lines'>): number {
+    return round2(voucher.lines.filter((l) => l.drCr === 'DEBIT').reduce((sum, l) => sum + l.amount, 0));
+  },
+
+  generateExportBatchNumber(existing: VoucherExportBatch[]): string {
+    return `TXP-${String(100000 + existing.length + 1).slice(-6)}`;
+  },
+
+  // Cosmetic mock Tally-style XML for the export-history preview only, not schema-validated —
+  // same "honest mock, no live connector" convention the old tallyService used, but voucher-line-
+  // count-agnostic (N debit/credit LEDGERENTRIES.LIST blocks, not just a hardcoded pair).
+  toTallyXML(vouchers: Voucher[], ledgerAccounts: LedgerAccount[]): string {
+    const accountName = (id: string) => ledgerAccounts.find((a) => a.id === id)?.name ?? id;
+    const vchTypeLabel: Record<VoucherType, string> = {
+      PAYMENT: 'Payment', RECEIPT: 'Receipt', JOURNAL: 'Journal', CONTRA: 'Contra',
+      DEBIT_NOTE: 'Debit Note', CREDIT_NOTE: 'Credit Note', PURCHASE_BILL: 'Purchase', SALES_INVOICE: 'Sales',
+    };
+    const body = vouchers
+      .map((v) => `    <VOUCHER VCHTYPE="${vchTypeLabel[v.voucherType]}" ACTION="Create">
+      <DATE>${v.voucherDate.replace(/-/g, '')}</DATE>
+      <VOUCHERNUMBER>${v.voucherNumber}</VOUCHERNUMBER>
+      <NARRATION>${v.narration}</NARRATION>
+${v.lines.map((l) => `      <LEDGERENTRIES.LIST>
+        <LEDGERNAME>${accountName(l.ledgerAccountId)}</LEDGERNAME>
+        <AMOUNT>${l.drCr === 'DEBIT' ? '-' : ''}${l.amount.toFixed(2)}</AMOUNT>
+      </LEDGERENTRIES.LIST>`).join('\n')}
+    </VOUCHER>`)
+      .join('\n');
+
+    return `<ENVELOPE>
+  <HEADER><TALLYREQUEST>Import Data</TALLYREQUEST></HEADER>
+  <BODY>
+    <IMPORTDATA>
+      <REQUESTDESC><REPORTNAME>Vouchers</REPORTNAME></REQUESTDESC>
+      <REQUESTDATA>
+${body}
+      </REQUESTDATA>
+    </IMPORTDATA>
+  </BODY>
+</ENVELOPE>`;
   },
 
   // The only sanctioned path to "undo" a POSTED voucher — never mutate a POSTED voucher's lines.

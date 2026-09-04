@@ -66,8 +66,28 @@ export interface Voucher {
   // Reversal linkage — set on both sides once a POSTED voucher is reversed.
   reversedByVoucherId?: string; // set on the ORIGINAL voucher once reversed
   reversesVoucherId?: string;   // set on the REVERSAL voucher, pointing back at the original
+  // Manual-entry-only fields (Voucher Entry screen). attachmentName is a placeholder for OCR bill
+  // capture (later pass) — just a filename today, no actual file storage/upload.
+  attachmentName?: string;
+  // Set once this voucher is included in an export batch (see VoucherExportBatch) — orthogonal
+  // to `status`: only POSTED vouchers are exportable, but export-ness is a bookkeeping-sync
+  // concern, not part of the accounting lifecycle itself.
+  exportBatchId?: string;
   createdBy: string;
   createdAt: string;
   postedBy?: string;
   postedAt?: string;
+}
+
+// Groups a batch of already-POSTED vouchers into one mock Tally XML export run — no live Tally
+// connector, this is a mockup of the export like the domain it replaces (the old types/tally.ts).
+export interface VoucherExportBatch {
+  id: string;
+  batchNumber: string; // TXP-xxxxxx
+  voucherIds: string[];
+  voucherCount: number;
+  totalValue: number;
+  xmlPreview: string; // mock Tally-style XML content
+  exportedBy: string;
+  exportedAt: string;
 }

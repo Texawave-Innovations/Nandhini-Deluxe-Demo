@@ -5,17 +5,26 @@
 // own duplicate running totals.
 
 import { create } from 'zustand';
-import { LedgerAccount, LedgerEntry, Voucher, VoucherType } from '@/types/ledger';
+import { LedgerAccount, LedgerEntry, Voucher, VoucherExportBatch, VoucherType } from '@/types/ledger';
 import { ledgerService } from '@/services/ledgerService';
 import { firebaseDataService } from '@/services/firebaseDataService';
 import { useVendorStore } from '@/store/vendor-store';
 import { useSalesStore } from '@/store/sales-store';
 import { useFinanceStore } from '@/store/finance-store';
 
+interface ManualVoucherInput {
+  voucherType: VoucherType;
+  voucherDate: string;
+  narration: string;
+  lines: LedgerEntry[];
+  attachmentName?: string;
+}
+
 interface LedgerState {
   isHydrated: boolean;
   ledgerAccounts: LedgerAccount[];
   vouchers: Voucher[];
+  exportBatches: VoucherExportBatch[];
 
   initializeFromFirebase: () => Promise<void>;
 
@@ -25,9 +34,12 @@ interface LedgerState {
   // drafts awaiting review), and persists. Returns the vouchers now in state.
   generateVouchersFromHistoricalEvents: () => Voucher[];
 
-  createManualVoucher: (params: { voucherType: VoucherType; voucherDate: string; narration: string; lines: LedgerEntry[]; createdBy: string }) => Voucher;
+  createManualVoucher: (params: ManualVoucherInput & { createdBy: string }) => Voucher;
+  updateDraftVoucher: (id: string, params: ManualVoucherInput) => { ok: boolean; error?: string };
+  deleteDraftVoucher: (id: string) => { ok: boolean; error?: string };
   postVoucher: (id: string, actor: string) => { ok: boolean; error?: string };
   reverseVoucher: (id: string, actor: string) => { ok: boolean; voucher?: Voucher; error?: string };
+  exportBatch: (voucherIds: string[], exportedBy: string) => { ok: boolean; batch?: VoucherExportBatch; error?: string };
 }
 
 function newVoucherId(): string {
@@ -38,6 +50,7 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
   isHydrated: false,
   ledgerAccounts: [],
   vouchers: [],
+  exportBatches: [],
 
   initializeFromFirebase: async () => {
     if (get().isHydrated) return;
@@ -48,10 +61,12 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
 
       const fbAccounts = await firebaseDataService.fetchRecord('erp/ledger/accounts');
       const fbVouchers = await firebaseDataService.fetchRecord('erp/ledger/vouchers');
+      const fbExportBatches = await firebaseDataService.fetchRecord('erp/ledger/exportBatches');
 
       set({
         ledgerAccounts: fbAccounts && fbAccounts.length > 0 ? fbAccounts : seededAccounts,
         vouchers: fbVouchers || [],
+        exportBatches: fbExportBatches || [],
         isHydrated: true,
       });
 
@@ -67,7 +82,7 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
         useVendorStore.getState().vendors,
         useSalesStore.getState().customers,
       );
-      set({ ledgerAccounts: seededAccounts, vouchers: [], isHydrated: true });
+      set({ ledgerAccounts: seededAccounts, vouchers: [], exportBatches: [], isHydrated: true });
       get().generateVouchersFromHistoricalEvents();
     }
   },
@@ -195,6 +210,7 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
       lines: params.lines,
       status: 'DRAFT',
       refType: 'MANUAL',
+      ...(params.attachmentName ? { attachmentName: params.attachmentName } : {}),
       createdBy: params.createdBy,
       createdAt: new Date().toISOString(),
     };
@@ -204,6 +220,40 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
       return { vouchers: updated };
     });
     return voucher;
+  },
+
+  // Draft-only edit — a DRAFT voucher has no accounting effect yet, so reshaping it in place
+  // (rather than requiring a reversal) is safe. Keeps the same id/voucherNumber/createdBy.
+  updateDraftVoucher: (id, params) => {
+    const voucher = get().vouchers.find((v) => v.id === id);
+    if (!voucher) return { ok: false, error: 'Voucher not found.' };
+    if (voucher.status !== 'DRAFT') return { ok: false, error: 'Only a DRAFT voucher can be edited.' };
+
+    set((state) => {
+      const updated = state.vouchers.map((v) => {
+        if (v.id !== id) return v;
+        // Firebase set() rejects a literal undefined — build the replacement without the key at
+        // all rather than assigning attachmentName: undefined when it's being cleared.
+        const { attachmentName: _drop, ...base } = v;
+        return { ...base, voucherType: params.voucherType, voucherDate: params.voucherDate, narration: params.narration, lines: params.lines, ...(params.attachmentName ? { attachmentName: params.attachmentName } : {}) };
+      });
+      firebaseDataService.saveRecord('erp/ledger/vouchers', updated);
+      return { vouchers: updated };
+    });
+    return { ok: true };
+  },
+
+  deleteDraftVoucher: (id) => {
+    const voucher = get().vouchers.find((v) => v.id === id);
+    if (!voucher) return { ok: false, error: 'Voucher not found.' };
+    if (voucher.status !== 'DRAFT') return { ok: false, error: 'Only a DRAFT voucher can be deleted.' };
+
+    set((state) => {
+      const updated = state.vouchers.filter((v) => v.id !== id);
+      firebaseDataService.saveRecord('erp/ledger/vouchers', updated);
+      return { vouchers: updated };
+    });
+    return { ok: true };
   },
 
   postVoucher: (id, actor) => {
@@ -235,6 +285,7 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
       id: newVoucherId(),
       voucherNumber: ledgerService.generateVoucherNumber(built.voucherType, get().vouchers),
       ...built,
+      reversesVoucherId: original.id,
       status: 'POSTED',
       postedBy: actor,
       postedAt: new Date().toISOString(),
@@ -249,5 +300,30 @@ export const useLedgerStore = create<LedgerState>((set, get) => ({
       return { vouchers: updated };
     });
     return { ok: true, voucher: reversal };
+  },
+
+  exportBatch: (voucherIds, exportedBy) => {
+    const selected = get().vouchers.filter((v) => voucherIds.includes(v.id) && v.status === 'POSTED' && !v.exportBatchId);
+    if (selected.length === 0) return { ok: false, error: 'No exportable (posted, not already exported) vouchers selected.' };
+
+    const batch: VoucherExportBatch = {
+      id: `vxb-${Date.now()}`,
+      batchNumber: ledgerService.generateExportBatchNumber(get().exportBatches),
+      voucherIds: selected.map((v) => v.id),
+      voucherCount: selected.length,
+      totalValue: selected.reduce((sum, v) => sum + ledgerService.voucherTotal(v), 0),
+      xmlPreview: ledgerService.toTallyXML(selected, get().ledgerAccounts),
+      exportedBy,
+      exportedAt: new Date().toISOString(),
+    };
+
+    set((state) => {
+      const updatedBatches = [batch, ...state.exportBatches];
+      const updatedVouchers = state.vouchers.map((v) => selected.some((s) => s.id === v.id) ? { ...v, exportBatchId: batch.id } : v);
+      firebaseDataService.saveRecord('erp/ledger/exportBatches', updatedBatches);
+      firebaseDataService.saveRecord('erp/ledger/vouchers', updatedVouchers);
+      return { exportBatches: updatedBatches, vouchers: updatedVouchers };
+    });
+    return { ok: true, batch };
   },
 }));

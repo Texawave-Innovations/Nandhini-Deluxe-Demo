@@ -5,16 +5,16 @@ import ShellLayout from '@/components/layout/ShellLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import DataTable, { DataTableColumn } from '@/components/ui/DataTable';
 import Modal from '@/components/ui/Modal';
-import { useTallyStore } from '@/store/tally-store';
-import { TallyExportBatch } from '@/types/tally';
+import { useLedgerStore } from '@/store/ledger-store';
+import { VoucherExportBatch } from '@/types/ledger';
 
 const inr = (n: number) => `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 
 export default function TallyExportHistoryPage() {
-  const { exportBatches } = useTallyStore();
-  const [preview, setPreview] = useState<TallyExportBatch | undefined>(undefined);
+  const { exportBatches } = useLedgerStore();
+  const [preview, setPreview] = useState<VoucherExportBatch | undefined>(undefined);
 
-  const columns: DataTableColumn<TallyExportBatch>[] = [
+  const columns: DataTableColumn<VoucherExportBatch>[] = [
     { key: 'batch', header: 'Batch Number', render: (b) => b.batchNumber },
     { key: 'by', header: 'Exported By', render: (b) => b.exportedBy },
     { key: 'date', header: 'Exported At', render: (b) => b.exportedAt.substring(0, 10) },
