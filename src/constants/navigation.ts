@@ -187,7 +187,13 @@ const tallyAccountingCategories: NavCategory[] = [
     ],
   },
   { category: 'AGGREGATORS', items: [{ name: 'Aggregator Ledgers', href: '/finance/aggregators' }] },
-  { category: 'PROJECTION', items: [{ name: 'Finance Projection', href: '/finance/projection' }] },
+  {
+    category: 'PROJECTION',
+    items: [
+      { name: 'Finance Projection', href: '/finance/projection' },
+      { name: 'New Outlet Cost Projection', href: '/finance/projection/new-outlet' },
+    ],
+  },
   {
     category: 'RECONCILIATION',
     items: [

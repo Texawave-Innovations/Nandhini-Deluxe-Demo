@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import ShellLayout from '@/components/layout/ShellLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
 import KpiCard from '@/components/ui/KpiCard';
@@ -24,8 +24,10 @@ const ROW_STATUS_LABEL: Record<AggregatorRowStatus, string> = {
 export default function AggregatorLedgersPage() {
   const { channelSettlements } = usePOSStore();
   const { matches } = useReconciliationStore();
+  const [activePlatform, setActivePlatform] = useState<'SWIGGY' | 'ZOMATO'>('SWIGGY');
 
   const summaries = ledgerService.buildAggregatorLedgerSummaries(channelSettlements, matches);
+  const active = summaries.find((s) => s.platform === activePlatform);
 
   const columns: DataTableColumn<AggregatorSettlementRow>[] = [
     { key: 'date', header: 'Settlement Date', render: (r) => r.settlementDate ?? '—' },
@@ -52,35 +54,47 @@ export default function AggregatorLedgersPage() {
           subtitle="Swiggy & Zomato settlements — gross sales, commission/tax deductions, and expected vs actual bank payout. Actual bank credit is read from the Bank Reconciliation engine, not recomputed here — variance is simply expected minus actual, flagged whenever it exceeds rounding."
         />
 
-        {summaries.map((s) => {
-          const Icon = PLATFORM_ICON[s.platform];
-          const hasVariance = s.rows.some((r) => r.varianceFlag);
-          return (
-            <div key={s.platform} className="space-y-2">
-              <h3 className="text-[14px] font-semibold text-[#202522] flex items-center gap-1.5">
+        <div className="flex items-center gap-1 border-b border-[#E5E2DB]">
+          {summaries.map((s) => {
+            const Icon = PLATFORM_ICON[s.platform];
+            const hasVariance = s.rows.some((r) => r.varianceFlag);
+            const isActive = s.platform === activePlatform;
+            return (
+              <button
+                key={s.platform}
+                onClick={() => setActivePlatform(s.platform)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold border-b-2 -mb-px transition-colors ${
+                  isActive ? 'border-[#0F5B55] text-[#0F5B55]' : 'border-transparent text-[#66706B] hover:text-[#202522]'
+                }`}
+              >
                 <Icon className="w-4 h-4" /> {s.platform === 'SWIGGY' ? 'Swiggy' : 'Zomato'}
                 {hasVariance && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#C94B45] bg-[#C94B45]/10 rounded-full px-2 py-0.5 ml-1">
-                    <AlertTriangle className="w-3 h-3" /> Variance detected
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#C94B45] bg-[#C94B45]/10 rounded-full px-2 py-0.5">
+                    <AlertTriangle className="w-3 h-3" /> Variance
                   </span>
                 )}
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <KpiCard label="Gross Sales" value={inr(s.grossSales)} icon={TrendingUp} />
-                <KpiCard label="Commission" value={inr(s.commission)} icon={Percent} valueColorClass="text-[#C68A28]" />
-                <KpiCard label="Tax" value={inr(s.tax)} icon={Receipt} valueColorClass="text-[#C68A28]" />
-                <KpiCard label="Expected Net Payout" value={inr(s.expectedNetPayout)} icon={Landmark} />
-                <KpiCard
-                  label="Actual Bank Credit"
-                  value={inr(s.actualBankCreditReceived)}
-                  icon={Landmark}
-                  valueColorClass={s.variance !== 0 ? 'text-[#C94B45]' : 'text-[#23865B]'}
-                />
-              </div>
-              <DataTable columns={columns} rows={s.rows} keyField={(r) => r.settlementId} emptyMessage={`No ${s.platform === 'SWIGGY' ? 'Swiggy' : 'Zomato'} settlements yet.`} />
+              </button>
+            );
+          })}
+        </div>
+
+        {active && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <KpiCard label="Gross Sales" value={inr(active.grossSales)} icon={TrendingUp} />
+              <KpiCard label="Commission" value={inr(active.commission)} icon={Percent} valueColorClass="text-[#C68A28]" />
+              <KpiCard label="Tax" value={inr(active.tax)} icon={Receipt} valueColorClass="text-[#C68A28]" />
+              <KpiCard label="Expected Net Payout" value={inr(active.expectedNetPayout)} icon={Landmark} />
+              <KpiCard
+                label="Actual Bank Credit"
+                value={inr(active.actualBankCreditReceived)}
+                icon={Landmark}
+                valueColorClass={active.variance !== 0 ? 'text-[#C94B45]' : 'text-[#23865B]'}
+              />
             </div>
-          );
-        })}
+            <DataTable columns={columns} rows={active.rows} keyField={(r) => r.settlementId} emptyMessage={`No ${active.platform === 'SWIGGY' ? 'Swiggy' : 'Zomato'} settlements yet.`} />
+          </div>
+        )}
       </div>
     </ShellLayout>
   );
