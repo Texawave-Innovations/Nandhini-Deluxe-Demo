@@ -4,9 +4,11 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ShellLayout from '@/components/layout/ShellLayout';
 import SectionHeader from '@/components/ui/SectionHeader';
-import { ArrowLeft, Plus, Trash2, CheckCircle2, AlertCircle, Paperclip } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, CheckCircle2, AlertCircle, Paperclip, ScanLine, X } from 'lucide-react';
 import { useLedgerStore } from '@/store/ledger-store';
+import { useVendorStore } from '@/store/vendor-store';
 import { LedgerAccount, VoucherType } from '@/types/ledger';
+import { ocrService, OCRBillExtraction } from '@/services/ocrService';
 
 const inr = (n: number) => `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -71,6 +73,19 @@ function LedgerAccountPicker({ accounts, value, onChange }: { accounts: LedgerAc
   );
 }
 
+function OcrFieldInput({ label, confidence, value, onChange, type = 'text' }: { label: string; confidence: number; value: string; onChange: (v: string) => void; type?: 'text' | 'number' | 'date' }) {
+  const tone = confidence >= 85 ? 'text-[#23865B]' : confidence >= 60 ? 'text-[#C68A28]' : 'text-[#C94B45]';
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <label className="text-[11px] font-semibold text-[#66706B]">{label}</label>
+        <span className={`text-[10px] font-semibold ${tone}`}>{confidence}%</span>
+      </div>
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="w-full border border-[#E5E2DB] rounded-lg px-2.5 py-1.5 text-[13px] bg-white" />
+    </div>
+  );
+}
+
 export default function NewVoucherPage() {
   return (
     <Suspense fallback={null}>
@@ -84,6 +99,7 @@ function NewVoucherForm() {
   const searchParams = useSearchParams();
   const draftId = searchParams.get('draftId');
   const { vouchers, ledgerAccounts, createManualVoucher, updateDraftVoucher, postVoucher } = useLedgerStore();
+  const { vendors } = useVendorStore();
 
   const [voucherType, setVoucherType] = useState<VoucherType>('JOURNAL');
   const [voucherDate, setVoucherDate] = useState(new Date().toISOString().slice(0, 10));
@@ -91,6 +107,14 @@ function NewVoucherForm() {
   const [lines, setLines] = useState<LineDraft[]>([emptyLine('DEBIT'), emptyLine('CREDIT')]);
   const [attachmentName, setAttachmentName] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
+
+  // OCR bill capture (mock — see ocrService.ts): scanning only ever produces a suggestion held
+  // in this local state; nothing is written to the voucher until the accountant reviews/edits it
+  // here and explicitly clicks "Apply to Voucher" below, and even then Save/Post is still a
+  // separate, later, explicit step. OCR can never post a voucher on its own.
+  const [ocrScanning, setOcrScanning] = useState(false);
+  const [ocrResult, setOcrResult] = useState<OCRBillExtraction | null>(null);
+  const [ocrEdited, setOcrEdited] = useState<{ vendorName: string; amount: string; billDate: string; gstin: string } | null>(null);
 
   // Pre-fill from an existing DRAFT when editing (?draftId=...) — Posted vouchers never reach
   // this form since Vouchers page only links "Edit Draft" for status === 'DRAFT'.
@@ -114,6 +138,38 @@ function NewVoucherForm() {
   const updateLine = (key: string, patch: Partial<LineDraft>) => setLines((ls) => ls.map((l) => (l.key === key ? { ...l, ...patch } : l)));
   const removeLine = (key: string) => setLines((ls) => ls.length > 2 ? ls.filter((l) => l.key !== key) : ls);
   const addLine = () => setLines((ls) => [...ls, emptyLine('DEBIT')]);
+
+  const runOcrScan = () => {
+    if (!attachmentName) return;
+    setOcrScanning(true);
+    setOcrResult(null);
+    // Simulated scan latency — this is a mock extraction (ocrService.ts), not a real OCR call.
+    setTimeout(() => {
+      const result = ocrService.scanBillImage(attachmentName, vendors, voucherDate);
+      setOcrResult(result);
+      setOcrEdited({ vendorName: result.vendorName.value, amount: String(result.amount.value), billDate: result.billDate.value, gstin: result.gstin.value });
+      setOcrScanning(false);
+    }, 700);
+  };
+
+  const applyOcrResult = () => {
+    if (!ocrResult || !ocrEdited) return;
+    setVoucherDate(ocrEdited.billDate);
+    if (!narration.trim()) {
+      setNarration(`Bill from ${ocrEdited.vendorName} (GSTIN ${ocrEdited.gstin}) — OCR extracted, ${ocrResult.overallConfidencePercent}% confidence, reviewed by accountant`);
+    }
+    const amount = parseFloat(ocrEdited.amount) || 0;
+    const vendorAccount = ocrResult.matchedVendorId ? ledgerAccounts.find((a) => a.vendorId === ocrResult.matchedVendorId) : undefined;
+    const purchasesAccount = ledgerAccounts.find((a) => a.code === 'LAC-EXP-PURCHASE');
+    if (vendorAccount && purchasesAccount && amount > 0) {
+      setLines([
+        { key: `ocr-dr-${Date.now()}`, ledgerAccountId: purchasesAccount.id, drCr: 'DEBIT', amount: String(amount), particulars: `Purchases per scanned bill (${attachmentName})` },
+        { key: `ocr-cr-${Date.now() + 1}`, ledgerAccountId: vendorAccount.id, drCr: 'CREDIT', amount: String(amount), particulars: `Bill from ${ocrEdited.vendorName}` },
+      ]);
+    }
+    setOcrResult(null);
+    setOcrEdited(null);
+  };
 
   function toLedgerEntries() {
     const complete = lines.filter((l) => l.ledgerAccountId && parseFloat(l.amount) > 0);
@@ -173,15 +229,47 @@ function NewVoucherForm() {
           </div>
 
           <div>
-            <label className="text-[12px] font-semibold text-[#66706B] block mb-1">Attach Bill <span className="font-normal text-[#66706B]">(placeholder — OCR pre-fill coming later; file is not actually uploaded)</span></label>
-            <div className="flex items-center gap-2">
+            <label className="text-[12px] font-semibold text-[#66706B] block mb-1">Attach Bill <span className="font-normal text-[#66706B]">(file is not actually uploaded — a demo placeholder for the underlying document)</span></label>
+            <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="file"
-                onChange={(e) => setAttachmentName(e.target.files?.[0]?.name)}
+                onChange={(e) => { setAttachmentName(e.target.files?.[0]?.name); setOcrResult(null); setOcrEdited(null); }}
                 className="text-[12px] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-[#E5E2DB] file:bg-white file:text-[12px] file:font-semibold"
               />
               {attachmentName && <span className="text-[12px] text-[#66706B] flex items-center gap-1"><Paperclip className="w-3.5 h-3.5" /> {attachmentName}</span>}
+              {attachmentName && (
+                <button onClick={runOcrScan} disabled={ocrScanning} className="h-8 px-3 bg-[#3377A8] hover:bg-[#2A6288] disabled:opacity-50 text-white text-[12px] font-semibold rounded-lg flex items-center gap-1.5">
+                  <ScanLine className="w-3.5 h-3.5" /> {ocrScanning ? 'Scanning…' : 'Scan Bill (OCR)'}
+                </button>
+              )}
             </div>
+
+            {ocrResult && ocrEdited && (
+              <div className="mt-3 border border-[#3377A8]/30 bg-[#3377A8]/5 rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-[12px] font-semibold text-[#202522]">OCR Extraction — review and edit before applying</div>
+                  <div className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${ocrResult.overallConfidencePercent >= 85 ? 'bg-[#23865B]/10 text-[#23865B]' : ocrResult.overallConfidencePercent >= 60 ? 'bg-[#C68A28]/10 text-[#C68A28]' : 'bg-[#C94B45]/10 text-[#C94B45]'}`}>
+                    Overall confidence {ocrResult.overallConfidencePercent}%
+                  </div>
+                </div>
+                {ocrResult.overallConfidencePercent < 60 && (
+                  <div className="flex items-center gap-1.5 text-[11px] text-[#C94B45]"><AlertCircle className="w-3.5 h-3.5 shrink-0" /> Low confidence — verify every field carefully before applying.</div>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  <OcrFieldInput label="Vendor" confidence={ocrResult.vendorName.confidencePercent} value={ocrEdited.vendorName} onChange={(v) => setOcrEdited((s) => s && { ...s, vendorName: v })} />
+                  <OcrFieldInput label="Amount" confidence={ocrResult.amount.confidencePercent} value={ocrEdited.amount} onChange={(v) => setOcrEdited((s) => s && { ...s, amount: v })} type="number" />
+                  <OcrFieldInput label="Bill Date" confidence={ocrResult.billDate.confidencePercent} value={ocrEdited.billDate} onChange={(v) => setOcrEdited((s) => s && { ...s, billDate: v })} type="date" />
+                  <OcrFieldInput label="GSTIN" confidence={ocrResult.gstin.confidencePercent} value={ocrEdited.gstin} onChange={(v) => setOcrEdited((s) => s && { ...s, gstin: v })} />
+                </div>
+                {!ocrResult.matchedVendorId && (
+                  <div className="text-[11px] text-[#66706B]">Vendor name didn&apos;t match an existing ledger account — date/narration will still be applied, but you&apos;ll need to pick the ledger lines manually.</div>
+                )}
+                <div className="flex items-center gap-2">
+                  <button onClick={applyOcrResult} className="h-9 px-3 bg-[#0F5B55] hover:bg-[#08463F] text-white text-[12px] font-semibold rounded-lg flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Apply to Voucher</button>
+                  <button onClick={() => { setOcrResult(null); setOcrEdited(null); }} className="h-9 px-3 border border-[#E5E2DB] text-[#66706B] text-[12px] font-semibold rounded-lg flex items-center gap-1.5"><X className="w-3.5 h-3.5" /> Discard</button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
